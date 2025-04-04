@@ -1,0 +1,123 @@
+<section class="section profile">
+  <div class="container">
+
+    <div class="my-3 d-flex justify-content-between">
+      <!-- Botón de retroceso o regreso -->
+      {{>btnBack}}
+      <!-- Botón para descargar boleta -->
+    
+    </div>
+
+    <div class="card">
+      <div class="card-body pt-3">
+
+        <div class="card-title text-center">
+          <h1>Preguntas Docente</h1>
+        </div>
+
+        <!-- Contenedor de las 3 cards -->
+        <form>
+          <!-- Pregunta 1 -->
+          <div class="card my-3">
+            <div class="card-body">
+              <h5 class="card-title">1. ¿El maestro llega a tiempo a clase?</h5>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta1" id="pregunta1opcion1" value="siempre">
+                <label class="form-check-label" for="pregunta1opcion1">
+                  Siempre
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta1" id="pregunta1opcion2" value="frecuentemente">
+                <label class="form-check-label" for="pregunta1opcion2">
+                  Frecuentemente
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta1" id="pregunta1opcion3" value="a_veces">
+                <label class="form-check-label" for="pregunta1opcion3">
+                  A veces
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta1" id="pregunta1opcion4" value="nunca">
+                <label class="form-check-label" for="pregunta1opcion4">
+                  Nunca
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pregunta 2 -->
+          <div class="card my-3">
+            <div class="card-body">
+              <h5 class="card-title">2. ¿El maestro explica claramente los temas?</h5>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta2" id="pregunta2opcion1" value="siempre">
+                <label class="form-check-label" for="pregunta2opcion1">
+                  Siempre
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta2" id="pregunta2opcion2" value="frecuentemente">
+                <label class="form-check-label" for="pregunta2opcion2">
+                  Frecuentemente
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta2" id="pregunta2opcion3" value="a_veces">
+                <label class="form-check-label" for="pregunta2opcion3">
+                  A veces
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta2" id="pregunta2opcion4" value="nunca">
+                <label class="form-check-label" for="pregunta2opcion4">
+                  Nunca
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pregunta 3 -->
+          <div class="card my-3">
+            <div class="card-body">
+              <h5 class="card-title">3. ¿El maestro es accesible para resolver dudas?</h5>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta3" id="pregunta3opcion1" value="siempre">
+                <label class="form-check-label" for="pregunta3opcion1">
+                  Siempre
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta3" id="pregunta3opcion2" value="frecuentemente">
+                <label class="form-check-label" for="pregunta3opcion2">
+                  Frecuentemente
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta3" id="pregunta3opcion3" value="a_veces">
+                <label class="form-check-label" for="pregunta3opcion3">
+                  A veces
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pregunta3" id="pregunta3opcion4" value="nunca">
+                <label class="form-check-label" for="pregunta3opcion4">
+                  Nunca
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Botón para enviar respuestas -->
+          <div class="text-center my-3">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</section>

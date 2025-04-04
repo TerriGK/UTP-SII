@@ -1,0 +1,168 @@
+<section class="container">
+  <!-- Sección de cabecera y botones -->
+  <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap">
+    <!-- Botón de regreso -->
+    <button type="button" class="btn btn-custom-back" onclick="window.history.back();">
+      <i class="bi bi-arrow-left"></i> Atrás
+    </button>
+
+    <!-- Botón de descarga (este será flotante abajo a la derecha) -->
+    <button onclick="descargarTablaExcel()" id="botonDescargarExcel" type="button" class="btn btn-custom-download">
+      <i class="bi bi-file-earmark-excel"></i> Descargar
+    </button>
+  </div>
+
+  <!-- Título y datos del profesor -->
+  <div id="datosProfesor" class="text-center">
+    <h1 class="h4">Calificaciones</h1>
+    <h5><b>Mtro:{{profe.NOMBREPROFESOR}}</b></h5>
+    <h6 id="asig">Asignatura</h6>
+    <h6 id="grupo">Grupo</h6>
+  </div>
+
+  <!-- Selector de evaluación -->
+  <div class="mb-3">
+    <label for="idPlan" class="form-label">Seleccionar evaluación:</label>
+    <select id="idPlan" class="form-select form-select-sm">
+      {{#each evals}}
+        <option value="{{ID_EVAL}}">{{DESCRIPCION}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <!-- Tabla de calificaciones -->
+  <table class="table text-center">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Matrícula</th>
+        <th>Calificación</th>
+      </tr>
+    </thead>
+    <tbody id="table-content"></tbody>
+  </table>
+
+  <!-- Spinner de carga -->
+  <div id="loading" class="text-center d-none">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+</section>
+
+<!-- Scripts para la exportación y carga de datos -->
+<script src="/js/FileSaver.js"></script>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/js/services/profe/Exel_js/exportarExcel.js"></script>
+<script src="/js/services/admin/GetCalificaciones/GetVercalificaciones_Profesor.js"></script>
+
+<style>
+/* Estilos generales */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  padding: 10px;
+  margin: 0;
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 100%;
+  padding: 10px;
+}
+
+/* Títulos */
+h1, h5, h6 {
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+}
+
+/* Selector de evaluación */
+.form-select {
+  font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+  padding: 6px;
+}
+
+/* Ajustes de la tabla */
+.table {
+  font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+  width: 100%;
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+/* Ajustes en móviles */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 20px; /* Ajuste para pantallas pequeñas */
+  }
+  h5 {
+    font-size: 20px; /* Ajuste para pantallas pequeñas */
+  }
+  h6 {
+    font-size: 20px; /* Ajuste para pantallas pequeñas */
+  }
+  .btn {
+    font-size: 20px; /* Aumento del tamaño de los botones */
+    padding: 10px;
+  }
+  .table {
+    font-size: 20px; /* Aumento de la fuente en la tabla */
+  }
+  th, td {
+    padding: 10px; /* Aumento del tamaño de los espacios en la tabla */
+  }
+}
+
+/* Spinner de carga */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Estilo de los botones */
+.btn {
+  font-size: 20px; /* Aumento del tamaño de los botones */
+  border-radius: 0; /* Botones cuadrados */
+  padding: 10px 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Estilo del botón de regresar */
+.btn-custom-back {
+  background-color: #911820;
+  color: white;
+  border: none;
+}
+
+.btn-custom-back:hover {
+  background-color: #7a141a;
+  transform: scale(1.05);
+}
+
+/* Estilo del botón de descargar flotante */
+.btn-custom-download {
+  background-color: #911820;
+  color: white;
+  border: none;
+  position: fixed; /* Fija la posición */
+  right: 20px; /* 20px desde la derecha */
+  bottom: 20px; /* 20px desde la parte inferior */
+  padding: 10px 20px;
+  font-size: 20px; /* Aumento del tamaño de los botones */
+  border-radius: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-custom-download:hover {
+  background-color: #7a141a;
+  transform: scale(1.05);
+}
+</style>

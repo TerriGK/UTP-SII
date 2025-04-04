@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Validación de Estadías</title>
+    <style>
+        .validation-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .validation {
+            width: 100%;
+            max-width: 700px; /* Aumentar ligeramente el tamaño máximo */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); /* Ajustar la sombra */
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .validation .title {
+            color: #007bff;
+            font-size: 20px; /* Ajustar tamaño de fuente */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px; /* Ajustar margen */
+        }
+        .validation table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px; /* Ajustar margen */
+        }
+        .validation th, .validation td {
+            padding: 10px; /* Ajustar padding */
+            border: 1px solid #dee2e6;
+            text-align: left;
+            font-size: 13px; /* Ajustar tamaño de fuente */
+        }
+        .validation th {
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 15px; /* Ajustar tamaño de fuente */
+        }
+        .validation tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .validation .checkmark {
+            color: green;
+            font-weight: bold;
+        }
+        .validation .crossmark {
+            color: red;
+            font-weight: bold;
+        }
+        .validation .button-container {
+            text-align: center;
+        }
+        .validation .button {
+            padding: 8px 14px; /* Ajustar padding */
+            font-size: 13px; /* Ajustar tamaño de fuente */
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 4px; /* Ajustar margen */
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .validation .button:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        .validation .button:disabled {
+            background-color: rgba(128, 128, 128, 0.5); /* Gris con opacidad */
+            color: rgba(255, 255, 255, 0.7); /* Texto con opacidad */
+            cursor: not-allowed;
+        }
+        .validation .mark-button {
+            background-color: #007bff; /* Azul */
+            color: white;
+        }
+        .validation .unmark-button {
+            background-color: #dc3545; /* Rojo */
+            color: white;
+        }
+        .validation .complete-button {
+            background-color: #28a745; /* Verde */
+            color: white;
+        }
+        .increment-decrement-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .increment-decrement-buttons button {
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .increment-decrement-buttons button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+        .increment-decrement-buttons .count {
+            font-size: 16px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="validation-container">
+        <div class="validation">
+            <div class="title">Validación de Estadías</div>
+            <table>
+                <tr>
+                    <th>Elementos</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                <tr>
+                    <td>Documentos entregados y validados</td>
+                    <td>
+                        <span id="documents-count">0</span>/4 
+                        <span id="documents-checkmark" class="checkmark" style="display: none;">✔</span>
+                        <span id="documents-crossmark" class="crossmark" style="display: none;">✘</span>
+                    </td>
+                    <td>
+                        <div class="increment-decrement-buttons">
+                            <button onclick="changeDocumentCount(-1)" id="decrement-docs">-</button>
+                            <span id="documents-count-display" class="count">0</span>
+                            <button onclick="changeDocumentCount(1)" id="increment-docs">+</button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Otros elementos se mantienen iguales -->
+                <tr>
+                    <td>Datos de la empresa</td>
+                    <td>
+                        <span id="company-checkmark" class="checkmark" style="display: none;">✔</span>
+                        <span id="company-crossmark" class="crossmark" style="display: none;">✘</span>
+                    </td>
+                    <td>
+                        <button class="button mark-button" onclick="toggleCompletion('companyData', true)">Marcar</button>
+                        <button class="button unmark-button" onclick="toggleCompletion('companyData', false)">Desmarcar</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Datos del asesor empresarial</td>
+                    <td>
+                        <span id="business-advisor-checkmark" class="checkmark" style="display: none;">✔</span>
+                        <span id="business-advisor-crossmark" class="crossmark" style="display: none;">✘</span>
+                    </td>
+                    <td>
+                        <button class="button mark-button" onclick="toggleCompletion('businessAdvisorData', true)">Marcar</button>
+                        <button class="button unmark-button" onclick="toggleCompletion('businessAdvisorData', false)">Desmarcar</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Datos del asesor académico</td>
+                    <td>
+                        <span id="academic-advisor-checkmark" class="checkmark" style="display: none;">✔</span>
+                        <span id="academic-advisor-crossmark" class="crossmark" style="display: none;">✘</span>
+                    </td>
+                    <td>
+                        <button class="button mark-button" onclick="toggleCompletion('academicAdvisorData', true)">Marcar</button>
+                        <button class="button unmark-button" onclick="toggleCompletion('academicAdvisorData', false)">Desmarcar</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Carta de liberación de la empresa</td>
+                    <td>
+                        <span id="release-letter-checkmark" class="checkmark" style="display: none;">✔</span>
+                        <span id="release-letter-crossmark" class="crossmark" style="display: none;">✘</span>
+                    </td>
+                    <td>
+                        <button class="button mark-button" onclick="toggleCompletion('releaseLetter', true)">Marcar</button>
+                        <button class="button unmark-button" onclick="toggleCompletion('releaseLetter', false)">Desmarcar</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Carta de autorización de la empresa</td>
+                    <td>
+                        <span id="authorization-letter-checkmark" class="checkmark" style="display: none;">✔</span>
+                        <span id="authorization-letter-crossmark" class="crossmark" style="display: none;">✘</span>
+                    </td>
+                    <td>
+                        <button class="button mark-button" onclick="toggleCompletion('authorizationLetter', true)">Marcar</button>
+                        <button class="button unmark-button" onclick="toggleCompletion('authorizationLetter', false)">Desmarcar</button>
+                    </td>
+                </tr>
+            </table>
+            <div class="button-container">
+                <button class="button complete-button" id="complete-button" disabled>Estadía Completada</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const context = {
+            documents: [], // Inicio vacío
+            companyData: false,
+            businessAdvisorData: false,
+            academicAdvisorData: false,
+            releaseLetter: false,
+            authorizationLetter: false
+        };
+
+        function updateValidationStatus() {
+            const documentCount = context.documents.length;
+            document.getElementById('documents-count').textContent = documentCount;
+            document.getElementById('documents-count-display').textContent = documentCount;
+
+            if (documentCount === 4) {
+                document.getElementById('documents-checkmark').style.display = 'inline';
+                document.getElementById('documents-crossmark').style.display = 'none';
+            } else {
+                document.getElementById('documents-checkmark').style.display = 'none';
+                document.getElementById('documents-crossmark').style.display = 'inline';
+            }
+
+            document.getElementById('company-checkmark').style.display = context.companyData ? 'inline' : 'none';
+            document.getElementById('company-crossmark').style.display = context.companyData ? 'none' : 'inline';
+
+            document.getElementById('business-advisor-checkmark').style.display = context.businessAdvisorData ? 'inline' : 'none';
+            document.getElementById('business-advisor-crossmark').style.display = context.businessAdvisorData ? 'none' : 'inline';
+
+            document.getElementById('academic-advisor-checkmark').style.display = context.academicAdvisorData ? 'inline' : 'none';
+            document.getElementById('academic-advisor-crossmark').style.display = context.academicAdvisorData ? 'none' : 'inline';
+
+            document.getElementById('release-letter-checkmark').style.display = context.releaseLetter ? 'inline' : 'none';
+            document.getElementById('release-letter-crossmark').style.display = context.releaseLetter ? 'none' : 'inline';
+
+            document.getElementById('authorization-letter-checkmark').style.display = context.authorizationLetter ? 'inline' : 'none';
+            document.getElementById('authorization-letter-crossmark').style.display = context.authorizationLetter ? 'none' : 'inline';
+
+            // Habilitar o deshabilitar el botón de "Estadía Completada" según las condiciones
+            const completeButton = document.getElementById('complete-button');
+            if (context.documents.length === 4 &&
+                context.companyData &&
+                context.businessAdvisorData &&
+                context.academicAdvisorData &&
+                context.releaseLetter &&
+                context.authorizationLetter) {
+                completeButton.disabled = false;
+            } else {
+                completeButton.disabled = true;
+            }
+        }
+
+        function changeDocumentCount(change) {
+            const newCount = context.documents.length + change;
+            if (newCount >= 0 && newCount <= 4) {
+                context.documents = Array(newCount).fill({});
+                updateValidationStatus();
+            }
+        }
+
+        function toggleCompletion(type, mark = true) {
+            context[type] = mark;
+            updateValidationStatus();
+        }
+
+        // Actualizar la visualización al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateValidationStatus();
+        });
+    </script>
+</body>
+</html>

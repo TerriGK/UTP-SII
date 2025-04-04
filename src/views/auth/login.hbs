@@ -1,0 +1,307 @@
+<link rel="stylesheet" href="/css/login.css">
+
+
+<div class="w-100 d-flex justify-content-center align-items-center"
+  style="padding-top: 0%; left: 0%; position: absolute;">
+  <div class="card w-100" style="max-width: 850px;">
+
+    <nav class="custom-tabs-container">
+      <div class="tabs-wrapper">
+        <div class="custom-tabs" id="nav-tab" role="tablist">
+          <button class="tab-item active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+            type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>Alumno</span>
+            <div class="tab-indicator"></div>
+          </button>
+          <button class="tab-item" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button"
+            role="tab" aria-controls="nav-profile" aria-selected="false">
+            <i class="bi bi-person-lines-fill"></i>
+            <span>Aspirante</span>
+            <div class="tab-indicator"></div>
+          </button>
+          <button class="tab-item" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button"
+            role="tab" aria-controls="nav-contact" aria-selected="false">
+            <i class="bi bi-person-workspace"></i>
+            <span>Profesor</span>
+            <div class="tab-indicator"></div>
+          </button>
+
+          <button class="tab-item" id="nav-disabled-tab" data-bs-toggle="tab" data-bs-target="#nav-disabled"
+            type="button" role="tab" aria-controls="nav-disabled" aria-selected="false">
+            <i class="bi bi-shield-lock"></i>
+            <span>Admin</span>
+            <div class="tab-indicator"></div>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+
+
+    <div class="tab-content" id="nav-tabContent">
+
+      <div class="card-title text-center">
+        <img src="./imgs/logoRojo.jpg" width="250" alt="">
+        <h1>SII-UTPONIENTE</h1>
+      </div>
+
+      <div class="px-5">
+        {{>msj_error}}
+      </div>
+      {{!-- LOGIN ALUMNO --}}
+      <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+        <div class="card-body px-5">
+          <form id="form" action="/login/alumno" method="post" class="d-flex flex-column justify-content-center"
+            onsubmit="return validateForm()">
+            <div>
+              <label for="User" class="form-label fs-5">MATRICULA</label>
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">
+                    <div class="icon">
+                      <i class="bi bi-person"></i>
+                    </div>
+                  </div>
+                </div>
+                <input type="text" class="form-control" name="user" id="user" required maxlength="8" pattern="\d{1,8}">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="pass" class="form-label fs-5">CONTRASEÑA</label>
+              <div class="input-group">
+                <!-- Icono de la contraseña -->
+                <div class="input-group-text">
+                  <i class="bi bi-lock"></i>
+                </div>
+                <!-- Campo de contraseña -->
+                <input type="password" class="form-control" name="password" id="pass">
+                <!-- Botón para mostrar/ocultar la contraseña -->
+                <button type="button" class="btn btn-outline-secondary btn-sm p-0" id="toggle-password"
+                  style="width: 35px; height: 35px;">
+                  <i class="bi bi-eye-slash" id="password-icon" style="font-size: 18px;"></i>
+                </button>
+              </div>
+            </div>
+
+
+            <div class="pt-3 text-center">
+
+              <button type="submit" class="btn btn-outline-primary" id="btn">Iniciar sesión</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+      {{!-- LOGIN ASPIRANTE --}}
+      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+        <div class="card-body px-5">
+
+          <form id="form" action="/login/aspirante" method="post" class="d-flex flex-column justify-content-center">
+            <div>
+
+              <label for="matricula" class="form-label">FOLIO DE REGISTRO</label>
+
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">
+                    <div class="icon">
+                      <i class="bi bi-person"></i>
+                    </div>
+                  </div>
+                </div>
+                <input type="text" class="form-control" name="user" id="user" required>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="pass" class="form-label fs-5">CONTRASEÑA</label>
+              <div class="input-group">
+                <!-- Icono de la contraseña -->
+                <div class="input-group-text">
+                  <i class="bi bi-lock"></i>
+                </div>
+                <!-- Campo de contraseña -->
+                <input type="password" class="form-control" name="password" id="pass">
+                <!-- Botón para mostrar/ocultar la contraseña -->
+                <button type="button" class="btn btn-outline-secondary btn-sm p-0" id="toggle-password"
+                  style="width: 35px; height: 35px;">
+                  <i class="bi bi-eye-slash" id="password-icon" style="font-size: 18px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-1">
+              <a href="/verificacionCURP">Nuevo aspirante</a>
+            </div>
+
+
+            <div class="pt-3 text-center">
+              <button type="submit" class="btn btn-outline-primary" id="btn">Iniciar sesión</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+      {{!-- LOGIN PROFESORES --}}
+      <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">
+        <div class="card-body px-5">
+
+          <form id="form" action="/login/profe" method="post" class="d-flex flex-column justify-content-center">
+            <div>
+
+              <label for="CLAVEPROFESOR" class="form-label fs-5">FOLIO DE PROFESORES</label>
+
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">
+                    <div class="icon">
+                      <i class="bi bi-person"></i>
+                    </div>
+                  </div>
+                </div>
+                <input type="text" class="form-control" name="user" id="user" required maxlength="6"
+                  pattern="[A-Za-z0-9]{1,6}" title="La clabe del profesor debe ser de hasta 6 caracters.">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="pass" class="form-label fs-5">CONTRASEÑA</label>
+              <div class="input-group">
+                <!-- Icono de la contraseña -->
+                <div class="input-group-text">
+                  <i class="bi bi-lock"></i>
+                </div>
+                <!-- Campo de contraseña -->
+                <input type="password" class="form-control" name="password" id="pass">
+                <!-- Botón para mostrar/ocultar la contraseña -->
+                <button type="button" class="btn btn-outline-secondary btn-sm p-0" id="toggle-password"
+                  style="width: 35px; height: 35px;">
+                  <i class="bi bi-eye-slash" id="password-icon" style="font-size: 18px;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="pt-3 text-center">
+              <button type="submit" class="btn btn-outline-primary" id="btn">Iniciar sesión</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+      {{!-- LOGIN aDMIN --}}
+      <div class="tab-pane fade" id="nav-disabled" role="tabpanel" aria-labelledby="nav-disabled-tab" tabindex="0">
+        <div class="card-body px-5">
+
+          <form id="form" action="/login/admin" method="post" class="d-flex flex-column justify-content-center">
+            <div>
+
+              <label for="matricula" class="form-label fs-5">USUARIOS</label>
+
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">
+                    <div class="icon">
+                      <i class="bi bi-person"></i>
+                    </div>
+                  </div>
+                </div>
+                <input type="text" class="form-control" name="user" id="user" required>
+              </div>
+            </div>
+
+            <div>
+              <label for="pass" class="form-label fs-5">CONTRASEÑA</label>
+
+              <div class="input-group">
+                <!-- Icono de la contraseña -->
+                <div class="input-group-text">
+                  <i class="bi bi-lock"></i>
+                </div>
+
+                <input type="password" class="form-control" name="password" id="pass">
+                <!-- Botón para mostrar/ocultar la contraseña -->
+                <button type="button" class="btn btn-outline-secondary btn-sm p-0" id="toggle-password"
+                  style="width: 35px; height: 35px;">
+                  <i class="bi bi-eye-slash" id="password-icon" style="font-size: 18px;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="pt-3 text-center">
+
+
+            </div>
+        </div>
+
+        <div class="pt-3 text-center">
+
+          <body data-claveprofesor="<%= req.session.IDAuth %>">
+            <button type="submit" class="btn btn-outline-primary" id="btn">Iniciar sesión</button>
+        </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    // Manejo de visibilidad de contraseñas
+    document.querySelectorAll('button[id^="toggle-password"], button.btn-outline-secondary').forEach(button => {
+      button.addEventListener("click", function () {
+        const form = this.closest("form");
+        if (!form) return;
+
+        const passwordField = form.querySelector('input[name="password"]');
+        const icon = this.querySelector("i");
+
+        if (passwordField && icon) {
+          const isPassword = passwordField.type === "password";
+          passwordField.type = isPassword ? "text" : "password";
+          icon.classList.toggle("bi-eye", isPassword);
+          icon.classList.toggle("bi-eye-slash", !isPassword);
+        }
+      });
+    });
+
+    // Manejo de pestañas y almacenamiento en localStorage
+    const tabButtons = document.querySelectorAll(".tab-item");
+    const activeTab = localStorage.getItem("activeTab") || "nav-home";
+    const activeTabButton = document.querySelector(`[data-bs-target="#${activeTab}"]`);
+    const activeTabContent = document.getElementById(activeTab);
+
+    if (activeTabButton && activeTabContent) {
+      tabButtons.forEach(tab => tab.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(content => content.classList.remove("show", "active"));
+
+      activeTabButton.classList.add("active");
+      activeTabButton.setAttribute("aria-selected", "true");
+      activeTabContent.classList.add("show", "active");
+    }
+
+    tabButtons.forEach(tab => {
+      tab.addEventListener("click", function () {
+        localStorage.setItem("activeTab", this.getAttribute("data-bs-target").replace("#", ""));
+      });
+    });
+
+    // Aquí puedes agregar la lógica para bloquear vistas para alumnos y profesores
+    // Bloqueo de vistas según el rol (Ejemplo)
+    const userRole = localStorage.getItem("userRole"); // Suponiendo que el rol está en localStorage
+
+    if (userRole === "alumno") {
+      document.getElementById("nav-disabled-tab").style.display = "none"; // Ocultar pestaña Admin
+    } else if (userRole === "profesor") {
+      document.getElementById("nav-disabled-tab").style.display = "none"; // Ocultar pestaña Admin
+    }
+  });
+
+
+
+</script>

@@ -1,0 +1,150 @@
+<section>
+  <input type="hidden" id="idprofesor" value="{{CLAVEPROFESOR}}" />
+  <div class="mb-3">
+    {{>btnBack}} <!-- Botón de regreso -->
+  </div>
+
+  <div class="container">
+    <div class="text-center mb-4">
+      <h1 class="h4">Asignación de grupos</h1>
+      <h5>Mtro. {{NOMBREPROFESOR}}</h5>
+    </div>
+
+    <!-- Campo de búsqueda -->
+    <div class="input-group mb-3 d-none d-md-flex justify-content-center">
+      <span class="input-group-text">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="search" class="form-control" placeholder="Buscar" id="buscar" />
+    </div>
+
+    <!-- Tabla responsiva -->
+    <div class="table-container mb-4">
+      <table class="table table-hover table-sm">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre Código</th>
+            <th>Nombre de la asignatura</th>
+            <th>Grupo</th>
+            <th>Ver Más</th>
+          </tr>
+        </thead>
+        <tbody id="table-content"></tbody>
+      </table>
+    </div>
+
+    <!-- Botones de paginación -->
+    <div class="button-container mb-4">
+      <button class="btn btn-primary btn-sm" onclick="onPrev()">◀</button>
+      <button class="btn btn-primary btn-sm" onclick="onNext()">▶</button>
+    </div>
+  </div>
+</section>
+Cuatri
+<script src="/js/services/profe/asignaciongrp.js"></script>
+
+<style>
+  /* General: todos los textos en negro */
+  body, table, h1, h5, .input-group-text, .form-control {
+    color: black; /* Todos los textos en color negro */
+  }
+
+  /* Contenedor de los botones */
+  .button-container {
+    display: flex;
+    justify-content: center; /* Centra los botones */
+    gap: 10px; /* Espacio entre los botones */
+    margin-top: 20px;
+  }
+
+  /* Estilo de los botones */
+  .btn {
+    padding: 8px 16px;
+    font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+    border-radius: 0; /* Botones cuadrados */
+    background-color: #911820; /* Color de fondo de los botones */
+    color: white;
+    border: none;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  }
+
+  /* Efecto hover para los botones */
+  .btn:hover {
+    background-color: #911820;
+    transform: scale(1.05);
+  }
+
+  /* Ajustes de la tabla */
+  .table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+  }
+
+  table {
+    width: 100%;
+    font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+    border-collapse: collapse; /* Bordes limpios */
+  }
+
+  table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd; /* Bordes suaves */
+  }
+
+  /* Cambiar color de fondo y texto de los encabezados */
+  table th {
+    background-color: #a4273d; /* Fondo de los encabezados con el color solicitado */
+    color: black; /* Texto en negro */
+    font-weight: bold;
+  }
+
+  /* Cambiar el color de las celdas de la tabla */
+  table td {
+    background-color: #a4273d; /* Fondo de las celdas con el color solicitado */
+    color: black; /* Texto en negro */
+  }
+
+  /* Ajustes de la búsqueda */
+  .input-group {
+    width: 100%;
+    max-width: 500px; /* Ancho máximo para el campo de búsqueda */
+    margin: 0 auto; /* Centrar el campo de búsqueda */
+  }
+
+  .input-group-text {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+  }
+
+  .form-control {
+    border: 1px solid #ddd;
+    border-radius: 0; /* Cuadrado */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+  }
+
+  /* Estilos para pantallas pequeñas */
+  @media (max-width: 768px) {
+    .input-group {
+      width: 100%;
+    }
+
+    .btn {
+      width: 100%; /* Los botones ocupan todo el ancho en dispositivos móviles */
+      padding: 10px 0;
+      font-size: 20px; /* Aumento del tamaño de los botones */
+    }
+
+    .button-container {
+      flex-direction: column;
+    }
+
+    /* Ajuste en el tamaño de la tabla */
+    .table th, .table td {
+      font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+      padding: 10px; /* Ajusté el padding para pantallas pequeñas */
+    }
+  }
+</style>

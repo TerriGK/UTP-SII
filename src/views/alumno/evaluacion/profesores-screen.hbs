@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    .small-img {
+      width: 100px; /* Ajusta el ancho según tus necesidades */
+      height: auto;
+    }
+  </style>
+  <title>Evaluación Docente</title>
+</head>
+<body>
+  <section class="section profile">
+    <div class="container">
+      <div class="my-3 d-flex justify-content-between">
+        <!-- Botón de retroceso o regreso -->
+        {{>btnBack}}
+        <!-- Botón para descargar boleta -->
+      </div>
+
+      <div class="card">
+        <div class="card-body pt-3">
+          <div class="card-title text-center">
+            <h1>Evaluación Docente</h1>
+          </div>
+    
+          <div class="row">
+            <div class="col-md-8">
+              <label for="motivos" class="form-label"><b>*Selecciona el cuatrimestre:</b> </label>
+              <select id="cuatrimestre" class="form-select" onchange="getProfesores()">
+                <option disabled selected>Elegir cuatrimestre</option>
+                <option value="1">Cuatrimestre 1</option>
+                <option value="2">Cuatrimestre 2</option>
+                <option value="3">Cuatrimestre 3</option>
+                <option value="4">Cuatrimestre 4</option>
+                <option value="5">Cuatrimestre 5</option>
+                <option value="6">Cuatrimestre 6</option>
+                <option value="7">Cuatrimestre 7</option>
+                <option value="8">Cuatrimestre 8</option>
+                <option value="9">Cuatrimestre 9</option>
+                <option value="10">Cuatrimestre 10</option>
+                <option value="11">Cuatrimestre 11</option>
+              </select>
+            </div>
+          </div>
+          <br>
+          <br>
+
+          <!-- Contenedor de las 3 cards -->
+          <div class="row">
+            <!-- Card 1 -->
+            <div class="col-md-4 mb-4">
+              <div class="card">
+                <img src="/imgs/studentIcon.png" class="card-img-top small-img" alt="Imagen del alumno">
+                <div class="card-body">
+                  <h5 class="card-title">Detalles de {{PROFESORES}}</h5> 
+                  <p class="card-text">Materia: Aplicaciones de IoT</p>
+                  <a href="/evaluacion/preguntas-screen" class="btn btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-md-4 mb-4">
+              <div class="card">
+                <img src="/imgs/studentIcon.png" class="card-img-top small-img" alt="Imagen del alumno">
+                <div class="card-body">
+                  <h5 class="card-title">Ricardo Castillo</h5>
+                  <p class="card-text">Materia: Francés</p>
+                  <a href="/evaluacion/preguntas-screen" class="btn btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-md-4 mb-4">
+              <div class="card">
+                <img src="/imgs/studentIcon.png" class="card-img-top small-img" alt="Imagen del alumno">
+                <div class="card-body">
+                  <h5 class="card-title">Nombre del Alumno 3</h5>
+                  <p class="card-text">Matrícula: MATRICULA_ALUMNO_3</p>
+                  <a href="/alumno/3" class="btn btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+  <script src="/js/services/admin/getProfesores.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

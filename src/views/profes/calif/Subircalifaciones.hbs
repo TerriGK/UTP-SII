@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Calificaciones</title>
+  <style>
+    /* Estilos generales */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f8f9fa;
+      padding: 10px;
+      margin: 0;
+    }
+
+    /* Contenedor principal */
+    .container {
+      max-width: 100%;
+      padding: 10px;
+    }
+
+    /* Títulos */
+    h1,
+    h5,
+    h6 {
+      color: #333;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Selector de evaluación */
+    .form-select {
+      font-size: 14px;
+      padding: 6px;
+    }
+
+    /* Ajustes de la tabla */
+    .table {
+      font-size: 14px;
+      width: 100%;
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+
+    /* Ajustes en móviles */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 18px;
+      }
+
+      h5 {
+        font-size: 14px;
+      }
+
+      h6 {
+        font-size: 12px;
+      }
+
+      .btn {
+        font-size: 12px;
+        padding: 8px;
+      }
+
+      .table {
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+      }
+    }
+
+    /* Spinner de carga */
+    .spinner-border {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    /* Estilo de los botones */
+    .btn {
+      font-size: 14px;
+      border-radius: 0;
+      /* Botones cuadrados */
+      padding: 10px 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    /* Estilo del botón de regresar */
+    .btn-custom-back {
+      background-color: #911820;
+      color: white;
+      border: none;
+    }
+
+    .btn-custom-back:hover {
+      background-color: #7a141a;
+      transform: scale(1.05);
+    }
+
+    /* Estilo del botón de descargar (flotante y abajo a la derecha) */
+    .btn-custom-download {
+      background-color: #911820;
+      color: white;
+      border: none;
+      position: fixed;
+      /* Cambiado a posición fija */
+      right: 20px;
+      /* 20px desde la derecha */
+      bottom: 20px;
+      /* 20px desde la parte inferior */
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 0;
+      font-weight: bold;
+      text-transform: uppercase;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn-custom-download:hover {
+      background-color: #7a141a;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+
+  <section>
+    <div onclick="return cambiosGuardados()" class="mb-3">
+      <button class="btn btn-custom-back" onclick="window.history.back();">
+        <i class="bi bi-arrow-left"></i> Atrás
+      </button>
+    </div>
+
+    <section class="position-relative">
+
+      <div id="setCalifi" class="bg-secondary d-none">
+        <div class="text-center">
+          <div class="spinner-border" role="status"></div>
+        </div>
+      </div>
+
+      <!-- Eliminando la tarjeta y ajustando los márgenes -->
+      <div id="datosProfesor" class="text-center">
+        <h1 class="h4">Calificaciones</h1>
+        <h5><b>Mtro:{{profe.NOMBREPROFESOR}}</b></h5>
+        <h6 id="asig">Asignatura</h6>
+        <h6 id="grupo">Grupo</h6>
+      </div>
+
+      <!-- Botón Descargar flotante en la parte inferior derecha -->
+      <button onclick="descargarTablaExcel()" id="botonDescargarExcel" type="button" class="btn btn-custom-download">
+        <i class="bi bi-file-earmark-excel"></i> Descargar
+      </button>
+      </div>
+
+      <form id="formCalif">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-between align-items-end">
+          <div>
+            <button class="btn btn-custom">Guardar</button>
+          </div>
+
+          <div class="d-flex flex-column">
+            <input id="input" type="file" accept=".xlsx, .xls, .csv" />
+            <span id="info_excel"></span>
+          </div>
+        </div>
+
+        <div class="py-3">
+          <select id="idPlan" class="form-select">
+            {{#each evals}}
+            <option value="{{ID_EVAL}}">{{DESCRIPCION}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <!-- Tabla de calificaciones -->
+        <table id="tablaCalificaciones" class="table table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Matricula</th>
+              <th>Calificación</th>
+            </tr>
+          </thead>
+          <tbody id="table-content"></tbody>
+        </table>
+
+        <div id="loading" class="text-center">
+          <div class="spinner-border" role="status"></div>
+        </div>
+      </form>
+      </div>
+    </section>
+
+  </section>
+
+  <script src="/js/services/admin/GetCalificaciones/GetSubirCalificaciones_Profesor.js"></script>
+  <script src="/js/FileSaver.js"></script>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="/js/services/profe/Exel_js/ExportExelSubirCalif_profe.js"></script>
+
+</body>
+
+</html>

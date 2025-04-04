@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/Alumnolist.css">
+
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <main class="admin-content container">
+            <div class="content-card">
+                <div class="column-toggles-container">
+                    <div class="toggle-header d-flex align-items-center">
+                        <i class="fas fa-columns me-2"></i>
+                        <h3>Gestionar Columnas</h3>
+                    </div>
+                    <div id="column-toggles" class="column-toggles"></div>
+                </div>
+
+                <div class="action-toolbar d-flex justify-content-between mt-3">
+                    <button class="btn btn-admin" id="save-selected-btn">
+                        <i class="fas fa-save"></i> Guardar Selección
+                    </button>
+                    <div class="custom-file-input">
+                        <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+                        <label for="fileInput" class="file-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Seleccionar archivo</span>
+                        </label>
+                        <span class="file-name">Ningún archivo seleccionado</span>
+                    </div>
+                </div>
+
+                <div class="table-container" id="scroll-container">
+                    <table class="admin-table table table-striped" id="table-container">
+                        <thead id="table-header"></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="load" class="loading-indicator text-center">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <p>Cargando Datos Del Alumno, por favor espere...</p>
+                </div>
+            </div>
+        </main>
+
+        <button onclick="descargarTablaExcel()" class="btn-floating">
+            <i class="fas fa-download"></i>
+            <span class="tooltip">Descargar Excel</span>
+        </button>
+
+        <!-- Librerías necesarias -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+        <script src="https://unpkg.com/read-excel-file@5.3.4/bundle/read-excel-file.min.js"></script>
+        <script src="/js/functions/getAlumnolisAdmin.js"></script>
+        <script src="/js/services/profe/Exel_js/Exporta_admin.js"></script>
+        
+        <!-- Script adicional para cargar y enviar archivo Excel -->
+        <script>
+            document.getElementById("fileInput").addEventListener("change", handleFileSelect, false);
+
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    document.querySelector(".file-name").textContent = file.name;
+                    readExcelFile(file);
+                }
+            }
+
+            function readExcelFile(file) {
+                readExcelFile(file).then((data) => {
+                    console.log("Datos leídos del archivo Excel:", data);
+                    // Procesar datos leídos
+                    processExcelData(data);
+                }).catch((error) => {
+                    console.error("Error al leer el archivo Excel", error);
+                });
+            }
+
+            function processExcelData(data) {
+                // Aquí puedes procesar los datos de la hoja Excel
+                // Supongamos que los datos de la hoja Excel están en un arreglo
+
+                const rows = data.map(row => {
+                    return row.map(cell => cell.text || cell.value);
+                });
+
+                // Ejemplo de cómo enviar estos datos por POST
+                sendDataToServer(rows);
+            }
+
+            function sendDataToServer(data) {
+                fetch('/api/alumnos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ data: data }),
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert("Datos guardados correctamente");
+                    console.log(result);
+                })
+                .catch(error => {
+                    alert("Error al guardar los datos");
+                    console.error(error);
+                });
+            }
+        </script>
+    </div>
+</body>
+
+</html>

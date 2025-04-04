@@ -1,0 +1,1770 @@
+const express = require("express");
+const router = express.Router();
+
+
+const {
+  Alumno,
+  Ciclos,
+  Grupos,
+  Pagosalum,
+  Niveles,
+  Doctos,
+  AlumnosGrupos,
+  AlumnosNiveles,
+  AlumKardex,
+  CfgStatus,
+  Planes_Mst,
+  Planes_Eval,
+  Planes_Det,
+  Profesores,
+  VillasMst,
+  VillasCfg,
+  ProfesoresGrupos,
+  CiclosAdmins,
+  Empresas,
+  Empleados,
+  CFGDoctos, // Agrega esta línea para importar el modelo CFGDoctos
+} = require("../app/models");
+const Firebird = require("../app/models/Firebird");
+const GrupoAlumnos = require("../app/models/GrupoAlumno");
+
+router.get("/grupos", async (req, res) => {
+  const {
+    skip = 0,
+    limit = 30,
+    search = "",
+    orderBy = "codigo_carrera",
+    sort = "asc",
+    grupo = "",
+    grado = 0,
+  } = req.query;
+  //    "grupos.codigo_grupo as codigo_grupo,grupos.grado, grupos.inicial as inicial,grupos.final as final,grupos.periodo as periodo,grupos.id_escuela as id_escuela,CASE WHEN grupos.grado + 1 >= 5 THEN grupos.grado ELSE grupos.grado + 1  END  as siguiente_grupo , grupos.grupo as grupo, grupos.cupo_maximo, grupos.inscritos, profesores.nombreprofesor as claveprofesor_titular, cfgniveles.nivel as codigo_carrera ";
+
+  // Consulta SQL paar mostrar los grupos
+  let query = `SELECT FIRST(${limit}) SKIP(${skip}) `;
+  query +=
+    "grupos.codigo_grupo as codigo_grupo,grupos.grado, grupos.inicial,grupos.final,grupos.periodo as periodo,grupos.id_escuela as id_escuela, grupos.grupo as grupo, grupos.cupo_maximo, grupos.inscritos, profesores.nombreprofesor as claveprofesor_titular, cfgniveles.nivel as codigo_carrera ";
+  query += "FROM grupos ";
+  query +=
+    "LEFT JOIN profesores ON grupos.claveprofesor_titular = profesores.claveprofesor ";
+  query += "JOIN cfgniveles ON grupos.nivel = cfgniveles.nivel ";
+
+  // Si hay palabras a bsucar, lo agrega en la consulta
+  if (search.length > 0) {
+    query += `WHERE (grupos.codigo_grupo LIKE '%${search.toLocaleUpperCase()}%') `;
+  }
+  if (grupo.length > 0) {
+    query += `AND (grupos.nivel LIKE '%${grupo.toLocaleUpperCase()}%') `;
+  }
+  if (grado > 0) {
+    let grado_alumno = parseFloat(grado) + 1;
+    query += `AND grupos.grado <= '${grado_alumno}' AND grupos.grado >= '${grado}'`;
+  }
+  // Si hay periodo seleccionado a mostrar lo agrega en la query
+  if (req.session.periodoSelected) {
+    let periodo = await Ciclos.findById(req.session.periodoSelected);
+    // Valida si ya tiene la consulta WHERE
+    query += query.includes("WHERE") ? "AND" : "WHERE";
+    // si lo tiene agrega un AND,  si no, agrega el WHERE
+    query += ` grupos.inicial = ${periodo?.INICIAL} `;
+    query += `AND grupos.final = ${periodo?.FINAL} `;
+    query += `AND grupos.periodo = ${periodo?.PERIODO} `;
+  }
+
+  // Codigo para ordenar si existe
+  query += `ORDER BY ${orderBy} ${sort}`;
+
+  const grupos = await Grupos.createQuery({ querySql: query });
+
+  res.json({
+    querys: {
+      limit,
+      skip,
+      search,
+      orderBy,
+      sort
+    },
+    periodoSelected: req.session.periodoSelected,
+    grupos,
+  });
+});
+
+router.get("/grupos_alumnos/:idGrupo", async (req, res) => {
+  const { limit = 10, skip = 0 } = req.query;
+  const idGrupo = req.params.idGrupo;
+
+  let sql = `SELECT FIRST ${limit} SKIP ${skip} `;
+  sql += `ALUMNOS.MATRICULA, ALUMNOS.PATERNO, ALUMNOS.MATERNO, ALUMNOS.NOMBRE, ALUMNOS.NIVEL, ALUMNOS.GENERO, ALUMNOS.STATUS `;
+  sql += `FROM ALUMNOS_GRUPOS `;
+  sql += `LEFT JOIN ALUMNOS ON ALUMNOS_GRUPOS.NUMEROALUMNO = ALUMNOS.NUMEROALUMNO `;
+  sql += `WHERE ALUMNOS_GRUPOS.CODIGO_GRUPO = '${idGrupo}' `;
+
+  // Si hay periodo seleccionado a mostrar lo agrega en la query
+  if (req.session.periodoSelected) {
+    let periodo = await Ciclos.findById(req.session.periodoSelected);
+
+    sql += `AND ALUMNOS_GRUPOS.INICIAL = ${periodo?.INICIAL} `;
+    sql += `AND ALUMNOS_GRUPOS.FINAL = ${periodo?.FINAL} `;
+    sql += `AND ALUMNOS_GRUPOS.PERIODO = ${periodo?.PERIODO} `;
+  }
+
+  // Ordena la tabla por apellidos en orden alfabético
+  sql += `ORDER BY ALUMNOS.PATERNO ASC`;
+
+  try {
+    const alumnos = await AlumnosGrupos.createQuery({ querySql: sql });
+
+    res.json({
+      querys: {
+        limit,
+        skip
+      },
+      idGrupo,
+      alumnos,
+    });
+  } catch (error) {
+    console.error('Error al ejecutar la consulta SQL:', error);
+    res.status(500).json({ error: 'Error al obtener los alumnos del grupo' });
+  }
+});
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////Filtro para calificacion por alumno/////////////////////////////////////////////////////////////////
+
+router.get("/gruposCalifi", async (req, res) => {
+  const {
+    skip = 0,
+    limit = 30,
+    search = "",
+    orderBy = "codigo_carrera",
+    sort = "asc",
+    grupo = "",
+    grado = 0,
+    IDAuth, // Recibe el ID del profesor autenticado
+  } = req.query;
+
+  let query = `SELECT FIRST(${limit}) SKIP(${skip}) 
+    grupos.codigo_grupo AS codigo_grupo,
+    grupos.grado,
+    grupos.inicial,
+    grupos.final,
+    grupos.periodo AS periodo,
+    grupos.id_escuela AS id_escuela,
+    grupos.grupo AS grupo,
+    grupos.cupo_maximo,
+    grupos.inscritos,
+    profesores.nombreprofesor AS CLAVEPROFESOR_TITULAR,
+    cfgniveles.nivel AS codigo_carrera 
+    FROM grupos 
+    LEFT JOIN profesores ON grupos.CLAVEPROFESOR_TITULAR = profesores.claveprofesor 
+    JOIN cfgniveles ON grupos.nivel = cfgniveles.nivel`;
+
+  // Agregar condiciones WHERE dinámicas
+  let conditions = [];
+
+  if (search.length > 0) {
+    conditions.push(`grupos.codigo_grupo LIKE '%${search.toLocaleUpperCase()}%'`);
+  }
+  if (grupo.length > 0) {
+    conditions.push(`grupos.nivel LIKE '%${grupo.toLocaleUpperCase()}%'`);
+  }
+  if (grado > 0) {
+    let grado_alumno = parseFloat(grado) + 1;
+    conditions.push(`grupos.grado <= '${grado_alumno}' AND grupos.grado >= '${grado}'`);
+  }
+  if (IDAuth) {
+    conditions.push(`grupos.claveprofesor_titular = '${IDAuth}'`); // 🔹 Filtrar por el profesor autenticado
+  }
+
+  if (req.session.periodoSelected) {
+    let periodo = await Ciclos.findById(req.session.periodoSelected);
+    conditions.push(`grupos.inicial = ${periodo?.INICIAL}`);
+    conditions.push(`grupos.final = ${periodo?.FINAL}`);
+    conditions.push(`grupos.periodo = ${periodo?.PERIODO}`);
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  query += ` ORDER BY ${orderBy} ${sort}`;
+
+
+  try {
+    const grupos = await Grupos.createQuery({ querySql: query });
+
+    res.json({
+      querys: { limit, skip, search, orderBy, sort, IDAuth },
+      periodoSelected: req.session.periodoSelected,
+      grupos,
+    });
+  } catch (error) {
+    console.error("Error al obtener grupos:", error);
+    res.status(500).json({ error: "Error al obtener los grupos" });
+  }
+});
+
+
+//GRUPO POR CALIFICACIONES -->
+router.get("/gruposCalifi_alumnos/:idGrupo", async (req, res) => {
+  const { limit = 40, skip = 0 } = req.query;
+  const idGrupo = req.params.idGrupo;
+
+  let sql = `SELECT FIRST ${limit} SKIP ${skip} `;
+  sql += `grupos.grado, `;
+  sql += `alumnos_grupos.codigo_grupo, `;
+  sql += `alumnos.matricula, alumnos.paterno, alumnos.materno, alumnos.nombre, `;
+  sql += `alumnos_kardex.id_plan, alumnos_kardex.claveasignatura, alumnos_kardex.id_eval, alumnos_kardex.calificacion, alumnos_kardex.inicial, alumnos_kardex.final, ALUMNOS_KARDEX.PERIODO, ALUMNOS_KARDEX.NUMEROALUMNO, alumnos_kardex.fecha, `;
+  sql += `cfgplanes_mst.nombre_plan, `;
+  sql += `cfgplanes_det.nombreasignatura, `;
+  sql += `cfgplanes_eval.descripcion AS nombre_eval, `;
+  sql += `profesores_grupos.claveprofesor, `;
+  sql += `profesores.nombreprofesor `;
+
+  sql += `FROM alumnos_grupos `;
+
+  sql += `LEFT JOIN alumnos ON alumnos_grupos.numeroalumno = alumnos.numeroalumno `;
+
+  sql += `LEFT JOIN grupos ON alumnos_grupos.codigo_grupo = grupos.codigo_grupo `;
+  sql += `AND alumnos_grupos.INICIAL = GRUPOS.INICIAL `;
+  sql += `AND alumnos_grupos.FINAL = GRUPOS.FINAL `;
+
+  sql += `left join alumnos_kardex on alumnos_grupos.numeroalumno = alumnos_kardex.numeroalumno `;
+  sql += `AND alumnos_grupos.INICIAL = alumnos_kardex.INICIAL `;
+  sql += `AND alumnos_grupos.FINAL = alumnos_kardex.FINAL `;
+  sql += `AND alumnos_grupos.PERIODO = alumnos_kardex.PERIODO `;
+
+  sql += `left join cfgplanes_mst on alumnos_kardex.id_plan = cfgplanes_mst.id_plan `;
+  sql += `left join cfgplanes_det on alumnos_kardex.claveasignatura = cfgplanes_det.claveasignatura `;
+  sql += `AND grupos.grado = cfgplanes_det.grado `;
+
+  sql += `left join cfgplanes_eval on alumnos_kardex.id_plan = cfgplanes_eval.id_plan `;
+  sql += `AND alumnos_kardex.id_eval = cfgplanes_eval.id_eval `;
+
+  sql += `left join profesores_grupos on ALUMNOS_KARDEX.id_plan = profesores_grupos.id_plan `;
+  sql += `AND ALUMNOS_KARDEX.CLAVEASIGNATURA = profesores_grupos.CLAVEASIGNATURA `;
+  sql += `AND ALUMNOS_KARDEX.INICIAL = profesores_grupos.INICIAL `;
+  sql += `AND ALUMNOS_KARDEX.FINAL = profesores_grupos.FINAL `;
+  sql += `AND grupos.codigo_grupo = profesores_grupos.codigo_grupo `;
+
+  sql += `left join profesores on profesores_grupos.claveprofesor = profesores.claveprofesor `;
+
+  sql += `WHERE alumnos_grupos.codigo_grupo = '${idGrupo}' `;
+
+  // Si hay periodo seleccionado a mostrar lo agrega en la query
+  if (req.session.periodoSelected) {
+    let periodo = await Ciclos.findById(req.session.periodoSelected);
+
+    sql += `AND alumnos_grupos.inicial = ${periodo?.INICIAL} `;
+    sql += `AND alumnos_grupos.final = ${periodo?.FINAL} `;
+    sql += `AND alumnos_grupos.periodo = ${periodo?.PERIODO} `;
+  }
+
+  // Ordena la tabla por apellidos en orden alfabetico
+  sql += `ORDER BY alumnos.paterno ASC`;
+
+  try {
+    const alumnos = await AlumnosGrupos.createQuery({ querySql: sql });
+
+    res.json({
+      querys: {
+        limit,
+        skip
+      },
+      idGrupo,
+      alumnos,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/gruposCalifi_alumnos/:idGrupo", async (req, res) => {
+  const { numeroalumno, claveasignatura, id_eval, inicial, final, periodo, calificacion, fecha } = req.body;
+
+  // Construir la consulta SQL para actualizar los datos
+  let sql = `UPDATE alumnos_kardex SET `;
+  sql += `calificacion = '${calificacion}', `;
+  // Solo agrega la fecha si no está vacía o undefined
+  if (fecha) {
+    sql += `fecha = '${fecha}', `;
+  }
+  // Elimina la última coma y espacio adicional
+  sql = sql.slice(0, -2);
+  sql += ` WHERE numeroalumno = '${numeroalumno}' `;
+  sql += `AND claveasignatura = '${claveasignatura}' `;
+  sql += `AND id_eval = '${id_eval}' `;
+  sql += `AND inicial = '${inicial}' `;
+  sql += `AND final = '${final}' `;
+  sql += `AND periodo = '${periodo}'`;
+
+
+  try {
+    await AlumnosGrupos.createQuery({ querySql: sql });
+
+    res.json({
+      message: 'Datos actualizados exitosamente',
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+////NAVBAR CUATRIMESTRES
+// Ruta para obtener los ciclos con un límite opcional
+router.get("/cuatris-navbar", async (req, res) => {
+  const { limit = 200 } = req.query;
+
+  // Asegurarse de que el parámetro 'limit' sea un número válido
+  const limitInt = parseInt(limit, 10);
+  if (isNaN(limitInt) || limitInt <= 0) {
+    return res.status(400).json({
+      error: "El parámetro 'limit' debe ser un número válido y mayor a cero.",
+    });
+  }
+
+  try {
+    // Obtener los ciclos (limitados por el parámetro 'limit')
+    const ciclos = await Ciclos.all({ limit: limitInt });
+
+    if (!ciclos || ciclos.length === 0) {
+      return res.json({
+        periodoSelected: null,
+        ciclos: [],
+        noCiclos: true, // Indicador de que no hay ciclos disponibles
+      });
+    }
+
+    // Obtener el periodo seleccionado en la sesión
+    const periodoSelected = await Ciclos.findById(req.session.periodoSelected);
+
+    // Respuesta con los ciclos y el periodo seleccionado
+    res.json({
+      periodoSelected: periodoSelected?.DESCRIPCION || null,
+      ciclos,
+      noCiclos: false,
+    });
+  } catch (error) {
+    console.error("Error al obtener los ciclos:", error);
+    res.status(500).json({ error: "Hubo un problema al obtener los ciclos." });
+  }
+});
+
+// Ruta para actualizar el periodo seleccionado
+router.put("/update/CuatriXGrupos", async (req, res) => {
+  const { periodo } = req.body;
+
+  if (!periodo) {
+    return res.status(400).json({
+      error: "El campo 'periodo' es obligatorio.",
+    });
+  }
+
+  // Actualiza el periodo en la sesión
+  req.session.periodoSelected = periodo === "none" ? null : periodo;
+
+  res.json({
+    message: "Periodo actualizado",
+  });
+});
+
+// Ruta para obtener cuatrimestres/ciclos con filtros opcionales
+router.get("/cuatrimestres", async (req, res) => {
+  const { limit = 10, skip = 0, search = "" } = req.query;
+
+  // Validación de los parámetros 'limit' y 'skip'
+  const limitInt = parseInt(limit, 10);
+  const skipInt = parseInt(skip, 10);
+
+  if (isNaN(limitInt) || limitInt <= 0) {
+    return res.status(400).json({
+      error: "El parámetro 'limit' debe ser un número válido y mayor a cero.",
+    });
+  }
+
+  if (isNaN(skipInt) || skipInt < 0) {
+    return res.status(400).json({
+      error: "El parámetro 'skip' debe ser un número entero válido y no negativo.",
+    });
+  }
+
+  let searchQuery = "";
+  if (search) {
+    searchQuery = `(codigo_corto LIKE '%${search.toUpperCase()}%' OR descripcion LIKE '%${search}%')`;
+  }
+
+  try {
+    // Obtener los ciclos con búsqueda, paginación y orden
+    const ciclos = await Ciclos.all({
+      limit: limitInt,
+      skip: skipInt,
+      searchQuery,
+      orderBy: 'inicial',
+      sort: 'desc',
+    });
+
+    res.json({
+      querys: { limit, skip, search },
+      ciclos,
+    });
+  } catch (error) {
+    console.error("Error al obtener los cuatrimestres/ciclos:", error);
+    res.status(500).json({ error: "Hubo un problema al obtener los cuatrimestres." });
+  }
+});
+
+
+//formato de alumnos
+router.get("/alumnos", async (req, res) => {
+  const { limit = 6000, skip = 0, search, orderBy = "paterno", sort = "asc" } = req.query;
+
+  let searchQuery = null;
+
+  if (search) {
+    searchQuery = `(matricula LIKE '%${search}%') `;
+    searchQuery += `OR (nombre LIKE '%${search}%') `;
+    searchQuery += `OR (paterno LIKE '%${search}%') `;
+
+    let searchLastName = search.split(" ");
+    if (searchLastName.length > 1) {
+      searchQuery += `OR (paterno LIKE '%${searchLastName[0]}%' AND materno LIKE '%${searchLastName[1]}%') `;
+    }
+  }
+  const alumnos = await Alumno.all({
+    limit,
+    skip,
+    searchQuery,
+    orderBy,
+    sort,
+  });
+
+  res.json({
+    querys: {
+      limit,
+      skip,
+      search,
+      orderBy,
+      sort
+    },
+    alumnos,
+  });
+});
+
+router.get("/carreras", async (req, res) => {
+  const { limit, skip, search } = req.query;
+
+  let searchQuery = null;
+
+  if (search) {
+    searchQuery = `descripcion LIKE '%${search}%'`;
+  }
+
+  const niveles = await Niveles.all({
+    limit,
+    skip,
+    searchQuery,
+    orderBy: "descripcion",
+  });
+
+  res.json({
+    querys: {
+      limit,
+      skip,
+      search
+    },
+    niveles,
+  });
+});
+
+router.get("/doctos/", async (req, res) => {
+  const { grado, numalumno } = req.query;
+
+  if (!grado || !numalumno) {
+    return res.json({
+      error: 'Se necesita el grado a buscar y el numero del alumno'
+    });
+  }
+
+  const doctos = await Doctos.where({
+    grado: [grado],
+    clave: [numalumno]
+  }, {
+    strict: true,
+  });
+
+  res.json({
+    query: {
+      grado,
+      numalumno
+    },
+    doctos,
+  });
+});
+
+router.get("/calificaciones/asignaturas", async (req, res) => {
+  const { idPlan = "", idAsig = "", idEval = "", idGrupo = "" } = req.query;
+
+  if (!idGrupo || !idPlan || !idAsig || !idEval) {
+    return res.json({
+      error: "El id del grupo, plan, evaluacion y asignatura son necesarios",
+      querys: {
+        idPlan,
+        idAsig,
+        idEval,
+        idGrupo,
+      }
+    })
+  };
+
+  try {
+
+    let grupo = await Grupos.findById(idGrupo);
+
+    let data = await AlumKardex.where({
+      id_plan: [idPlan],
+      id_eval: [idEval],
+      claveasignatura: [idAsig],
+      inicial: [grupo.INICIAL],
+      final: [grupo.FINAL],
+      // periodo: [grupo.PERIODO],
+    }, { limit: 35 });
+
+    res.json({
+      querys: {
+        idPlan,
+        idAsig,
+        idEval,
+        idGrupo,
+      },
+      data,
+    });
+
+  } catch (error) {
+    res.json({
+      error: "El id del grupo y el plan no coinciden para la consulta"
+    })
+  }
+});
+
+
+router.get("/calificaciones", async (req, res) => {
+  const {
+    idPlan,
+    grupo,
+    claveAsig,
+    idEtapa,
+    idEval = "A", // Valor predeterminado
+    inicial,
+    final,
+    periodo,
+  } = req.query;
+
+  // Verificación de que los datos principales existen
+  if (!idPlan || !claveAsig || !grupo || !inicial || !final || !periodo) {
+    return res.json({
+      error: "Faltan datos importantes para la operación. Verifique que el plan, grupo, clave de asignatura, etapa, y periodo estén definidos.",
+    });
+  }
+
+  try {
+    // Verificar si el plan existe
+    let plan = await Planes_Mst.findById(idPlan);
+    if (!plan) {
+      return res.json({
+        error: "No existe el plan",
+      });
+    }
+
+    console.log("Query Parameters Received:", req.query);
+
+    // Consulta SQL optimizada para asignatura, grupo y alumnos
+    let sql = `
+  SELECT 
+    alumnos.matricula,
+    alumnos.numeroalumno,
+    alumnos.nombre,
+    alumnos.paterno,
+    alumnos.materno,
+    COALESCE(alumnos_kardex.calificacion, '0') AS calificacion,
+    alumnos_kardex.fecha,
+    alumnos_kardex.id_eval,
+    alumnos_kardex.id_plan
+  FROM alumnos
+  LEFT JOIN alumnos_kardex 
+    ON alumnos.numeroalumno = alumnos_kardex.numeroalumno
+    AND alumnos_kardex.id_plan = ?
+    AND alumnos_kardex.claveasignatura = ?
+    AND alumnos_kardex.id_etapa = ?
+    AND alumnos_kardex.id_eval = ?
+    AND alumnos_kardex.inicial = ?
+    AND alumnos_kardex.final = ?
+    AND alumnos_kardex.periodo = ?
+  INNER JOIN alumnos_grupos 
+    ON alumnos.numeroalumno = alumnos_grupos.numeroalumno
+    AND alumnos_grupos.codigo_grupo = ?
+    AND alumnos_grupos.inicial = ?
+    AND alumnos_grupos.final = ?
+    AND alumnos_grupos.periodo = ?
+  ORDER BY alumnos.paterno;
+`;
+
+    let data = await Grupos.createQuery({
+      querySql: sql,
+      data: [
+        idPlan,
+        claveAsig,
+        idEtapa,
+        idEval,
+        inicial,
+        final,
+        periodo,
+        grupo,
+        inicial,
+        final,
+        periodo,
+      ],
+    });
+
+
+    // Filtrar datos para asegurar que las calificaciones no sean "0" o valores nulos
+    data = data.filter((item) => item.calificacion !== "0" && item.calificacion !== null);
+
+    // Si no hay datos con calificación válida, obtener solo nombre y matrícula
+    if (data.length === 0) {
+      data = await Grupos.createQuery({
+        querySql: sql.replace("AND alumnos_kardex.calificacion != '0'", ""),
+        data: [
+          idPlan,
+          claveAsig,
+          idEtapa,
+          idEval,
+          inicial,
+          final,
+          periodo,
+          grupo,
+          inicial,
+          final,
+          periodo,
+        ],
+      });
+    }
+
+    // Responder con los datos de la asignatura, grupo y alumnos
+    res.json({
+      querys: req.query,
+      data, // Responder con los datos filtrados
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.json({
+      error: "Ocurrió un error durante la consulta",
+      querys: req.query,
+    });
+  }
+});
+
+router.post("/calificaciones", async (req, res) => {
+  const {
+    claveAsig,
+    idEtapa,
+    idPlan,
+    idEval,
+    inicial,
+    final,
+    periodo
+  } = req.query;
+
+  const dataCalif = req.body;
+  let promises = [];
+
+  try {
+    for (const key in dataCalif) {
+      let sql = `UPDATE alumnos_kardex SET calificacion = ? 
+        WHERE numeroalumno = ? 
+        AND claveasignatura = ? 
+        AND id_plan = ? 
+        AND id_eval = ? 
+        AND id_etapa = ? 
+        AND inicial = ? 
+        AND final = ? 
+        AND periodo = ?`;
+
+      promises.push(AlumKardex.createQuery({
+        querySql: sql,
+        data: [dataCalif[key], key, claveAsig, idPlan, idEval, idEtapa, inicial, final, periodo],
+      }));
+    }
+
+    // Esperamos que todas las promesas se resuelvan
+    await Promise.all(promises);
+
+    res.json({
+      msj: "Datos actualizados correctamente",
+    });
+  } catch (error) {
+    console.error("Error al actualizar las calificaciones:", error);
+    res.status(500).json({
+      error: "Ocurrió un error al actualizar las calificaciones",
+    });
+  }
+});
+
+
+
+router.post("/grupos_add", async (req, res) => {
+
+  const gruposAlumnos = req.body; // Obtener los  del cuerpo de la solicitud
+
+  // Extraer los campos individuales de nueva grupos alumno
+  const {
+    ID_ESCUELA,
+    INICIAL,
+    FINAL,
+    PERIODO,
+    NUMEROALUMNO,
+    NUM,
+    TIPO,
+    CODIGO_GRUPO,
+    GRADO,
+    NIVEL,
+    STATUS,
+    TIPOEXAMEN,
+    FECHA_CREACION,
+    REINSCRITO,
+    INFORMACIONALUMNO
+  } = gruposAlumnos;
+  // Ejecutar la sentencia INSERT en la base de datos
+  const query = `
+    INSERT INTO ALUMNOS_GRUPOS (
+      ID_ESCUELA,
+      INICIAL,
+      FINAL,
+      PERIODO,
+      NUMEROALUMNO,
+      NUM,
+      TIPO,
+      CODIGO_GRUPO,
+      TIPOEXAMEN,
+      REINSCRITO
+    )
+    VALUES (
+      ${ID_ESCUELA},
+      '${INICIAL}',
+      '${FINAL}',
+      '${PERIODO}',
+      '${NUMEROALUMNO}',
+      '${NUM}',
+      '${TIPO}',
+      '${CODIGO_GRUPO}',
+      '${TIPOEXAMEN}',
+      '${REINSCRITO}'
+    )
+  `;
+
+  const queryNivel = `
+    INSERT INTO ALUMNOS_NIVELES (
+      ID_ESCUELA,
+      NUMEROALUMNO,
+      INICIAL,
+      FINAL,
+      PERIODO,
+      NIVEL,
+      GRADO,
+      STATUS,
+      FECHA_CREACION
+    )
+    VALUES (
+      ${ID_ESCUELA},
+      '${NUMEROALUMNO}',
+      '${INICIAL}',
+      '${FINAL}',
+      '${PERIODO}',
+      '${NIVEL}',
+      '${GRADO}',
+      '${STATUS}',
+      '${FECHA_CREACION}'
+    )
+  `;
+
+
+
+  const data = {
+    grado: INFORMACIONALUMNO.GRADO + 1,
+    matricula: INFORMACIONALUMNO.MATRICULA
+  };
+
+
+
+  try {
+
+
+    // Ejecutar la consulta en la base de datos (asegúrate de tener configurada la conexión a la base de datos correctamente)
+
+
+    res.status(200)({ message: 'Registro realizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al realizar el regisro' });
+  }
+
+});
+
+router.get("/planes", async (req, res) => {
+  const {
+    page = 1,
+    search = '',
+    nivel = ''
+  } = req.query;
+
+  let searchQuery = '';
+
+  if (page <= 0) page = 1;
+
+  if (search) {
+    searchQuery += `nombre_plan LIKE '%${search.toUpperCase()}%'`
+  }
+
+  if (nivel) {
+    if (search) searchQuery += ' AND '
+    searchQuery += `nivel = '${nivel}'`
+  }
+
+  const planes = await Planes_Mst.all({
+    limit: 20,
+    skip: (page - 1) * 20,
+    searchQuery,
+    orderBy: 'nombre_plan',
+    sort: 'asc',
+  });
+
+  res.json({
+    query: {
+      page,
+      search,
+      nivel
+    },
+    data: planes
+  })
+
+});
+
+router.get("/planes/:idPlan/asig", async (req, res) => {
+  const { idPlan = "" } = req.params;
+  const asigs = await Planes_Det.where(
+    {
+      id_plan: [idPlan],
+      id_tipoeval: ["A"],
+    },
+    { strict: true, limit: 50 }
+  );
+
+  res.json({
+    querys: null,
+    data: asigs
+  });
+});
+
+router.get("/planes/:idPlan/eval", async (req, res) => {
+  const { idPlan } = req.params;
+  const evals = await Planes_Eval.where(
+    { id_plan: [idPlan] },
+    { strict: true }
+  );
+
+  res.json({
+    querys: null,
+    data: evals
+  })
+});
+
+//Posdata la tabla ciclo no cuenta con un Update y el ciclos admin no permite la acutalizacion de los foramtos
+router.get('/ciclosAdmi', async (_req, res) => {
+  try {
+    // Realizar la consulta SQL
+    const ciclosAdmins = await CiclosAdmins.createQuery({ querySql: "SELECT * FROM CICLOS_ADMINS" });
+
+    // Verifica si se encontraron datos
+    if (ciclosAdmins && ciclosAdmins.length > 0) {
+      res.json(ciclosAdmins); // Devuelve los datos si se encontraron
+    } else {
+      res.status(404).json({ error: 'No se encontraron ciclos administradores' }); // Maneja el caso sin resultados
+    }
+  } catch (error) {
+    // Manejo de errores con más detalle
+    console.error('Error al consultar la base de datos:', error);
+    res.status(500).json({ error: 'Error en la consulta de la base de datos', message: error.message });
+  }
+});
+
+// Calificaciones por alumno
+router.get("/calificaciones/:numalumno", async (req, res) => {
+  const { cuatri = 1, eval = "A" } = req.query;
+  const alumno = req.params.numalumno;
+
+  let sql = `select first(30)
+    alumnos_kardex.numeroalumno,
+    alumnos_kardex.claveasignatura,
+    cfgplanes_det.nombreasignatura,
+    alumnos_kardex.id_plan,
+    alumnos_kardex.id_eval,
+    alumnos_kardex.calificacion
+  from alumnos_kardex
+  join cfgplanes_det on alumnos_kardex.claveasignatura = cfgplanes_det.claveasignatura
+    and alumnos_kardex.id_plan = cfgplanes_det.id_plan
+    and alumnos_kardex.id_etapa = cfgplanes_det.id_etapa
+  where (alumnos_kardex.numeroalumno = ${alumno})
+    and (alumnos_kardex.id_eval = '${eval}')
+    and (cfgplanes_det.grado = ${cuatri})`;
+
+  const data = await AlumKardex.createQuery({
+    querySql: sql
+  })
+
+  res.json({
+    query: {
+      cuatri,
+      eval
+    },
+    data
+  })
+
+});
+
+router.get("/estatus", async (req, res) => {
+  const { search = "" } = req.query;
+
+  let searchQuery = null;
+  if (search) {
+    searchQuery = `descripcion LIKE '%${search}%'`;
+  }
+
+  const status = await CfgStatus.all({
+    limit: 50,
+    searchQuery,
+  })
+
+  res.json({
+    querys: search,
+    data: status
+  })
+});
+
+router.get("/profesores", async (req, res) => {
+  const { search = "", page = 1 } = req.query;
+
+  let searchQuery = "";
+
+  if (search) {
+    searchQuery += `nombreprofesor like '%${search}%'`;
+  }
+
+  const profes = await Profesores.all({
+    searchQuery,
+    limit: 20,
+    skip: (page - 1) * 20,
+  });
+
+  res.json({
+    query: {
+      search,
+      page
+    },
+    data: profes
+  })
+
+});
+
+router.get("/profesores/:id/grupos", async (req, res) => {
+  const idProfesor = req.params.id;
+
+  const { page = 1 } = req.query;
+
+  if (page <= 0) page = 1;
+
+  let sql = `select first(${page * 20}) skip(${(page - 1) * 20}) *
+    from profesores_grupos
+    join cfgplanes_det as asig
+    on profesores_grupos.id_plan = asig.id_plan
+    and profesores_grupos.id_etapa = asig.id_etapa
+    and profesores_grupos.claveasignatura = asig.claveasignatura
+    where claveprofesor = '${idProfesor}' `;
+
+  let periodoSelected = req.session.periodoSelected;
+
+  if (periodoSelected) {
+    let ciclos = await Ciclos.findById(periodoSelected);
+    sql += `and inicial = ${ciclos.INICIAL} `;
+    sql += `and final = ${ciclos.FINAL} `;
+    sql += `and periodo = ${ciclos.PERIODO} `;
+  }
+
+  let grupos = await ProfesoresGrupos.createQuery({ querySql: sql });
+
+  res.json({
+    id_profesor: idProfesor,
+    data: grupos,
+  })
+
+});
+
+// Obtener todas las empresas
+router.get('/empresas', async (req, res) => {
+  try {
+    const empresas = await Empresas.getAll();
+    res.json(empresas);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener las empresas' });
+  }
+});
+
+// Obtener una empresa por su ID
+router.get('/empresas/:id_empresa', async (req, res) => {
+  const id_empresa = req.params.id_empresa;
+  try {
+    const empresa = await Empresas.findById(id_empresa);
+    if (empresa) {
+      res.json(empresa);
+    } else {
+      res.status(404).json({ error: 'Empresa no encontrada' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener la empresa' });
+  }
+});
+// Agregar una nueva empresa
+router.post('/empresas', async (req, res) => {
+  const nuevaEmpresa = req.body; // Obtener los datos del cuerpo de la solicitud
+
+  // Extraer los campos individuales de nuevaEmpresa
+  const {
+    ID_EMPRESA,
+    NOMBRE_EMPRESA,
+    CEDULA_FISCAL_EMPRESA,
+    DOMICILIO_EMPRESA,
+    NUMEXT_EMPRESA,
+    NUMINT_EMPRESA,
+    COLONIA_EMPRESA,
+    CP_EMPRESA,
+    LOCALIDAD_EMPRESA,
+    CIUDAD_EMPRESA,
+    ESTADO_EMPRESA,
+    TELEFONO1_EMPRESA,
+    EMAIL
+  } = nuevaEmpresa;
+
+  // Ejecutar la sentencia INSERT en la base de datos
+  const query = `
+    INSERT INTO CFGEMPRESAS (
+      ID_EMPRESA,
+      NOMBRE_EMPRESA,
+      CEDULA_FISCAL_EMPRESA,
+      DOMICILIO_EMPRESA,
+      NUMEXT_EMPRESA,
+      NUMINT_EMPRESA,
+      COLONIA_EMPRESA,
+      CP_EMPRESA,
+      LOCALIDAD_EMPRESA,
+      CIUDAD_EMPRESA,
+      ESTADO_EMPRESA,
+      TELEFONO1_EMPRESA,
+      EMAIL
+    )
+    VALUES (
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?
+    )
+  `;
+
+  // Crear un array con los valores en el mismo orden que las ? en la consulta
+  const values = [
+    ID_EMPRESA,
+    NOMBRE_EMPRESA,
+    CEDULA_FISCAL_EMPRESA,
+    DOMICILIO_EMPRESA,
+    NUMEXT_EMPRESA,
+    NUMINT_EMPRESA,
+    COLONIA_EMPRESA,
+    CP_EMPRESA,
+    LOCALIDAD_EMPRESA,
+    CIUDAD_EMPRESA,
+    ESTADO_EMPRESA,
+    TELEFONO1_EMPRESA,
+    EMAIL
+  ];
+
+  try {
+    // Ejecutar la consulta en la base de datos
+    await new Firebird("EMPLEADOS").createQuery({ querySql: query, data: values })
+
+    res.status(201).json({ message: 'Empresa creada exitosamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al crear la empresa' });
+  }
+});
+// Obtener todos los empleados
+router.get('/empleados', async (req, res) => {
+  try {
+    const empleados = await Empleados.getAll();
+    res.json(empleados);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los empleados' });
+  }
+});
+// Obtener un empleado por su NUMEMPLEADO
+router.get('/empleados/:numEmpleado', async (req, res) => {
+  const numEmpleado = req.params.numEmpleado;
+  try {
+    const empleado = await Empleados.findByNumEmpleado(numEmpleado);
+    if (empleado) {
+      res.json(empleado);
+    } else {
+      res.status(404).json({ error: 'Empleado no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el empleado' });
+  }
+});
+
+router.get('/edoctos/', async (req, res) => {
+  const { grado, numalumno } = req.query;
+
+  if (!grado || !numalumno) {
+    return res.json({
+      error: 'Se necesita el grado a buscar y el número del alumno',
+    });
+  }
+
+  try {
+    const edoctos = await CFGDoctos.findAll({
+      where: {
+        GRADO: grado,
+        NUMALUMNO: numalumno,
+      },
+    });
+
+    res.json({
+      query: {
+        grado,
+        numalumno,
+      },
+      edoctos,
+    });
+  } catch (error) {
+    console.error('Error al consultar los edoctos:', error);
+    res.status(500).json({
+      error: 'Ocurrió un error al obtener los edoctos.',
+    });
+  }
+});
+
+router.get("/villas", async (req, res) => {
+  let villa = await VillasMst.all({
+    limit: 10,
+  })
+  res.json(villa);
+});
+
+router.get("/villas/:id", async (req, res) => {
+  let villa = await VillasMst.findById(req.params.id);
+  res.json(villa);
+});
+
+router.get("/villas/:idVilla/cfg", async (req, res) => {
+  let cfgVilla = await VillasCfg.where({
+    codigo_villa: [req.params.idVilla]
+  },
+    {
+      limit: 10,
+    });
+
+  res.json(cfgVilla);
+});
+
+router.get("/villas/:idVilla/cfg/:idCfg", async () => { });
+
+router.post('/GrupAlumnos', async (req, res) => {
+  try {
+
+    let data = req.body;
+    //se obtiene los datos del alumno
+    const {
+      ID_ESCUELA,
+      INICIAL,
+      FINAL,
+      PERIODO,
+      NUMEROALUMNO,
+      CODIGO_GRUPO
+    } = data;
+    //se crea el query para grabar en alumnos_grupos
+    let query = `SELECT first (1)
+    alumnos_grupos.id_escuela,
+    alumnos_grupos.inicial,
+    alumnos_grupos.final,
+    alumnos_grupos.periodo,
+    alumnos_grupos.numeroalumno,
+    alumnos_grupos.codigo_grupo
+    from alumnos_grupos`;
+
+    query += ` WHERE alumnos_grupos.id_escuela = '${ID_ESCUELA}'`;
+    query += `AND alumnos_grupos.inicial = ${INICIAL} `;
+    query += `AND alumnos_grupos.final = ${FINAL} `;
+    query += `AND alumnos_grupos.periodo = ${PERIODO} `;
+    query += `AND alumnos_grupos.numeroalumno = ${NUMEROALUMNO} `;
+    query += `AND alumnos_grupos.codigo_grupo = '${CODIGO_GRUPO}' `;
+    //return res.json(query);
+    //se retorna el registro
+    const pagosalumData = await GrupoAlumnos.createQuery({ querySql: query });
+    res.json(pagosalumData[0]);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error en la consulta de la base de datos' });
+  }
+});
+
+router.get("/kardex/periodo", async (req, res) => {
+  try {
+    const { inicio, final } = req.query;
+
+    // Validar parámetros obligatorios
+    if (!inicio || !final) {
+      return res.status(400).json({
+        error: "Los parámetros 'inicio' y 'final' son obligatorios",
+      });
+    }
+
+    // Construir consulta SQL
+    const query = `
+      SELECT 
+        ID_ESCUELA,
+        NUMEROALUMNO,
+        ID_PLAN,
+        ID_ETAPA,
+        ID_TIPOEVAL,
+        CLAVEASIGNATURA,
+        TIPOEXAMEN,
+        ID_EVAL
+      FROM tu_tabla
+      WHERE inicio = ${inicio} AND final = ${final};
+    `;
+
+    // Realizar la consulta a la base de datos
+    const data = await TuModeloDeBaseDeDatos.query(query);
+
+    // Verificar si hay resultados
+    if (!data.length) {
+      return res.status(404).json({
+        message: "No se encontraron datos para el periodo especificado",
+      });
+    }
+
+    // Respuesta con los datos encontrados
+    res.json(data);
+  } catch (error) {
+    console.error("Error al consultar los periodos:", error);
+    res.status(500).json({
+      error: "Ocurrió un error al consultar la base de datos",
+    });
+  }
+});
+
+module.exports = router;
+
+router.post('/AlumnosNivel', async (req, res) => {
+  try {
+
+    let data = req.body;
+    //se obtiene los datos del alumno
+    const {
+      ID_ESCUELA,
+      INICIAL,
+      FINAL,
+      PERIODO,
+      NUMEROALUMNO,
+      NIVEL,
+      CUATRIMESTRE
+    } = data;
+    //se crea el query para grabar en alumnos_grupos
+    let query = `SELECT first (1)
+    alumnos_niveles.id_escuela,
+    alumnos_niveles.inicial,
+    alumnos_niveles.final,
+    alumnos_niveles.periodo,
+    alumnos_niveles.numeroalumno,
+    alumnos_niveles.nivel,
+    alumnos_niveles.grado
+    from alumnos_niveles`;
+
+    query += ` WHERE alumnos_niveles.id_escuela = '${ID_ESCUELA}'`;
+    query += `AND alumnos_niveles.numeroalumno = ${NUMEROALUMNO} `;
+    query += `AND alumnos_niveles.inicial = ${INICIAL} `;
+    query += `AND alumnos_niveles.final = ${FINAL} `;
+    query += `AND alumnos_niveles.periodo = ${PERIODO} `;
+    query += `AND alumnos_niveles.nivel = '${NIVEL}' `;
+    query += `AND alumnos_niveles.grado = '${CUATRIMESTRE}' `;
+    //se retorna el registro
+    const pagosalumData = await AlumnosNiveles.createQuery({ querySql: query });
+    res.json(pagosalumData[0]);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error en la consulta de la base de datos' });
+  }
+});
+
+router.get('/GrupAl', async (_req, res) => {
+  try {
+    const pagosalumData = await Pagosalum.createQuery({ querySql: "SELECT * FROM CFGPAGOS_DET" });
+
+    res.json(pagosalumData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error en la consulta de la base de datos' });
+  }
+});
+module.exports = router;
+
+
+router.post("/alumnos", async (req, res) => {
+  const { numeroAlumno, ...datosAlumno } = req.body;
+
+  if (!numeroAlumno) {
+      return res.status(400).json({ error: "El número de alumno es obligatorio." });
+  }
+
+  try {
+      let camposActualizacion = Object.keys(datosAlumno).map(campo => `${campo} = ?`).join(", ");
+      let valores = Object.values(datosAlumno);
+
+      let sql = `UPDATE ALUMNOS SET ${camposActualizacion} WHERE ID_ESCUELA = 1 AND NUMEROALUMNO = ?`;
+      valores.push(numeroAlumno);
+
+      await AlumKardex.createQuery({ querySql: sql, data: valores });
+
+      res.json({ mensaje: "Alumno actualizado correctamente." });
+  } catch (error) {
+      console.error("Error al actualizar el alumno:", error);
+      res.status(500).json({ error: "Ocurrió un error al actualizar el alumno." });
+  }
+});
+
+
+// router.post('/alumnos', async (req, res) => {
+//     try {
+//         // Extraemos los datos del cuerpo de la petición
+//         const { NUMEROALUMNO, MATRICULA, ...datosActualizacion } = req.body;
+
+//         // Validación básica
+//         if (!NUMEROALUMNO && !MATRICULA) {
+//             return res.status(400).json({
+//                 error: 'Debe proporcionar NUMEROALUMNO o MATRICULA'
+//             });
+//         }
+
+//         // Verificar que hay datos para actualizar
+//         const camposParaActualizar = Object.keys(datosActualizacion);
+//         if (camposParaActualizar.length === 0) {
+//             return res.status(400).json({
+//                 error: 'No se proporcionaron datos para actualizar'
+//             });
+//         }
+
+//         // Construir la consulta SQL
+//         const setClause = camposParaActualizar.map(campo => `${campo} = ?`).join(', ');
+//         const values = camposParaActualizar.map(campo => datosActualizacion[campo]);
+
+//         // Agregar el identificador al final de los valores
+//         if (NUMEROALUMNO) {
+//             values.push(NUMEROALUMNO);
+//         } else {
+//             values.push(MATRICULA);
+//         }
+
+//         const query = `
+//             UPDATE ALUMNOS 
+//             SET ${setClause}
+//             WHERE ID_ESCUELA = 1 
+//             AND ${NUMEROALUMNO ? 'NUMEROALUMNO = ?' : 'MATRICULA = ?'}
+//         `;
+
+//         // Ejecutar la consulta
+//         const [result] = await pool.query(query, values);
+
+//         if (result.affectedRows === 0) {
+//             return res.status(404).json({
+//                 error: 'Alumno no encontrado'
+//             });
+//         }
+
+//         res.json({
+//             success: true,
+//             message: 'Datos actualizados correctamente',
+//             camposActualizados: camposParaActualizar
+//         });
+
+//     } catch (error) {
+//         console.error('Error al actualizar alumno:', error);
+//         res.status(500).json({
+//             error: 'Error en el servidor',
+//             detalle: process.env.NODE_ENV === 'development' ? error.message : null
+//         });
+//     }
+// });
+
+
+
+// router.post('/alumnos', async (req, res) => {
+//   const {
+//     NUMEROALUMNO,
+//     MATRICULA,
+//     MATRICULA_OFICIAL,
+//     NOMBRE,
+//     PATERNO,
+//     MATERNO,
+//     TIPO_SEG_MED,
+//     NUM_IMSS,
+//     NUM_IMSS_VERIFICADOR,
+//     GENERO,
+//     NIVEL,
+//     GRADO,
+//     SUBNIVEL,
+//     STATUS,
+//     CLAVE_CIUDADANA,
+//     ESTADO_CIVIL,
+//     FECHA_NACIMIENTO,
+//     DOMICILIO,
+//     ENTRE_CALLES,
+//     CP,
+//     CIUDAD,
+//     ESTADO,
+//     LATITUD,
+//     LONGITUD,
+//     TELEFONO,
+//     CELULAR,
+//     TELEFONOTRABAJO,
+//     NOMBRETUTOR,
+//     PARENTESCO,
+//     OBSERVACIONES,
+//     ADICIONALES,
+//     EMAIL,
+//     EMAIL_ALTERNO,
+//     FECHA_BAJA,
+//     ANIOEGRESO,
+//     LUGAR_NACIMIENTO,
+//     ESTADO_NACIMIENTO,
+//     NACIONALIDAD,
+//     ESCUELA_PROCEDENCIA,
+//     ESCOLARIDAD,
+//     ESTADO_ESCOLARIDAD,
+//     FECHA_EGRESO,
+//     FECHA_INGRESO,
+//     FECHA_CREACION,
+//     FECHA_ACTUALIZACION,
+//     PROMEDIO_ESC_ANTERIOR,
+//     PROMEDIO_EX_ADMISION,
+//     CERTIFICADO,
+//     SITUACION_CERTIFICADO,
+//     ALUMNO_ALTAINICIAL,
+//     ALUMNO_ALTAFINAL,
+//     ALUMNO_ALTAPERIODO,
+//     FECHA_PROSPECCION,
+//     PROSPECCION_FINAL,
+//     PROSPECCION_INICIAL,
+//     PROSPECCION_PERIODO,
+//     EGRESO_INICIAL,
+//     EGRESO_FINAL,
+//     EGRESO_PERIODO,
+//     BECA,
+//     CUENTA_BECA,
+//     TARJETA_BECA,
+//     PESO_KG,
+//     CONTACTO,
+//     PARENTESCO_CONTACTO,
+//     TEL_CONTACTO,
+//     LENGUAINDIGENA,
+//     DISCAPACIDAD,
+//     ENFERNEDAD,
+//     ALERGIAS,
+//     NOMBREPADRE,
+//     NOMBREMADRE,
+//     PERSONASDEPENDENINGRESO,
+//     VIVENCASA,
+//     HERMANOS,
+//     LUGARNACIMIENTO,
+//     HERMANOSESTUDIAN,
+//     HORARIOTRABAJAS,
+//     ESCOLARIDADCONYUGE,
+//     HIJOS0A5,
+//     HIJOS6A12,
+//     HIJOS13A18,
+//     HIJOSMAYORES,
+//     CARRERA_ORIGEN_MOV_ACAD,
+//     FOLIO_CENEVAL,
+//     FOLIO_ACTA_EXEN_TSU,
+//     LIBRO_ACTA_EXEN_TSU,
+//     FOJAS_ACTA_EXEN_TSU,
+//     FOLIO_CERTIFICADO_TSU,
+//     LIBRO_CERTIFICADO_TSU,
+//     FOJAS_CERTIFICADO_TSU,
+//     FOLIO_TITULACION_TSU,
+//     LIBRO_TITULACION_TSU,
+//     FOJA_TITULACION_TSU,
+//     FOLIO_TITULACION,
+//     FECHA_TRAMITE,
+//     TITULACION_FOLIOPAGO,
+//     EMPRESA_NR,
+//     ASESOR_EMPRESARIAL,
+//     ASESOR_EMPRESARIAL_INT,
+//     ESTADIA_INICIO,
+//     ESTADIA_TERMINO,
+//     FOLIO_CSS,
+//     LIBRO_CSS,
+//     FOJAS_CSS,
+//     PROYECTO_NOMBRE,
+//     CAI_FECHA,
+//     ASESOR_ACADEMICO,
+//     ASESOR_ACAD_EXT,
+//     PROYECTO_OBS,
+//     TRAMITE_COMPLETO,
+//     FOLIO_CEX,
+//     LIBRO_CEX,
+//     FOJAS_CEX,
+//     SOLICITUD_TITULACION_LIC,
+//     FOLIO_TITULACION_LIC,
+//     FECHA_TRAMITE_LIC,
+//     FOLIO_PAGO_TIT_LIC,
+//     NUM_CEDULA_TSU,
+//     EMPRESA_ESTADIA_LIC,
+//     ASESOR_EMPRESARIAL_LIC,
+//     FECHA_INICIO_EST_LIC,
+//     FECHA_FIN_EST_LIC,
+//     FECHA_LIBERACION_EST_LIC,
+//     PROYECTO_EST_LIC,
+//     FECHA_AUTORIZACION_LIC,
+//     ASESOR_ACAD_LIC,
+//     OBS_PROYECTO_LIC,
+//     FECHA_INGRESO_LIC,
+//     FECHA_EGRESO_LIC,
+//     INICIO_BACH,
+//     FIN_BACH,
+//     FOLIO_CERLIC,
+//     LIBRO_CERLIC,
+//     FOJA_CERLIC,
+//     FOLIO_CSSLIC,
+//     LIBRO_CSSLIC,
+//     FOJA_CSSLIC,
+//     FOLIO_TITLIC,
+//     LIBRO_TITLIC,
+//     FOJA_TITLIC,
+//     ALUMNO_PASSWORD,
+//     NUM_CEDULA_LIC,
+//     ESTADOCIVIL
+//   } = req.body;
+
+//   if (!NUMEROALUMNO) {
+//     return res.status(400).json({ error: 'El número de alumno es obligatorio' });
+//   }
+
+//   const setClauses = [];
+//   const params = [];
+
+//   const addField = (field, value) => {
+//     if (value !== undefined && value !== null) {
+//       setClauses.push(`${field} = ?`);
+//       params.push(value);
+//     }
+//   };
+
+//   addField('MATRICULA', MATRICULA);
+//   addField('MATRICULA_OFICIAL', MATRICULA_OFICIAL);
+//   addField('NOMBRE', NOMBRE);
+//   addField('PATERNO', PATERNO);
+//   addField('MATERNO', MATERNO);
+//   addField('TIPO_SEG_MED', TIPO_SEG_MED);
+//   addField('NUM_IMSS', NUM_IMSS);
+//   addField('NUM_IMSS_VERIFICADOR', NUM_IMSS_VERIFICADOR);
+//   addField('GENERO', GENERO);
+//   addField('NIVEL', NIVEL);
+//   addField('GRADO', GRADO);
+//   addField('SUBNIVEL', SUBNIVEL);
+//   addField('STATUS', STATUS);
+//   addField('CLAVE_CIUDADANA', CLAVE_CIUDADANA);
+//   addField('ESTADO_CIVIL', ESTADO_CIVIL);
+//   addField('FECHA_NACIMIENTO', FECHA_NACIMIENTO);
+//   addField('DOMICILIO', DOMICILIO);
+//   addField('ENTRE_CALLES', ENTRE_CALLES);
+//   addField('CP', CP);
+//   addField('CIUDAD', CIUDAD);
+//   addField('ESTADO', ESTADO);
+//   addField('LATITUD', LATITUD);
+//   addField('LONGITUD', LONGITUD);
+//   addField('TELEFONO', TELEFONO);
+//   addField('CELULAR', CELULAR);
+//   addField('TELEFONOTRABAJO', TELEFONOTRABAJO);
+//   addField('NOMBRETUTOR', NOMBRETUTOR);
+//   addField('PARENTESCO', PARENTESCO);
+//   addField('OBSERVACIONES', OBSERVACIONES);
+//   addField('ADICIONALES', ADICIONALES);
+//   addField('EMAIL', EMAIL);
+//   addField('EMAIL_ALTERNO', EMAIL_ALTERNO);
+//   addField('FECHA_BAJA', FECHA_BAJA);
+//   addField('ANIOEGRESO', ANIOEGRESO);
+//   addField('LUGAR_NACIMIENTO', LUGAR_NACIMIENTO);
+//   addField('ESTADO_NACIMIENTO', ESTADO_NACIMIENTO);
+//   addField('NACIONALIDAD', NACIONALIDAD);
+//   addField('ESCUELA_PROCEDENCIA', ESCUELA_PROCEDENCIA);
+//   addField('ESCOLARIDAD', ESCOLARIDAD);
+//   addField('ESTADO_ESCOLARIDAD', ESTADO_ESCOLARIDAD);
+//   addField('FECHA_EGRESO', FECHA_EGRESO);
+//   addField('FECHA_INGRESO', FECHA_INGRESO);
+//   addField('FECHA_CREACION', FECHA_CREACION);
+//   addField('FECHA_ACTUALIZACION', FECHA_ACTUALIZACION);
+//   addField('PROMEDIO_ESC_ANTERIOR', PROMEDIO_ESC_ANTERIOR);
+//   addField('PROMEDIO_EX_ADMISION', PROMEDIO_EX_ADMISION);
+//   addField('CERTIFICADO', CERTIFICADO);
+//   addField('SITUACION_CERTIFICADO', SITUACION_CERTIFICADO);
+//   addField('ALUMNO_ALTAINICIAL', ALUMNO_ALTAINICIAL);
+//   addField('ALUMNO_ALTAFINAL', ALUMNO_ALTAFINAL);
+//   addField('ALUMNO_ALTAPERIODO', ALUMNO_ALTAPERIODO);
+//   addField('FECHA_PROSPECCION', FECHA_PROSPECCION);
+//   addField('PROSPECCION_FINAL', PROSPECCION_FINAL);
+//   addField('PROSPECCION_INICIAL', PROSPECCION_INICIAL);
+//   addField('PROSPECCION_PERIODO', PROSPECCION_PERIODO);
+//   addField('EGRESO_INICIAL', EGRESO_INICIAL);
+//   addField('EGRESO_FINAL', EGRESO_FINAL);
+//   addField('EGRESO_PERIODO', EGRESO_PERIODO);
+//   addField('BECA', BECA);
+//   addField('CUENTA_BECA', CUENTA_BECA);
+//   addField('TARJETA_BECA', TARJETA_BECA);
+//   addField('PESO_KG', PESO_KG);
+//   addField('CONTACTO', CONTACTO);
+//   addField('PARENTESCO_CONTACTO', PARENTESCO_CONTACTO);
+//   addField('TEL_CONTACTO', TEL_CONTACTO);
+//   addField('LENGUAINDIGENA', LENGUAINDIGENA);
+//   addField('DISCAPACIDAD', DISCAPACIDAD);
+//   addField('ENFERNEDAD', ENFERNEDAD);
+//   addField('ALERGIAS', ALERGIAS);
+//   addField('NOMBREPADRE', NOMBREPADRE);
+//   addField('NOMBREMADRE', NOMBREMADRE);
+//   addField('PERSONASDEPENDENINGRESO', PERSONASDEPENDENINGRESO);
+//   addField('VIVENCASA', VIVENCASA);
+//   addField('HERMANOS', HERMANOS);
+//   addField('LUGARNACIMIENTO', LUGARNACIMIENTO);
+//   addField('HERMANOSESTUDIAN', HERMANOSESTUDIAN);
+//   addField('HORARIOTRABAJAS', HORARIOTRABAJAS);
+//   addField('ESCOLARIDADCONYUGE', ESCOLARIDADCONYUGE);
+//   addField('HIJOS0A5', HIJOS0A5);
+//   addField('HIJOS6A12', HIJOS6A12);
+//   addField('HIJOS13A18', HIJOS13A18);
+//   addField('HIJOSMAYORES', HIJOSMAYORES);
+//   addField('CARRERA_ORIGEN_MOV_ACAD', CARRERA_ORIGEN_MOV_ACAD);
+//   addField('FOLIO_CENEVAL', FOLIO_CENEVAL);
+//   addField('FOLIO_ACTA_EXEN_TSU', FOLIO_ACTA_EXEN_TSU);
+//   addField('LIBRO_ACTA_EXEN_TSU', LIBRO_ACTA_EXEN_TSU);
+//   addField('FOJAS_ACTA_EXEN_TSU', FOJAS_ACTA_EXEN_TSU);
+//   addField('FOLIO_CERTIFICADO_TSU', FOLIO_CERTIFICADO_TSU);
+//   addField('LIBRO_CERTIFICADO_TSU', LIBRO_CERTIFICADO_TSU);
+//   addField('FOJAS_CERTIFICADO_TSU', FOJAS_CERTIFICADO_TSU);
+//   addField('FOLIO_TITULACION_TSU', FOLIO_TITULACION_TSU);
+//   addField('LIBRO_TITULACION_TSU', LIBRO_TITULACION_TSU);
+//   addField('FOJA_TITULACION_TSU', FOJA_TITULACION_TSU);
+//   addField('FOLIO_TITULACION', FOLIO_TITULACION);
+//   addField('FECHA_TRAMITE', FECHA_TRAMITE);
+//   addField('TITULACION_FOLIOPAGO', TITULACION_FOLIOPAGO);
+//   addField('EMPRESA_NR', EMPRESA_NR);
+//   addField('ASESOR_EMPRESARIAL', ASESOR_EMPRESARIAL);
+//   addField('ASESOR_EMPRESARIAL_INT', ASESOR_EMPRESARIAL_INT);
+//   addField('ESTADIA_INICIO', ESTADIA_INICIO);
+//   addField('ESTADIA_TERMINO', ESTADIA_TERMINO);
+//   addField('FOLIO_CSS', FOLIO_CSS);
+//   addField('LIBRO_CSS', LIBRO_CSS);
+//   addField('FOJAS_CSS', FOJAS_CSS);
+//   addField('PROYECTO_NOMBRE', PROYECTO_NOMBRE);
+//   addField('CAI_FECHA', CAI_FECHA);
+//   addField('ASESOR_ACADEMICO', ASESOR_ACADEMICO);
+//   addField('ASESOR_ACAD_EXT', ASESOR_ACAD_EXT);
+//   addField('PROYECTO_OBS', PROYECTO_OBS);
+//   addField('TRAMITE_COMPLETO', TRAMITE_COMPLETO);
+//   addField('FOLIO_CEX', FOLIO_CEX);
+//   addField('LIBRO_CEX', LIBRO_CEX);
+//   addField('FOJAS_CEX', FOJAS_CEX);
+//   addField('SOLICITUD_TITULACION_LIC', SOLICITUD_TITULACION_LIC);
+//   addField('FOLIO_TITULACION_LIC', FOLIO_TITULACION_LIC);
+//   addField('FECHA_TRAMITE_LIC', FECHA_TRAMITE_LIC);
+//   addField('FOLIO_PAGO_TIT_LIC', FOLIO_PAGO_TIT_LIC);
+//   addField('NUM_CEDULA_TSU', NUM_CEDULA_TSU);
+//   addField('EMPRESA_ESTADIA_LIC', EMPRESA_ESTADIA_LIC);
+//   addField('ASESOR_EMPRESARIAL_LIC', ASESOR_EMPRESARIAL_LIC);
+//   addField('FECHA_INICIO_EST_LIC', FECHA_INICIO_EST_LIC);
+//   addField('FECHA_FIN_EST_LIC', FECHA_FIN_EST_LIC);
+//   addField('FECHA_LIBERACION_EST_LIC', FECHA_LIBERACION_EST_LIC);
+//   addField('PROYECTO_EST_LIC', PROYECTO_EST_LIC);
+//   addField('FECHA_AUTORIZACION_LIC', FECHA_AUTORIZACION_LIC);
+//   addField('ASESOR_ACAD_LIC', ASESOR_ACAD_LIC);
+//   addField('OBS_PROYECTO_LIC', OBS_PROYECTO_LIC);
+//   addField('FECHA_INGRESO_LIC', FECHA_INGRESO_LIC);
+//   addField('FECHA_EGRESO_LIC', FECHA_EGRESO_LIC);
+//   addField('INICIO_BACH', INICIO_BACH);
+//   addField('FIN_BACH', FIN_BACH);
+//   addField('FOLIO_CERLIC', FOLIO_CERLIC);
+//   addField('LIBRO_CERLIC', LIBRO_CERLIC);
+//   addField('FOJA_CERLIC', FOJA_CERLIC);
+//   addField('FOLIO_CSSLIC', FOLIO_CSSLIC);
+//   addField('LIBRO_CSSLIC', LIBRO_CSSLIC);
+//   addField('FOJA_CSSLIC', FOJA_CSSLIC);
+//   addField('FOLIO_TITLIC', FOLIO_TITLIC);
+//   addField('LIBRO_TITLIC', LIBRO_TITLIC);
+//   addField('FOJA_TITLIC', FOJA_TITLIC);
+//   addField('ALUMNO_PASSWORD', ALUMNO_PASSWORD);
+//   addField('NUM_CEDULA_LIC', NUM_CEDULA_LIC);
+//   addField('ESTADOCIVIL', ESTADOCIVIL);
+
+//   if (setClauses.length === 0) {
+//     return res.status(400).json({ error: 'No se proporcionaron datos para actualizar' });
+//   }
+
+//   const query = `
+//       UPDATE ALUMNOS
+//       SET ${setClauses.join(', ')}
+//       WHERE ID_ESCUELA = 1 AND NUMEROALUMNO = ?
+//   `;
+//   params.push(NUMEROALUMNO);
+
+//   try {
+//     const result = await pool.query(query, params);
+
+//     if (result.affectedRows > 0) {
+//       return res.status(200).json({
+//         message: 'Datos actualizados correctamente',
+//         camposActualizados: setClauses.length,
+//         numeroAlumno: NUMEROALUMNO
+//       });
+//     } else {
+//       return res.status(404).json({
+//         error: 'Alumno no encontrado o no se realizaron cambios',
+//         numeroAlumno: NUMEROALUMNO
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Error al actualizar alumno:', error);
+//     return res.status(500).json({
+//       error: 'Error al actualizar los datos del alumno',
+//       detalles: process.env.NODE_ENV === 'development' ? error.message : null
+//     });
+//   }
+// });

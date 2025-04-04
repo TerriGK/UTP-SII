@@ -1,0 +1,90 @@
+<section class="position-relative p-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    {{>btnBack}}
+  </div>
+
+  <!-- Pantalla de carga -->
+  <div id="setCalifi" class="bg-secondary d-none text-center p-3">
+    <div class="spinner-border" role="status"></div>
+  </div>
+
+  <!-- Contenedor de contenido -->
+<div id="datosProfesor" class="text-center">
+    <h1 class="h4">Calificaciones</h1>
+    <h5><b>Mtro: {{profe.NOMBREPROFESOR}} </b></h5>
+    <h6 id="asig">Asignatura</h6>
+    <h6 id="grupo">Grupo</h6>
+  </div>
+
+    <form id="formCalif">
+      <!-- Acciones del formulario -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-primary">Guardar</button>
+        <div>
+          <input id="input" type="file" accept=".xlsx, .xls, .csv" class="form-control" />
+          <small id="info_excel" class="text-muted"></small>
+        </div>
+      </div>
+
+      <!-- Selección de plan de evaluación -->
+      <div class="mb-3">
+        <select id="idPlan" class="form-select">
+          {{#each evals}}
+          <option value="{{ID_EVAL}}">{{DESCRIPCION}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <!-- Tabla de calificaciones -->
+      <div class="table-responsive">
+        <table class="table" style="background-color: white; color: black;">
+          <thead style="background-color: #911820; color: white;">
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Matrícula</th>
+              <th>Calificación</th>
+            </tr>
+          </thead>
+          <tbody id="table-content"></tbody>
+        </table>
+      </div>
+
+      <!-- Indicador de carga -->
+      <div id="loading" class="text-center d-none">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Botón flotante de descarga -->
+<button onclick="descargarTablaExcel()" id="botonDescargarExcel" class="btn btn-custom-download">
+  <i class="bi bi-file-earmark-excel"></i> Descargar
+</button>
+
+<!-- Scripts -->
+<script src="/js/services/admin/GetCalificaciones/GetSubircalificaciones_Admin.js"></script>
+<script src="/js/FileSaver.js"></script>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/js/services/profe/Exel_js/exportarExel_subes_admin.js"></script>
+
+<style>
+  /* Estilos para el botón flotante */
+  #botonDescargarExcel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #911820;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 9999;
+  }
+
+  #botonDescargarExcel:hover {
+    background-color: #7c1517;
+  }
+</style>

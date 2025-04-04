@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Integral de Información Institucional</title>
+  <link rel="stylesheet" href="/css/Styeles_ciclos.css">
+</head>
+
+<body onload="mostrarCiclosFiltrados()">
+
+  <div class="container">
+    <h1>Configuración &gt; Cuatrimestre &gt; Calificaciones</h1>
+    <h2>Calificaciones</h2>
+
+
+    <div class="button-container">
+      <button class="btn btn-bloquear" onclick="bloquearTodo()">Bloquear Todos</button>
+      <button class="btn btn-deshacer" onclick="desbloquearTodo()">Desbloquear Todos</button>
+    </div>
+
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Inicial</th>
+            <th>Final</th>
+            <th>Periodo</th>
+            <th>Función Ciclos</th>
+            <th>Bloquear</th>
+          </tr>
+        </thead>
+        <tbody id="ciclosContainer">
+          <!-- Aquí se mostrarán los ciclos filtrados -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+ <script src="/js/services/admin/Calificaciones_admin/calificacionesI.js"></script>
+
+</body>
+
+</html>

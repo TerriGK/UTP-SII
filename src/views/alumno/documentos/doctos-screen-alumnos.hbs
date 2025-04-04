@@ -1,0 +1,125 @@
+<section class="section profile">
+  <div class="container my-5">
+
+    <!-- Botón para regresar -->
+    <div class="mb-3">
+      {{>btnBack}}
+    </div>
+
+    <!-- Tarjeta Principal -->
+    <div class="card shadow-lg border-light">
+      <div class="card-header" style="background-color: #911820; color: white; text-align: center; padding: 2rem;">
+        <h3 class="mb-0">Documentos de {{nombre}}</h3>
+        <input type="hidden" value="{{numeroalumno}}" id="numeroalumno">
+      </div>
+
+      <div class="card-body">
+        <!-- Filtros y subir documento -->
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+          <!-- Selección de cuatrimestre -->
+          <div class="col">
+            <div class="mb-4">
+              <label class="form-label fs-5"><b>*Selecciona el cuatrimestre:</b></label>
+              <select class="form-select" id="filterDocto">
+                <option disabled selected>-- Haga una elección --</option>
+                <option value="0">Doctos de registro</option>
+                <option value="1">Cuatrimestre 1</option>
+                <option value="2">Cuatrimestre 2</option>
+                <option value="3">Cuatrimestre 3</option>
+                <option value="4">Cuatrimestre 4</option>
+                <option value="5">Cuatrimestre 5</option>
+                <option value="6">Cuatrimestre 6</option>
+                <option value="7">Cuatrimestre 7</option>
+                <option value="8">Cuatrimestre 8</option>
+                <option value="9">Cuatrimestre 9</option>
+                <option value="10">Cuatrimestre 10</option>
+                <option value="11">Cuatrimestre 11</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Subir documentos (visible solo para admins) -->
+          {{#if isAdmin}}
+          <div class="col">
+            <div class="mb-4">
+              <label class="form-label fs-5"><b>Subir documento</b> <small>(cuatrimestre seleccionado)</small></label>
+              <div class="d-flex align-items-center">
+                <input type="file" class="form-control" id="input" accept="application/pdf">
+                <button class="btn btn-outline-light ms-3" title="Subir">
+                  <i class="bi bi-upload"></i> Subir
+                </button>
+              </div>
+            </div>
+          </div>
+          {{/if}}
+
+        </div>
+
+        <!-- Contenido de los documentos -->
+        <div class="row pt-3" id="content">
+          <!-- Aquí se cargarán los documentos dependiendo del cuatrimestre seleccionado -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="/js/services/alumno/getDoctos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+<!-- Estilos adicionales -->
+<style>
+  .card {
+    border-radius: 1rem;
+  }
+
+  .card-header {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+  }
+
+  .form-select,
+  .form-control {
+    font-size: 1rem;
+  }
+
+  .btn-outline-light {
+    font-weight: 500;
+    border-color: #911820;
+    color: #911820;
+  }
+
+  .btn-outline-light:hover {
+    background-color: #911820;
+    color: white;
+  }
+
+  .d-flex {
+    display: flex;
+  }
+
+  .ms-3 {
+    margin-left: 1rem;
+  }
+
+
+  /* Hacer el modal de pantalla completa */
+  .modal-fullscreen {
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Asegurar que el iframe ocupe toda la pantalla */
+  .modal-body iframe {
+    width: 100%;
+    height: 100vh;
+    /* Altura completa de la pantalla */
+    border: none;
+    object-fit: contain;
+    /* Asegura que el contenido del PDF se ajuste bien */
+  }
+</style>
