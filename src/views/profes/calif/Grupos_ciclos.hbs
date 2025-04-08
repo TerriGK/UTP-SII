@@ -1,150 +1,176 @@
-<section>
+<section class="assignment-container">
   <input type="hidden" id="idprofesor" value="{{CLAVEPROFESOR}}" />
-  <div class="mb-3">
-    {{>btnBack}} <!-- Botón de regreso -->
-  </div>
+  
+  <div class="container py-4">
+    <!-- Card principal -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <!-- Header con botón de regreso -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          {{>btnBack}}
+          <span class="badge bg-light text-dark border">Profesores Grupo</span>
+        </div>
 
-  <div class="container">
-    <div class="text-center mb-4">
-      <h1 class="h4">Asignación de grupos</h1>
-      <h5>Mtro. {{NOMBREPROFESOR}}</h5>
-    </div>
+        <!-- Título y profesor -->
+        <div class="text-center mb-4">
+          <h3 class="card-title fw-normal mb-2">Asignación de Grupos</h3>
+          <p class="text-muted mb-0">
+            <i class="bi bi-person-fill me-1"></i>
+            Prof. {{NOMBREPROFESOR}}
+          </p>
+        </div>
 
-    <!-- Campo de búsqueda -->
-    <div class="input-group mb-3 d-none d-md-flex justify-content-center">
-      <span class="input-group-text">
-        <i class="bi bi-search"></i>
-      </span>
-      <input type="search" class="form-control" placeholder="Buscar" id="buscar" />
-    </div>
+        <!-- Barra de búsqueda minimalista -->
+        <div class="mb-4">
+          <div class="input-group border rounded">
+            <span class="input-group-text bg-transparent border-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="search" 
+                   class="form-control border-0" 
+                   placeholder="Buscar materia o grupo..." 
+                   id="buscar" />
+          </div>
+        </div>
 
-    <!-- Tabla responsiva -->
-    <div class="table-container mb-4">
-      <table class="table table-hover table-sm">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nombre Código</th>
-            <th>Nombre de la asignatura</th>
-            <th>Grupo</th>
-            <th>Ver Más</th>
-          </tr>
-        </thead>
-        <tbody id="table-content"></tbody>
-      </table>
-    </div>
+        <!-- Tabla minimalista -->
+        <div class="table-responsive">
+          <table class="table table-borderless table-hover mb-0">
+            <thead>
+              <tr class="border-bottom">
+                <th class="text-muted fw-normal small">#</th>
+                <th class="text-muted fw-normal small">Código</th>
+                <th class="text-muted fw-normal small">Materia</th>
+                <th class="text-muted fw-normal small">Grupo</th>
+                <th class="text-muted fw-normal small text-end">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="table-content" class="border-top-0">
+              <!-- Datos dinámicos aquí -->
+            </tbody>
+          </table>
+        </div>
 
-    <!-- Botones de paginación -->
-    <div class="button-container mb-4">
-      <button class="btn btn-primary btn-sm" onclick="onPrev()">◀</button>
-      <button class="btn btn-primary btn-sm" onclick="onNext()">▶</button>
+        <!-- Paginación discreta -->
+        <div class="d-flex justify-content-center mt-4">
+          <nav>
+            <ul class="pagination pagination-sm">
+              <li class="page-item">
+                <button class="page-link border-0 bg-transparent text-muted" onclick="onPrev()">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+              </li>
+              <li class="page-item">
+                <button class="page-link border-0 bg-transparent text-muted" onclick="onNext()">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
     </div>
   </div>
 </section>
-Cuatri
+
 <script src="/js/services/profe/asignaciongrp.js"></script>
 
 <style>
-  /* General: todos los textos en negro */
-  body, table, h1, h5, .input-group-text, .form-control {
-    color: black; /* Todos los textos en color negro */
+  /* Estilos minimalistas */
+  body {
+    background-color: #f5f5f5;
   }
-
-  /* Contenedor de los botones */
-  .button-container {
-    display: flex;
-    justify-content: center; /* Centra los botones */
-    gap: 10px; /* Espacio entre los botones */
-    margin-top: 20px;
+  
+  .assignment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  font-family: 'Segoe UI', system-ui, sans-serif;
   }
-
-  /* Estilo de los botones */
-  .btn {
-    padding: 8px 16px;
-    font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
-    border-radius: 0; /* Botones cuadrados */
-    background-color: #911820; /* Color de fondo de los botones */
-    color: white;
-    border: none;
-    transition: background-color 0.3s, transform 0.3s;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  
+  .card {
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
   }
-
-  /* Efecto hover para los botones */
-  .btn:hover {
-    background-color: #911820;
-    transform: scale(1.05);
+  
+  .card-title {
+    font-size: 1.4rem;
+    color: #333;
+    letter-spacing: 0.5px;
   }
-
-  /* Ajustes de la tabla */
-  .table-container {
-    overflow-x: auto;
-    margin-top: 20px;
+  
+  /* Tabla minimalista */
+  .table {
+    font-size: 0.9rem;
   }
-
-  table {
-    width: 100%;
-    font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
-    border-collapse: collapse; /* Bordes limpios */
+  
+  .table th {
+    padding: 0.75rem 1rem;
+    background-color: transparent;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
   }
-
-  table th, table td {
-    padding: 10px;
-    border: 1px solid #ddd; /* Bordes suaves */
+  
+  .table td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #444;
+    border-bottom: 1px solid #f0f0f0;
   }
-
-  /* Cambiar color de fondo y texto de los encabezados */
-  table th {
-    background-color: #a4273d; /* Fondo de los encabezados con el color solicitado */
-    color: black; /* Texto en negro */
-    font-weight: bold;
+  
+  .table tr:last-child td {
+    border-bottom: none;
   }
-
-  /* Cambiar el color de las celdas de la tabla */
-  table td {
-    background-color: #a4273d; /* Fondo de las celdas con el color solicitado */
-    color: black; /* Texto en negro */
-  }
-
-  /* Ajustes de la búsqueda */
+  
+  /* Barra de búsqueda */
   .input-group {
-    width: 100%;
-    max-width: 500px; /* Ancho máximo para el campo de búsqueda */
-    margin: 0 auto; /* Centrar el campo de búsqueda */
+    max-width: 500px;
+    margin: 0 auto;
   }
-
+  
   .input-group-text {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
+    padding: 0 1rem;
   }
-
+  
   .form-control {
-    border: 1px solid #ddd;
-    border-radius: 0; /* Cuadrado */
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
+    padding: 0.5rem 0;
+    background-color: transparent;
   }
-
-  /* Estilos para pantallas pequeñas */
+  
+  .form-control:focus {
+    box-shadow: none;
+  }
+  
+  /* Badge */
+  .badge {
+    font-weight: 400;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #ddd;
+  }
+  
+  /* Paginación */
+  .pagination {
+    gap: 0.5rem;
+  }
+  
+  .page-link {
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  /* Responsive */
   @media (max-width: 768px) {
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    .table td {
+      padding: 0.75rem;
+    }
+    
     .input-group {
       width: 100%;
-    }
-
-    .btn {
-      width: 100%; /* Los botones ocupan todo el ancho en dispositivos móviles */
-      padding: 10px 0;
-      font-size: 20px; /* Aumento del tamaño de los botones */
-    }
-
-    .button-container {
-      flex-direction: column;
-    }
-
-    /* Ajuste en el tamaño de la tabla */
-    .table th, .table td {
-      font-size: 20px; /* Cambié el tamaño de la fuente a 20px */
-      padding: 10px; /* Ajusté el padding para pantallas pequeñas */
     }
   }
 </style>

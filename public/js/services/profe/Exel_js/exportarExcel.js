@@ -1,77 +1,127 @@
 function descargarTablaExcel() {
   try {
-    // Obtener los datos del profesor, asignatura y grupo
-    const nombreProfesorElement = document.querySelector("#datosProfesor h5 b");
-    const asignaturaElement = document.querySelector("#asig");
-    const grupoElement = document.querySelector("#grupo");
+    // Obtener datos del encabezado
+    const cardTitle = document.querySelector(".card-title")?.textContent.trim() || "Calificaciones";
+    const profesor = document.querySelector(".professor-details p:first-child")?.textContent.trim() || "Profesor no identificado";
+    const asignatura = document.querySelector("#asig")?.textContent.trim() || "Asignatura no especificada";
+    const grupo = document.querySelector("#grupo")?.textContent.trim() || "Grupo no especificado";
+    const evaluacion = document.querySelector("#idPlan option:checked")?.textContent.trim() || "Evaluación no especificada";
 
-    if (!nombreProfesorElement || !asignaturaElement || !grupoElement) {
-      throw new Error("No se encontraron los datos del profesor, asignatura o grupo en el DOM.");
-    }
-
-    const nombreProfesor = nombreProfesorElement.textContent.trim();
-    const asignatura = asignaturaElement.textContent.trim();
-    const grupo = grupoElement.textContent.trim();
-
-    console.log("Nombre Profesor:", nombreProfesor);
-    console.log("Asignatura:", asignatura);
-    console.log("Grupo:", grupo);
-
-    // Obtener los datos de la tabla
+    // Obtener datos de la tabla
     const rows = Array.from(document.querySelectorAll("#table-content tr"));
     const data = rows.map((row, index) => {
       const cells = row.querySelectorAll("td");
-      const inputCalificacion = row.querySelector("input");
-
       if (cells.length >= 3) {
-        const nombre = cells[1].textContent.trim();
-        const matricula = cells[2].textContent.trim();
-        const calificacion = inputCalificacion ? inputCalificacion.value.trim() : cells[3]?.textContent.trim();
-
-        return [index + 1, nombre, matricula, calificacion];
+        return [
+          index + 1,
+          cells[1]?.textContent.trim() || "",
+          cells[2]?.textContent.trim() || "",
+          row.querySelector("input")?.value.trim() || cells[3]?.textContent.trim() || ""
+        ];
       }
       return null;
-    }).filter(row => row !== null);
-
-    console.log("Datos de la tabla:", data);
+    }).filter(Boolean);
 
     if (data.length === 0) {
-      throw new Error("La tabla no tiene datos.");
+      throw new Error("No hay datos de calificaciones para exportar");
     }
 
-    // Crear un nuevo libro de Excel
+    // Crear libro de Excel
     const wb = XLSX.utils.book_new();
+
+    // Configurar datos con formato mejorado
     const wsData = [
-      [`Profesor: ${nombreProfesor}`],
-      [`Asignatura: ${asignatura}`],
-      [`Grupo: ${grupo}`],
+      [cardTitle],
+      [profesor],
+      [`${asignatura} - ${grupo}`],
+      [`Evaluación: ${evaluacion}`],
+      [`Fecha de exportación: ${new Date().toLocaleDateString()}`],
       [],
       [],
       [],
       [],
-      ["#", "Nombre", "Matrícula", "Calificación"],
+      ["#", "Nombre del Estudiante", "Matrícula", "Calificación"],
       ...data
     ];
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = [{ wch: 5 }, { wch: 30 }, { wch: 15 }, { wch: 15 }];
+
+    // Aplicar estilos y formatos
+    ws["!cols"] = [
+      { wch: 5 },  // Número
+      { wch: 35 }, // Nombre
+      { wch: 15 }, // Matrícula
+      { wch: 12 }  // Calificación
+    ];
+
+    // Añadir bordes a los datos
+    const range = XLSX.utils.decode_range(ws["!ref"]);
+    for (let R = 6; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = { c: C, r: R };
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        if (!ws[cell_ref]) continue;
+
+        ws[cell_ref].s = {
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+
+        // Encabezados en negrita
+        if (R === 6) {
+          ws[cell_ref].s.font = { bold: true };
+          ws[cell_ref].s.fill = { fgColor: { rgb: "F2F2F2" } };
+        }
+      }
+    }
 
     XLSX.utils.book_append_sheet(wb, ws, "Calificaciones");
 
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    // Generar nombre de archivo seguro
+    const cleanText = (str) => str.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s-]/g, "").replace(/\s+/g, "_");
+    const fileName = `Calificaciones_${cleanText(asignatura)}_${cleanText(grupo)}_${new Date().toISOString().slice(0, 10)}.xlsx`;
 
-    // Limpiar caracteres especiales del nombre del archivo
-    const asignaturaLimpia = asignatura.replace(/[^a-zA-Z0-9]/g, "_");
-    const grupoLimpio = grupo.replace(/[^a-zA-Z0-9]/g, "_");
+    // Exportar archivo
+    XLSX.writeFile(wb, fileName);
 
-    // Definir el nombre del archivo con la asignatura y grupo
-    const nombreArchivo = `Calificaciones_${asignaturaLimpia}_${grupoLimpio}.xlsx`;
+    // Notificación discreta (opcional)
+    const toast = document.createElement("div");
+    toast.textContent = `Archivo "${fileName}" generado correctamente`;
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.backgroundColor = "#28a745";
+    toast.style.color = "white";
+    toast.style.padding = "10px 20px";
+    toast.style.borderRadius = "4px";
+    toast.style.zIndex = "1000";
+    toast.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+    document.body.appendChild(toast);
 
-    saveAs(new Blob([wbout], { type: "application/octet-stream" }), nombreArchivo);
+    setTimeout(() => toast.remove(), 3000);
 
-    alert(`Archivo Excel generado correctamente: ${nombreArchivo}`);
   } catch (error) {
-    console.error("Error al generar el archivo Excel:", error);
-    alert(`Error: ${error.message}`);
+    console.error("Error al exportar a Excel:", error);
+
+    // Mostrar error sin usar alert()
+    const errorMsg = document.createElement("div");
+    errorMsg.textContent = `Error: ${error.message}`;
+    errorMsg.style.position = "fixed";
+    errorMsg.style.bottom = "20px";
+    errorMsg.style.left = "50%";
+    errorMsg.style.transform = "translateX(-50%)";
+    errorMsg.style.backgroundColor = "#dc3545";
+    errorMsg.style.color = "white";
+    errorMsg.style.padding = "10px 20px";
+    errorMsg.style.borderRadius = "4px";
+    errorMsg.style.zIndex = "1000";
+    document.body.appendChild(errorMsg);
+
+    setTimeout(() => errorMsg.remove(), 5000);
   }
 }

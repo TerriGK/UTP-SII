@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asignación de Grupos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #911820;
+      --secondary-color: #a4273d;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: #f5f8fa;
+      color: #333;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 0.5rem;
+    }
+
+    header h4 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--secondary-color);
+    }
+
+    .input-group {
+      max-width: 500px;
+      margin: 0 auto 2rem;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-group-text {
+      background-color: white;
+      border: none;
+      padding: 0 1.2rem;
+    }
+
+    .form-control {
+      border: none;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+    }
+
+    .form-control:focus {
+      box-shadow: none;
+    }
+
+    .table-responsive {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 500;
+      padding: 1rem;
+      text-align: center;
+      border: none;
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #eee;
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table tbody tr:hover {
+      background-color: rgba(145, 24, 32, 0.05);
+    }
+
+    .pagination-buttons {
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      background-color: #7a141a;
+      border-color: #7a141a;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-primary {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      .card-body {
+        padding: 1.5rem;
+      }
+      
+      header h1 {
+        font-size: 1.5rem;
+      }
+      
+      header h4 {
+        font-size: 1.1rem;
+      }
+      
+      .input-group {
+        max-width: 100%;
+      }
+      
+      .table thead th,
+      .table tbody td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="p-3">
+    <input type="hidden" id="idprofesor" value="{{CLAVEPROFESOR}}" />
+    
+    <div class="mb-3">
+      {{>btnBack}}
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <header class="text-center mb-4">
+          <h1>Asignación de Grupos</h1>
+          <h4>Mtro. {{NOMBREPROFESOR}}</h4>
+        </header>
+
+        <div class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="search" class="form-control" placeholder="Buscar asignatura o grupo..." id="buscar" />
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="25%">Código</th>
+                <th width="45%">Asignatura</th>
+                <th width="15%">Grupo</th>
+                <th width="10%">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="table-content"></tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-center pagination-buttons">
+          <button class="btn btn-primary mx-2" onclick="onPrev()">
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+          <button class="btn btn-primary mx-2" onclick="onNext()">
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/services/admin/getProfesoresAsig.js"></script>
+</body>
+</html>
