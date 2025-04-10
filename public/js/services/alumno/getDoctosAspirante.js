@@ -1,134 +1,184 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const body = document.getElementById("content");
-  const numalumno = document.getElementById("numeroalumno");
-  const select = document.getElementById("filterDocto");
-  let gradoSelected = 0;
+// Elementos del DOM
+const body = document.getElementById("content");
+const numalumno = document.getElementById("numeroalumno");
+const select = document.getElementById("filterDocto");
+let gradoSelected = 0;
+let currentOpenPreview = null; // Variable global para controlar la vista previa actual
 
-  if (!body || !numalumno || !select) {
-    console.error("Algunos elementos del DOM no se encontraron.");
-    return;
+/**
+ * Función principal para obtener documentos
+ */
+const getDoctos = async () => {
+  showLoadingSpinner();
+
+  try {
+    const { doctos = [] } = await fetchDoctos();
+    renderContent(doctos);
+    setupPreviewEvents();
+  } catch (error) {
+    console.error(error);
+    showErrorMessage("Error al cargar documentos");
   }
+};
 
-  const createUploadForm = () => {
-    return `
-      <div class="my-4 text-center">
-        <input type="file" id="uploadInput" accept="application/pdf" class="form-control mb-2 d-inline-block w-auto">
-        <button class="btn btn-primary" id="uploadBtn">Subir Documento</button>
-      </div>`;
-  };
+/**
+ * Configura los eventos de vista previa
+ */
+const setupPreviewEvents = () => {
+  document.querySelectorAll('.preview-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const doctoId = this.dataset.doctoId;
+      const previewContainer = document.getElementById(`preview-container-${doctoId}`);
 
-  // Función para obtener los documentos
-  const getDoctos = async () => {
-    const url = `/api/doctos?numalumno=${numalumno.value}&grado=${gradoSelected}`;
-
-    body.innerHTML = `
-      <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
-        <div class="spinner-border text-primary" role="status"></div>
-      </div>`;
-
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.error) {
-        body.innerHTML = `<div class="text-center text-danger"><h3>${data.error}</h3></div>`;
+      // Si ya está abierto, solo cerrarlo
+      if (currentOpenPreview === previewContainer) {
+        previewContainer.style.display = 'none';
+        currentOpenPreview = null;
         return;
       }
 
-      let content = createUploadForm();
-
-      if (data.doctos?.length > 0) {
-        content += `<div class="row">`;
-        data.doctos.forEach((item) => {
-          content += `
-            <div class="col-md-3 col-lg-4 col-12 mb-4">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                  <img src="/imgs/pdf.png" alt="Documento PDF" class="img-fluid mb-2" style="width: 100px; cursor: pointer;" onclick="viewPDF('${item.ID_DOCTO}')">
-                  <h5 class="card-title text-truncate">${item.NOMBRE_ARCHIVO || item.ID_DOCTO}</h5>
-                  <p class="text-success"><strong>Entregado</strong></p>
-                </div>
-              </div>
-            </div>`;
-        });
-        content += `</div>`;
-      } else {
-        content += `<div class="text-center"><h3>No hay documentos a mostrar</h3></div>`;
+      // Cerrar el anterior si existe
+      if (currentOpenPreview) {
+        currentOpenPreview.style.display = 'none';
       }
 
-      body.innerHTML = content;
-
-      // Asignar evento al botón de subir después de que se renderiza
-      document.getElementById("uploadBtn")?.addEventListener("click", uploadDocument);
-
-    } catch (error) {
-      console.error("Error al obtener los documentos:", error);
-      body.innerHTML = `<div class="text-center text-danger"><h3>Error al cargar documentos</h3></div>`;
-    }
-  };
-
-  // Función para subir documento
-  const uploadDocument = async () => {
-    const fileInput = document.getElementById("uploadInput");
-    const file = fileInput?.files[0];
-
-    if (!file || file.type !== "application/pdf") {
-      alert("Por favor selecciona un archivo PDF válido.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("document", file);
-    formData.append("numalumno", numalumno.value);
-    formData.append("grado", gradoSelected);
-
-    try {
-      const res = await fetch("/api/doctos/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert("Documento subido correctamente");
-        getDoctos(); // Refrescar la lista
-      } else {
-        alert("Error al subir documento");
-      }
-    } catch (err) {
-      console.error("Error al subir el documento", err);
-      alert("Ocurrió un error al subir el documento");
-    }
-  };
-
-  // Función para ver PDF
-  window.viewPDF = (documentId) => {
-    const existingModal = document.getElementById('pdfModal');
-    if (existingModal) existingModal.remove();
-
-    const modalHTML = `
-      <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Visualizando Documento</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-              <iframe src="/doctos/${documentId}" width="100%" height="100%" frameborder="0"></iframe>
+      // Configurar el nuevo
+      if (!previewContainer.innerHTML) {
+        previewContainer.innerHTML = `
+          <div class="preview-wrapper bg-light p-3 rounded-3 border" style="box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1)">
+            <iframe src="/doctos/${doctoId}#toolbar=0&navpanes=0" width="100%" height="400px" class="border-0 mb-3 rounded-2"></iframe>
+            <div class="d-flex justify-content-center gap-3">
+              <a href="/doctos/${doctoId}" target="_blank" class="btn btn-primary px-3 py-2 d-flex align-items-center">
+                <i class="fas fa-external-link-alt me-2"></i> Abrir completo
+              </a>
+              <button class="btn btn-outline-secondary px-3 py-2 d-flex align-items-center close-preview">
+                <i class="fas fa-times me-2"></i> Cerrar
+              </button>
             </div>
           </div>
-        </div>
-      </div>`;
+        `;
 
-    body.insertAdjacentHTML('beforeend', modalHTML);
-    new bootstrap.Modal(document.getElementById('pdfModal')).show();
-  };
+        previewContainer.querySelector('.close-preview').addEventListener('click', (e) => {
+          e.preventDefault();
+          previewContainer.style.display = 'none';
+          currentOpenPreview = null;
+        });
+      }
 
-  select.addEventListener("change", (e) => {
-    gradoSelected = e.target.value;
-    getDoctos();
+      // Mostrar el nuevo
+      previewContainer.style.display = 'block';
+      currentOpenPreview = previewContainer;
+    });
   });
+};
 
+// Eliminé la función showPreview ya que su lógica está integrada en setupPreviewEvents
+
+/**
+ * Muestra el spinner de carga
+ */
+const showLoadingSpinner = () => {
+  body.innerHTML = `
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+      <p class="mt-3 text-muted fs-5">Cargando documentos...</p>
+    </div>
+  `;
+};
+
+/**
+ * Obtiene documentos de la API
+ */
+const fetchDoctos = async () => {
+  const response = await fetch(`/api/doctos?numalumno=${numalumno.value}&grado=${gradoSelected}`);
+  if (!response.ok) throw new Error("Error en la respuesta del servidor");
+  return await response.json();
+};
+
+/**
+ * Renderiza el contenido principal
+ */
+const renderContent = (doctos) => {
+  body.innerHTML = doctos.length > 0 ? generateDoctoCards(doctos) : generateEmptyMessage();
+};
+
+/**
+ * Genera las tarjetas de documentos
+ */
+const generateDoctoCards = (doctos) => {
+  return doctos.map(item => {
+    const isEntregado = item.ENTREGADO === true || item.ENTREGADO === 'SI' || item.ESTADO === 'ENTREGADO';
+    const status = {
+      color: isEntregado ? 'success' : 'danger',
+      text: isEntregado ? 'Entregado' : 'No Entregado'
+    };
+
+    return `
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+      <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-body text-center d-flex flex-column p-4">
+          <!-- Icono PDF con indicador de estado -->
+          <div class="position-relative mx-auto mb-4" style="width: 80px;">
+            <img src="/imgs/pdf.png" alt="PDF" class="img-fluid" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1))">
+            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-${status.color} border border-2 border-white rounded-circle" style="box-shadow: 0 0 0 2px var(--bs-${status.color})">
+              <span class="visually-hidden">${status.text}</span>
+            </span>
+          </div>
+          
+          <!-- Información del documento -->
+          <h5 class="card-title mb-3 fs-5 fw-semibold">${item.ID_DOCTO}</h5>
+          <span class="badge bg-${status.color} rounded-pill mb-4 px-3 py-2 fs-6">${status.text}</span>
+          
+          <!-- Botones de acción -->
+          <div class="mt-auto d-grid gap-2">
+            <button class="btn btn-outline-primary preview-btn py-2 d-flex align-items-center justify-content-center" data-docto-id="${item.ID_DOCTO}">
+              <i class="far fa-eye me-2"></i> Vista previa
+            </button>
+            <a href="/doctos/${item.ID_DOCTO}" target="_blank" class="btn btn-primary py-2 d-flex align-items-center justify-content-center">
+              <i class="fas fa-file-download me-2"></i> Descargar
+            </a>
+          </div>
+        </div>
+      </div>
+      <div id="preview-container-${item.ID_DOCTO}" class="preview-container mt-3" style="display:none;"></div>
+    </div>`;
+  }).join('');
+};
+
+/**
+ * Mensaje cuando no hay documentos
+ */
+const generateEmptyMessage = () => {
+  return `
+    <div class="text-center py-5">
+      <i class="far fa-folder-open fa-4x text-muted mb-4" style="opacity: 0.6"></i>
+      <h3 class="text-muted fw-normal mb-3">No se encontraron documentos</h3>
+      <p class="text-muted fs-5">Prueba con otros filtros de búsqueda</p>
+    </div>
+  `;
+};
+
+/**
+ * Muestra mensaje de error
+ */
+const showErrorMessage = (message) => {
+  body.innerHTML = `
+    <div class="text-center py-5">
+      <i class="fas fa-exclamation-triangle fa-4x text-danger mb-4" style="opacity: 0.8"></i>
+      <h3 class="text-danger fw-normal mb-4">${message}</h3>
+      <button class="btn btn-outline-primary px-4 py-2 d-flex align-items-center mx-auto" onclick="getDoctos()">
+        <i class="fas fa-sync-alt me-2"></i> Reintentar
+      </button>
+    </div>
+  `;
+};
+
+// Event Listeners
+select.addEventListener("change", (e) => {
+  gradoSelected = e.target.value;
   getDoctos();
 });
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', getDoctos);
