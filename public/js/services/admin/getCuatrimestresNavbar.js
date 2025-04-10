@@ -1,94 +1,84 @@
 "use strict";
 
+// Elemento del DOM
 const selectCuatri = document.getElementById("selectciclo");
 
-// Función para cambiar el periodo
-const cambiarPeriodo = (periodo) => {
-  let configFetch = {
+/**
+ * Actualiza el período seleccionado en el servidor
+ * @param {string} periodo - Código del período a actualizar
+ * @returns {Promise<object>} Respuesta JSON del servidor
+ */
+const actualizarPeriodo = async (periodo) => {
+  const config = {
     method: "PUT",
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      periodo: periodo
-    })
+    body: JSON.stringify({ periodo })
   };
 
-  return fetch("/api/update/CuatriXGrupos", configFetch)
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`Error en la actualización: ${res.status}`);
-      }
-      return res.json();
-    });
+  const response = await fetch("/api/update/CuatriXGrupos", config);
+  if (!response.ok) {
+    throw new Error(`Error en la actualización: ${response.status}`);
+  }
+
+  return response.json();
 };
 
-// Evento para cuando el usuario cambia manualmente el periodo
-selectCuatri.addEventListener("change", (e) => {
-  cambiarPeriodo(e.target.value)
-    .then(res => {
-      console.log("Periodo actualizado:", res);
-      location.reload();
-    })
-    .catch(err => {
-      console.warn("Error al cambiar periodo:", err);
-      alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
-    });
-});
-
-const getCuatrisNavbar = async () => {
+/**
+ * Carga los ciclos disponibles en el select del navbar
+ */
+const cargarCiclosNavbar = async () => {
   try {
-    const res = await fetch("/api/cuatris-navbar");
-    
-    if (!res.ok) {
-      throw new Error(`Error al obtener ciclos: ${res.status}`);
+    const response = await fetch("/api/cuatris-navbar");
+    if (!response.ok) {
+      throw new Error(`Error al obtener ciclos: ${response.status}`);
     }
-    
-    const { ciclos, periodoSelected } = await res.json();
 
-    // Vacía el contenido del select
+    const { ciclos = [], periodoSelected } = await response.json();
     selectCuatri.innerHTML = "";
 
-    // Variable para crear las opciones y mandar al Select
-    let content = "";
+    let optionsHTML = periodoSelected
+      ? `<option value="${periodoSelected}">${periodoSelected}</option>`
+      : `<option value="none">Seleccionar Ciclo</option>`;
 
-    // Muestra el que ya está seleccionado o el mensaje predeterminado
-    if (periodoSelected) {
-      content += `<option value="${periodoSelected}">${periodoSelected}</option>`;
-    } else {
-      content += "<option value='none'>Seleccionar Ciclo</option>";
-    }
-
-    // Genera las opciones para todos los ciclos
-    ciclos.reverse().forEach(item => {
-      // Si el item tiene el código del periodo 2 que queremos, lo marcamos como selected
-      const isPeriodo2 = item.CODIGO_CORTO === "2"; // Ajusta este valor según el formato real
-      content += `<option value="${item.CODIGO_CORTO}" ${isPeriodo2 ? 'selected' : ''}>${item.DESCRIPCION}</option>`;
+    // Generar opciones para el select
+    ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
+      const isSelected = CODIGO_CORTO === "2" ? 'selected' : '';
+      optionsHTML += `<option value="${CODIGO_CORTO}" ${isSelected}>${DESCRIPCION}</option>`;
     });
 
-    selectCuatri.innerHTML = content;
+    selectCuatri.innerHTML = optionsHTML;
 
-    // Busca si existe el periodo 2 entre los ciclos disponibles
-    const periodo2 = ciclos.find(item => item.CODIGO_CORTO === "2"); // Ajusta según el formato real
-
-    // Si existe el periodo 2 y no es el periodo ya seleccionado, lo seleccionamos automáticamente
-    if (periodo2 && periodo2.CODIGO_CORTO !== periodoSelected) {
-      selectCuatri.value = periodo2.CODIGO_CORTO;
-      
-      // Simula un cambio en el select para cargar los datos del periodo 2
+    // Si el ciclo 2 no está seleccionado pero existe, seleccionarlo automáticamente
+    const cicloDos = ciclos.find(c => c.CODIGO_CORTO === "2");
+    if (cicloDos && cicloDos.CODIGO_CORTO !== periodoSelected) {
       console.log("Cargando automáticamente el periodo 2...");
-      cambiarPeriodo(periodo2.CODIGO_CORTO)
-        .then(res => {
-          console.log("Periodo 2 cargado exitosamente:", res);
-          location.reload();
-        })
-        .catch(err => {
-          console.warn("Error al cargar el periodo 2:", err);
-        });
+      selectCuatri.value = cicloDos.CODIGO_CORTO;
+
+      await actualizarPeriodo(cicloDos.CODIGO_CORTO);
+      console.log("Periodo 2 cargado exitosamente.");
+      location.reload();
     }
+
   } catch (error) {
     console.error("Error al cargar los ciclos del navbar:", error);
     alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
   }
 };
 
-// Iniciar la carga de ciclos
-getCuatrisNavbar();
+/**
+ * Evento para cambio manual del usuario en el select de ciclo
+ */
+selectCuatri.addEventListener("change", async (event) => {
+  const nuevoPeriodo = event.target.value;
+  try {
+    const resultado = await actualizarPeriodo(nuevoPeriodo);
+    console.log("Periodo actualizado:", resultado);
+    location.reload();
+  } catch (error) {
+    console.warn("Error al cambiar periodo:", error);
+    alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
+  }
+});
+
+// Cargar ciclos al iniciar
+cargarCiclosNavbar();

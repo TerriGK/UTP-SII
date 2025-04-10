@@ -111,7 +111,7 @@ const generateDoctoCards = (doctos) => {
     const isEntregado = item.ENTREGADO === true || item.ENTREGADO === 'SI' || item.ESTADO === 'ENTREGADO';
     const status = {
       color: isEntregado ? 'success' : 'danger',
-      text: isEntregado ? 'Entregado' : 'No Entregado'
+      text: isEntregado ? 'Entregado' : 'Pendiente'
     };
 
     return `

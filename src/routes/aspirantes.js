@@ -27,7 +27,7 @@ const {
 
 
 //ruta del aspirante
-router.get("/aspirantedoctos", isAspirante, AlumnosController.doctos);
+router.get("/aspirantedoctos", isAspirante, AlumnosController.doctosAspirante);
 router.get("/aspirantedoctos/:idDocto", AlumnosController.showDocto);
 
 // router.get("/aspirante", isAspirante, AlumnosController.showByIdAspirates);
