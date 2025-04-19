@@ -1,93 +1,494 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-   <div class="text-center">
-    <p><b>
-      <h1>Sistema Integral de Información Institucional</h1>
-    </b></p>
-  </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Ciclos Académicos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
+    :root {
+      --color-primary: #1e3c72;
+      --color-secondary: #2a5298;
+      --color-success: #2ecc71;
+      --color-danger: #e74c3c;
+      --color-warning: #f39c12;
+      --color-light: #f8f9fa;
+      --color-dark: #343a40;
+      --radius: 12px;
     }
 
-    .text-center {
-      text-align: center;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      color: var(--color-dark);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      color: var(--color-primary);
+      margin-bottom: 30px;
+      font-size: 28px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 25px;
     }
 
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .btn i {
+      font-size: 16px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, #3498db, #2c3e50);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(to right, #e74c3c, #c0392b);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(to right, #27ae60, #2ecc71);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(to right, #f39c12, #e67e22);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .cycles-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .cycles-column {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .column-title {
       text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #ddd;
+      color: var(--color-secondary);
     }
 
-    th {
-      background-color: #f2f2f2;
+    .cycles-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
     }
 
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
+    .cycle-item {
+      background-color: var(--color-light);
+      margin-bottom: 12px;
+      padding: 15px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
 
-    tr:hover {
-      background-color: #ddd;
+    .cycle-item:hover {
+      background-color: #eef2f7;
+    }
+
+    .cycle-item.selected {
+      border: 2px solid var(--color-secondary);
+      background-color: #d6eaf8;
+    }
+
+    .cycle-item.blocked {
+      background-color: #fbeaea;
+      border-left: 5px solid var(--color-danger);
+      cursor: not-allowed;
+    }
+
+    .cycle-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cycle-name {
+      font-weight: 600;
+    }
+
+    .cycle-code {
+      font-size: 13px;
+      color: #7f8c8d;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #95a5a6;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: var(--radius);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      opacity: 1;
+    }
+
+    .notification.success {
+      background-color: var(--color-success);
+    }
+
+    .notification.error {
+      background-color: var(--color-danger);
+    }
+
+    .notification.warning {
+      background-color: var(--color-warning);
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 20px;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .cycles-container {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
-<body onload="mostrarCiclosFiltrados()">
 
-  <h1>Configuración &gt; Cuatrimestre &gt; Calificaciones</h1>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-calendar-alt"></i> Gestión de Ciclos Académicos</h1>
 
-  <h1>Calificaciones:</h1>
+    <div class="controls">
+      <button id="btnSelect" class="btn btn-primary" disabled>
+        <i class="fas fa-check"></i> Seleccionar
+      </button>
+      <button id="btnLock" class="btn btn-danger" disabled>
+        <i class="fas fa-lock"></i> Bloquear
+      </button>
+      <button id="btnUnlock" class="btn btn-success" disabled>
+        <i class="fas fa-lock-open"></i> Desbloquear
+      </button>
+      <button id="btnRefresh" class="btn btn-warning">
+        <i class="fas fa-sync-alt"></i> Actualizar
+      </button>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Inicial</th>
-        <th>Final</th>
-        <th>Periodo</th>
-        <th>Funcion Ciclos</th>
-      </tr>
-    </thead>
-    <tbody id="ciclosContainer">
-      <!-- Aquí se mostrarán los ciclos filtrados -->
-    </tbody>
-  </table>
+    <div class="cycles-container">
+      <div class="cycles-column">
+        <div class="column-title">Ciclos Activos</div>
+        <ul class="cycles-list" id="activeCyclesList">
+          <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Cargando ciclos...
+          </div>
+        </ul>
+      </div>
+      <div class="cycles-column">
+        <div class="column-title">Ciclos Bloqueados</div>
+        <ul class="cycles-list" id="blockedCyclesList">
+          <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Cargando ciclos...
+          </div>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="notification" class="notification"></div>
 
   <script>
-    function mostrarCiclosFiltrados() {
-      const funcionCiclos = 'C'; // Funcion Ciclos que se desee obtener los datos
-      fetch('/api/ciclosAdmi')
-        .then(response => response.json()) // Parseamos la respuesta como JSON
-        .then(data => {
-          let ciclosHTML = '';
-          const ciclosFiltrados = data.filter(ciclo => ciclo.FUNCION_CICLOS === funcionCiclos);
-          ciclosFiltrados.forEach(ciclo => {
-            ciclosHTML += '<tr>';
-            ciclosHTML += '<td>' + ciclo.INICIAL + '</td>';
-            ciclosHTML += '<td>' + ciclo.FINAL + '</td>';
-            ciclosHTML += '<td>' + ciclo.PERIODO + '</td>';
-            ciclosHTML += '<td>' + ciclo.FUNCION_CICLOS + '</td>';
-            ciclosHTML += '</tr>';
-          });
-          document.getElementById('ciclosContainer').innerHTML = ciclosHTML;
-        })
-        .catch(error => {
-          console.error('Error al obtener los datos de la API:', error.message);
-          document.getElementById('ciclosContainer').innerHTML = '<tr><td colspan="4">Error al obtener los datos de la API</td></tr>';
+    // Elementos del DOM
+const elements = {
+    activeCyclesList: document.getElementById('activeCyclesList'),
+    blockedCyclesList: document.getElementById('blockedCyclesList'),
+    btnSelect: document.getElementById('btnSelect'),
+    btnSave: document.querySelector('#formCalif button[type="submit"]'), // Botón Guardar dentro del formulario
+    btnLock: document.getElementById('btnLock'),
+    btnUnlock: document.getElementById('btnUnlock'),
+    btnRefresh: document.getElementById('btnRefresh'),
+    notification: document.getElementById('notification'),
+};
+
+// Estado de la aplicación
+const appState = {
+    selectedCycle: null,
+    cycles: [],
+    currentSelection: null,
+};
+
+// Simulación de permisos
+const isAdmin = true; // Simulamos que el usuario es administrador. Cambia esta variable según sea necesario.
+
+// Utilidades
+const showNotification = (message, type = 'success', duration = 3000) => {
+    elements.notification.textContent = message;
+    elements.notification.className = `notification ${type} show`;
+    setTimeout(() => elements.notification.classList.remove('show'), duration);
+};
+
+// API
+const fetchCycles = async () => {
+    try {
+        showLoading();
+        const response = await fetch('/api/cuatris-navbar');
+        if (!response.ok) throw new Error('Error al cargar ciclos');
+
+        const data = await response.json();
+        appState.cycles = (data.ciclos || []).map(({ CODIGO_CORTO, DESCRIPCION, BLOQUEADO }) => ({
+            CODIGO_CORTO,
+            DESCRIPCION,
+            BLOQUEADO,
+        }));
+        appState.selectedCycle = data.periodoSelected;
+        appState.currentSelection = null;
+
+        renderCycles();
+        updateButtons();
+
+
+    } catch (err) {
+        showError('Error al cargar los ciclos');
+    }
+};
+
+const updateCycle = async (cycleId, action = 'select') => {
+    try {
+        const payload = {
+            periodo: cycleId,
+            action: action === 'select' ? undefined : action,
+        };
+
+        const response = await fetch('/api/update/CuatriXGrupos', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en la operación');
+        }
+
+        const result = await response.json();
+        showNotification(result.message, 'success');
+
+        if (action === 'select') appState.selectedCycle = cycleId;
+
+        // Lógica para ocultar/mostrar botones
+        if (action === 'lock') {
+            if (elements.btnSelect) elements.btnSelect.style.display = 'none';
+            if (elements.btnSave) elements.btnSave.style.display = 'none';
+        } else if (action === 'unlock') {
+            if (elements.btnSelect) elements.btnSelect.style.display = 'block';
+            if (elements.btnSave) elements.btnSave.style.display = 'block';
+        }
+
+        // Actualizar la lista de ciclos
+        await fetchCycles();
+    } catch (err) {
+        showNotification(err.message, 'error');
+    }
+};
+
+// Renderizado
+const showLoading = () => {
+    const loadingHTML = `
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i> Cargando ciclos...
+      </div>`;
+    elements.activeCyclesList.innerHTML = elements.blockedCyclesList.innerHTML = loadingHTML;
+};
+
+const showError = (message) => {
+    const errorHTML = `
+      <div class="loading">
+        <i class="fas fa-exclamation-triangle"></i> ${message}
+      </div>`;
+    elements.activeCyclesList.innerHTML = elements.blockedCyclesList.innerHTML = errorHTML;
+    showNotification(message, 'error');
+};
+
+const renderCycles = () => {
+    const { activeCyclesList, blockedCyclesList } = elements;
+    const { cycles, selectedCycle, currentSelection } = appState;
+
+    if (!cycles.length) {
+        const emptyMsg = `<div class="loading">No hay ciclos disponibles</div>`;
+        activeCyclesList.innerHTML = blockedCyclesList.innerHTML = emptyMsg;
+        return;
+    }
+
+    activeCyclesList.innerHTML = '';
+    blockedCyclesList.innerHTML = '';
+
+    const renderToList = (cycleList, target) =>
+        cycleList.forEach(cycle => target.appendChild(createCycleElement(cycle)));
+
+    const active = cycles.filter(c => !c.BLOQUEADO);
+    const blocked = cycles.filter(c => c.BLOQUEADO);
+
+    renderToList(active, activeCyclesList);
+    renderToList(blocked, blockedCyclesList);
+};
+
+const createCycleElement = (cycle) => {
+    const li = document.createElement('li');
+    const isSelected = cycle.CODIGO_CORTO === appState.selectedCycle;
+
+    li.className = `cycle-item ${cycle.BLOQUEADO ? 'blocked' : ''} ${isSelected ? 'selected' : ''}`;
+    li.dataset.id = cycle.CODIGO_CORTO;
+    li.innerHTML = `
+      <div class="cycle-info">
+        <span class="cycle-name">
+          ${cycle.DESCRIPCION}
+          ${isSelected ? '<span class="admin-badge">SELECCIONADO</span>' : ''}
+        </span>
+        <span class="cycle-code">${cycle.CODIGO_CORTO}</span>
+      </div>
+      <span class="cycle-status ${cycle.BLOQUEADO ? 'status-blocked' : 'status-active'}">
+        ${cycle.BLOQUEADO ? 'BLOQUEADO' : 'ACTIVO'}
+      </span>
+    `;
+
+    if (!cycle.BLOQUEADO) {
+        li.addEventListener('click', () => {
+            document.querySelectorAll('.cycle-item').forEach(el => el.classList.remove('selected'));
+            li.classList.add('selected');
+            appState.currentSelection = cycle.CODIGO_CORTO;
+            updateButtons();
         });
     }
+
+    return li;
+};
+
+const updateButtons = () => {
+    const selected = appState.cycles.find(c => c.CODIGO_CORTO === appState.currentSelection);
+
+    if (elements.btnSelect) {
+        elements.btnSelect.disabled = !selected || selected.BLOQUEADO || selected.CODIGO_CORTO === appState.selectedCycle;
+    }
+
+    if (isAdmin && selected) {
+        if (elements.btnLock) elements.btnLock.disabled = selected.BLOQUEADO;
+        if (elements.btnUnlock) elements.btnUnlock.disabled = !selected.BLOQUEADO;
+    } else {
+        if (elements.btnLock) elements.btnLock.disabled = true;
+        if (elements.btnUnlock) elements.btnUnlock.disabled = true;
+    }
+};
+
+// Listeners
+if (elements.btnSelect) {
+    elements.btnSelect.addEventListener('click', () => {
+        if (appState.currentSelection) updateCycle(appState.currentSelection, 'select');
+    });
+}
+
+if (elements.btnLock) {
+    elements.btnLock.addEventListener('click', () => {
+        if (appState.currentSelection && confirm('¿Deseas BLOQUEAR este ciclo? Esta acción no se puede deshacer fácilmente.')) {
+            updateCycle(appState.currentSelection, 'lock');
+        }
+    });
+}
+
+if (elements.btnUnlock) {
+    elements.btnUnlock.addEventListener('click', () => {
+        if (appState.currentSelection && confirm('¿Deseas DESBLOQUEAR este ciclo?')) {
+            updateCycle(appState.currentSelection, 'unlock');
+        }
+    });
+}
+
+if (elements.btnRefresh) {
+    elements.btnRefresh.addEventListener('click', fetchCycles);
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    fetchCycles();
+    if (!isAdmin) {
+        if (elements.btnLock) elements.btnLock.style.display = 'none';
+        if (elements.btnUnlock) elements.btnUnlock.style.display = 'none';
+    }
+});
+
   </script>
 </body>
+
 </html>

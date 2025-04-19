@@ -14,7 +14,7 @@
       <div class="card-header">
         <h1 class="card-title text-center mb-0">Calificaciones</h1>
       </div>
-      
+
       <div class="card-body p-4">
         <div class="tab-content">
           <div class="tab-pane fade show active" id="doctos">
@@ -100,114 +100,7 @@
   <input type="hidden" value="{{NUMEROALUMNO}}" id="numalumno">
 </section>
 
-<!-- Estilos CSS mejorados -->
-<style>
-.main-card {
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
 
-.card-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #eaecef;
-  padding: 1.5rem;
-}
-
-.card-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.student-table {
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.student-name {
-  font-weight: 600;
-  color: #333;
-}
-
-.filter-section {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid #eee;
-}
-
-.custom-select {
-  height: 45px;
-  border-radius: 6px;
-  border: 1px solid #ced4da;
-  padding: 0.375rem 0.75rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.custom-select:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.grades-table-container {
-  margin-top: 1rem;
-}
-
-.grades-table {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.grades-table thead th {
-  font-weight: 600;
-  background-color: #f1f8ff;
-  border-color: #e9ecef;
-  padding: 12px 15px;
-}
-
-.grades-table tbody td {
-  padding: 12px 15px;
-  vertical-align: middle;
-}
-
-.download-btn {
-  font-weight: 500;
-  padding: 8px 20px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.download-btn:hover {
-  background-color: #218838;
-  border-color: #1e7e34;
-  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
-}
-
-/* Estilos para las calificaciones */
-.grade-pass {
-  color: #28a745;
-  font-weight: bold;
-}
-
-.grade-fail {
-  color: #dc3545;
-  font-weight: bold;
-}
-
-/* Estilos para responsive */
-@media (max-width: 768px) {
-  .card-title {
-    font-size: 1.5rem;
-  }
-}
-</style>
 
 <!-- Script para generar y descargar el PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -215,129 +108,129 @@
 <script src="/js/services/alumno/getCalifiAlumno.js"></script>
 
 <script>
-// Función mejorada para formatear las calificaciones en la tabla
-function formatGrades(data) {
-  const tableContent = document.getElementById('table-content');
-  tableContent.innerHTML = '';
-  
-  if (!data || data.length === 0) {
-    const emptyRow = document.createElement('tr');
-    emptyRow.innerHTML = `
+  // Función mejorada para formatear las calificaciones en la tabla
+  function formatGrades(data) {
+    const tableContent = document.getElementById('table-content');
+    tableContent.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      const emptyRow = document.createElement('tr');
+      emptyRow.innerHTML = `
       <td colspan="2" class="text-center py-4">
         <div class="alert alert-info mb-0">
           No hay calificaciones disponibles para el periodo seleccionado
         </div>
       </td>
     `;
-    tableContent.appendChild(emptyRow);
-    return;
-  }
-  
-  data.forEach(item => {
-    const row = document.createElement('tr');
-    const grade = parseFloat(item.calificacion);
-    const gradeClass = grade >= 7 ? 'grade-pass' : 'grade-fail';
-    
-    row.innerHTML = `
+      tableContent.appendChild(emptyRow);
+      return;
+    }
+
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      const grade = parseFloat(item.calificacion);
+      const gradeClass = grade >= 7 ? 'grade-pass' : 'grade-fail';
+
+      row.innerHTML = `
       <td>${item.asignatura}</td>
       <td class="text-center ${gradeClass}">${item.calificacion}</td>
     `;
-    
-    tableContent.appendChild(row);
-  });
-  
-  // Agregar promedio si hay calificaciones
-  if (data.length > 0) {
-    const totalGrades = data.reduce((sum, item) => sum + parseFloat(item.calificacion), 0);
-    const average = (totalGrades / data.length).toFixed(1);
-    const averageClass = average >= 7 ? 'grade-pass' : 'grade-fail';
-    
-    const averageRow = document.createElement('tr');
-    averageRow.classList.add('table-light');
-    averageRow.innerHTML = `
+
+      tableContent.appendChild(row);
+    });
+
+    // Agregar promedio si hay calificaciones
+    if (data.length > 0) {
+      const totalGrades = data.reduce((sum, item) => sum + parseFloat(item.calificacion), 0);
+      const average = (totalGrades / data.length).toFixed(1);
+      const averageClass = average >= 7 ? 'grade-pass' : 'grade-fail';
+
+      const averageRow = document.createElement('tr');
+      averageRow.classList.add('table-light');
+      averageRow.innerHTML = `
       <td class="fw-bold">Promedio</td>
       <td class="text-center fw-bold ${averageClass}">${average}</td>
     `;
-    
-    tableContent.appendChild(averageRow);
-  }
-}
 
-// Función para generar y descargar PDF
-function generatePDF() {
-  const { jsPDF } = window.jspdf;
-  
-  // Mostrar indicador de carga
-  const loadingEl = document.createElement('div');
-  loadingEl.classList.add('pdf-loading');
-  loadingEl.innerHTML = `
+      tableContent.appendChild(averageRow);
+    }
+  }
+
+  // Función para generar y descargar PDF
+  function generatePDF() {
+    const { jsPDF } = window.jspdf;
+
+    // Mostrar indicador de carga
+    const loadingEl = document.createElement('div');
+    loadingEl.classList.add('pdf-loading');
+    loadingEl.innerHTML = `
     <div class="loading-overlay">
       <div class="spinner-border text-primary"></div>
       <p class="mt-2">Generando PDF...</p>
     </div>
   `;
-  document.body.appendChild(loadingEl);
-  
-  // Obtener elemento a convertir
-  const element = document.querySelector('.main-card');
-  
-  // Obtener información del estudiante
-  const studentName = document.querySelector('.student-name').textContent.trim();
-  const studentId = document.querySelector('.student-id').textContent.trim();
-  const cuatrimestre = document.getElementById('cuatrimestre');
-  const cuatrimestreText = cuatrimestre.options[cuatrimestre.selectedIndex].text;
-  const evaluacion = document.getElementById('tipo_eval');
-  const evaluacionText = evaluacion.options[evaluacion.selectedIndex].text;
-  
-  // Crear nombre de archivo
-  const fileName = `Boleta_${studentId}_${cuatrimestreText.replace(' ', '_')}.pdf`;
-  
-  // Generar PDF después de un pequeño retraso para permitir que se muestre el indicador de carga
-  setTimeout(() => {
-    html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false
-    }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      // Agregar encabezado
-      pdf.setFontSize(18);
-      pdf.setTextColor(51, 51, 51);
-      pdf.text('Universidad Tecnológica de Poniente', 105, 20, { align: 'center' });
-      pdf.setFontSize(14);
-      pdf.text('Sistema Integral de Información', 105, 30, { align: 'center' });
-      
-      // Agregar fecha
-      pdf.setFontSize(10);
-      pdf.setTextColor(102, 102, 102);
-      const today = new Date();
-      pdf.text(`Fecha de generación: ${today.toLocaleDateString()}`, 105, 40, { align: 'center' });
-      
-      // Calcular dimensiones
-      const imgWidth = 170;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      // Agregar imagen
-      pdf.addImage(imgData, 'PNG', 20, 50, imgWidth, imgHeight);
-      
-      // Agregar pie de página
-      pdf.setFontSize(8);
-      pdf.setTextColor(128, 128, 128);
-      pdf.text('Este documento es una representación digital de las calificaciones y no requiere firma.', 105, 285, { align: 'center' });
-      
-      // Descargar PDF
-      pdf.save(fileName);
-      
-      // Eliminar indicador de carga
-      document.body.removeChild(loadingEl);
-    });
-  }, 500);
-}
+    document.body.appendChild(loadingEl);
 
-// Estilo para el indicador de carga durante la generación del PDF
-document.head.insertAdjacentHTML('beforeend', `
+    // Obtener elemento a convertir
+    const element = document.querySelector('.main-card');
+
+    // Obtener información del estudiante
+    const studentName = document.querySelector('.student-name').textContent.trim();
+    const studentId = document.querySelector('.student-id').textContent.trim();
+    const cuatrimestre = document.getElementById('cuatrimestre');
+    const cuatrimestreText = cuatrimestre.options[cuatrimestre.selectedIndex].text;
+    const evaluacion = document.getElementById('tipo_eval');
+    const evaluacionText = evaluacion.options[evaluacion.selectedIndex].text;
+
+    // Crear nombre de archivo
+    const fileName = `Boleta_${studentId}_${cuatrimestreText.replace(' ', '_')}.pdf`;
+
+    // Generar PDF después de un pequeño retraso para permitir que se muestre el indicador de carga
+    setTimeout(() => {
+      html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        // Agregar encabezado
+        pdf.setFontSize(18);
+        pdf.setTextColor(51, 51, 51);
+        pdf.text('Universidad Tecnológica de Poniente', 105, 20, { align: 'center' });
+        pdf.setFontSize(14);
+        pdf.text('Sistema Integral de Información', 105, 30, { align: 'center' });
+
+        // Agregar fecha
+        pdf.setFontSize(10);
+        pdf.setTextColor(102, 102, 102);
+        const today = new Date();
+        pdf.text(`Fecha de generación: ${today.toLocaleDateString()}`, 105, 40, { align: 'center' });
+
+        // Calcular dimensiones
+        const imgWidth = 170;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        // Agregar imagen
+        pdf.addImage(imgData, 'PNG', 20, 50, imgWidth, imgHeight);
+
+        // Agregar pie de página
+        pdf.setFontSize(8);
+        pdf.setTextColor(128, 128, 128);
+        pdf.text('Este documento es una representación digital de las calificaciones y no requiere firma.', 105, 285, { align: 'center' });
+
+        // Descargar PDF
+        pdf.save(fileName);
+
+        // Eliminar indicador de carga
+        document.body.removeChild(loadingEl);
+      });
+    }, 500);
+  }
+
+  // Estilo para el indicador de carga durante la generación del PDF
+  document.head.insertAdjacentHTML('beforeend', `
   <style>
     .pdf-loading {
       position: fixed;
@@ -362,25 +255,137 @@ document.head.insertAdjacentHTML('beforeend', `
   </style>
 `);
 
-// Nota: Esto debe adaptarse a la implementación actual de getCalifi()
-const originalGetCalifi = window.getCalifi;
-window.getCalifi = function() {
-  const loading = document.getElementById('loading');
-  loading.style.display = 'block';
-  
-  // Asumiendo que la función original devuelve una promesa o usa un callback
-  const result = originalGetCalifi();
-  
-  if (result && result.then) {
-    result.then(data => {
-      formatGrades(data);
-      loading.style.display = 'none';
-    }).catch(err => {
-      console.error('Error al obtener calificaciones:', err);
-      loading.style.display = 'none';
-    });
-  }
-  
-  return result;
-};
+  // Nota: Esto debe adaptarse a la implementación actual de getCalifi()
+  const originalGetCalifi = window.getCalifi;
+  window.getCalifi = function () {
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
+
+    // Asumiendo que la función original devuelve una promesa o usa un callback
+    const result = originalGetCalifi();
+
+    if (result && result.then) {
+      result.then(data => {
+        formatGrades(data);
+        loading.style.display = 'none';
+      }).catch(err => {
+        console.error('Error al obtener calificaciones:', err);
+        loading.style.display = 'none';
+      });
+    }
+
+    return result;
+  };
 </script>
+
+
+
+
+<!-- Estilos CSS mejorados -->
+<style>
+  .main-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eaecef;
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+
+  .student-table {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .student-name {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .filter-section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #eee;
+  }
+
+  .custom-select {
+    height: 45px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 0.375rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .custom-select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .grades-table-container {
+    margin-top: 1rem;
+  }
+
+  .grades-table {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .grades-table thead th {
+    font-weight: 600;
+    background-color: #f1f8ff;
+    border-color: #e9ecef;
+    padding: 12px 15px;
+  }
+
+  .grades-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+  }
+
+  .download-btn {
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+
+  .download-btn:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+  }
+
+  /* Estilos para las calificaciones */
+  .grade-pass {
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .grade-fail {
+    color: #dc3545;
+    font-weight: bold;
+  }
+
+  /* Estilos para responsive */
+  @media (max-width: 768px) {
+    .card-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
