@@ -93,7 +93,7 @@ app.listen(port, () => {
     ║                                                            ║
     ╠════════════════════════════════════════════════════════════╣
     ║                                                            ║
-    ║    Modo:          ${chalk.white.bold(process.env.NODE_ENV || 'development'.padEnd(30))}║
+    ║    Modo:          ${chalk.white.bold(process.env.MODE || 'development'.padEnd(30))}║
     ║    Puerto:        ${chalk.white.bold(port.toString().padEnd(30))}║
     ║    URL:           ${chalk.white.bold(`http://localhost:${port}`.padEnd(30))}║
     ║    Iniciado:      ${chalk.white.bold(new Date().toLocaleString().padEnd(30))}║
