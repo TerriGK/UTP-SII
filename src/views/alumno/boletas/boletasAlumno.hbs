@@ -9,134 +9,135 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
     }
-    
-    .header-card {
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .student-card {
-      border-radius: 10px;
-      border-left: 5px solid #1e3c72;
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    .filter-card {
-      background-color: #f8f9fa;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    
-    .grades-card {
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    }
-    
-    .subject-card {
-      transition: all 0.3s ease;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      border-left: 4px solid #1e3c72;
-    }
-    
-    .subject-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .grade-pass {
-      background-color: rgba(40, 167, 69, 0.1);
-      color: #28a745;
-      font-weight: bold;
-    }
-    
-    .grade-fail {
-      background-color: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
-      font-weight: bold;
-    }
-    
-    .average-card {
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #6c757d;
-    }
-    
-    .logo-img {
-      height: 60px;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    }
-    
-    .periodo-badge {
-      background-color: rgba(255, 255, 255, 0.2);
-      padding: 8px 15px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
-    
-    .loading-container {
-      min-height: 200px;
+
+    .logo-container {
       display: flex;
       align-items: center;
-      justify-content: center;
+      margin-bottom: 10px;
     }
-    
-    .signature-line {
-      border-top: 1px dashed #dee2e6;
-      margin-top: 60px;
-      position: relative;
+
+    .logo-container img {
+      height: 60px;
+      margin-right: 15px;
     }
-    
-    .signature-text {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 0 10px;
-      font-size: 12px;
-      color: #6c757d;
-    }
-    
-    .watermark {
-      position: absolute;
-      opacity: 0.05;
-      font-size: 120px;
+
+    .periodo-container {
+      text-align: right;
       font-weight: bold;
-      color: #1e3c72;
-      transform: rotate(-30deg);
-      z-index: 0;
-      pointer-events: none;
     }
-    
-    @media print {
-      .no-print {
-        display: none !important;
-      }
-      
-      body {
-        background-color: white !important;
-      }
-      
-      .card {
-        box-shadow: none !important;
-        border: 1px solid #dee2e6 !important;
-      }
+
+    .report-title {
+      color: navy;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      margin: 0;
+    }
+
+    .student-info-table {
+      margin-bottom: 0;
+      border: 2px solid #000;
+    }
+
+    .student-info-table th {
+      background-color: navy;
+      color: white;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .student-info-table td {
+      padding: 8px;
+      border: 1px solid #000;
+    }
+
+    .grades-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid #000;
+    }
+
+    .grades-table th {
+      background-color: navy;
+      color: white;
+      text-align: center;
+      border: 1px solid #000;
+      padding: 5px;
+    }
+
+    .grades-table td {
+      border: 1px solid #000;
+      padding: 5px;
+    }
+
+    .grades-table .numeric {
+      text-align: center;
+    }
+
+    .grades-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .average-row {
+      font-weight: bold;
+    }
+
+    .signature-section {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .signature-box {
+      text-align: center;
+      width: 45%;
+    }
+
+    .signature-line {
+      border-top: 1px solid #000;
+      margin-top: 50px;
+      padding-top: 5px;
+    }
+
+    .certification-text {
+      font-size: 10px;
+      text-align: right;
+      font-style: italic;
+    }
+
+    .copy-footer {
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    .seal-image {
+      position: absolute;
+      opacity: 0.2;
+      width: 100px;
+      left: 45%;
+      margin-top: -20px;
+    }
+
+    .grade-pass {
+      color: green;
+      font-weight: bold;
+    }
+
+    .grade-fail {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
-  <section class="section profile py-4">
+  <section class="section profile">
     <div class="container">
       <!-- Header con botones de navegación -->
-      <div class="my-4 d-flex justify-content-between align-items-center no-print">
+      <div class="my-4 d-flex justify-content-between align-items-center">
         {{>btnBack}}
         <button type="button" class="btn btn-success download-btn" onclick="generatePDF()">
           <i class="bi bi-cloud-arrow-down me-2"></i>
@@ -145,144 +146,99 @@
       </div>
 
       <!-- Tarjeta principal -->
-      <div class="card main-card border-0">
-        <!-- Encabezado con logo y título -->
-        <div class="card-header header-card py-4">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <div class="d-flex align-items-center">
-                <img src="/imgs/logorojo.jpg" alt="Logo UTP" class="logo-img me-3">
-                <div>
-                  <h2 class="mb-0">BOLETA DE CALIFICACIONES</h2>
-                  <p class="mb-0 text-white-50">Universidad Tecnológica de Poniente</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-              <div class="periodo-badge d-inline-block">
-                <span id="periodo-text"></span>
-              </div>
-            </div>
-          </div>
+      <div class="card main-card">
+        <div class="card-header">
+          <h1 class="card-title text-center mb-0">Calificaciones</h1>
         </div>
 
-        <div class="card-body p-4 position-relative">
-          <div class="watermark">UTP</div>
-          
-          <!-- Información del estudiante -->
-          <div class="card student-card mb-4">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-8">
-                  <h5 class="card-title mb-3"><i class="bi bi-person-circle me-2"></i>Información del estudiante</h5>
-                  <div class="d-flex align-items-center mb-2">
-                    <span class="fw-bold me-2">Nombre:</span>
-                    <span class="student-name">{{ NOMBRE }} {{PATERNO}} {{MATERNO}}</span>
-                  </div>
-                  <div class="d-flex align-items-center">
-                    <span class="fw-bold me-2">Matrícula:</span>
-                    <span class="student-id">{{ MATRICULA }}</span>
-                  </div>
-                </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                  <div class="alert alert-info mb-0">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <span id="status-text">Estatus: Regular</span>
-                  </div>
-                </div>
-              </div>
+        <div class="card-body p-4">
+          <!-- Logo y título -->
+          <div class="d-flex justify-content-between mb-3">
+            <div class="logo-container">
+              <img src="/imgs/logorojo.jpg" alt="Logo UTP" class="img-fluid">
+              <h2 class="report-title">BOLETA DE CALIFICACIONES</h2>
+            </div>
+            <div class="periodo-container">
+              <p id="periodo-text"></p>
             </div>
           </div>
 
-          <!-- Filtros -->
-          <div class="card filter-card mb-4">
-            <div class="card-body">
-              <h5 class="card-title mb-3"><i class="bi bi-funnel me-2"></i>Filtros</h5>
-              <div class="row g-3">
-                <div class="col-md-8">
-                  <label for="cuatrimestre" class="form-label fw-bold">Selecciona el cuatrimestre:</label>
-                  <select id="cuatrimestre" class="form-select custom-select" onchange="getCalifi()">
-                    <option disabled selected>Elegir cuatrimestre</option>
-                    <option value="1">Cuatrimestre 1</option>
-                    <option value="2">Cuatrimestre 2</option>
-                    <option value="3">Cuatrimestre 3</option>
-                    <option value="4">Cuatrimestre 4</option>
-                    <option value="5">Cuatrimestre 5</option>
-                    <option value="6">Cuatrimestre 6</option>
-                    <option value="7">Cuatrimestre 7</option>
-                    <option value="8">Cuatrimestre 8</option>
-                    <option value="9">Cuatrimestre 9</option>
-                    <option value="10">Cuatrimestre 10</option>
-                    <option value="11">Cuatrimestre 11</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="tipo_eval" class="form-label fw-bold">Tipo de evaluación:</label>
-                  <select id="tipo_eval" class="form-select custom-select" onchange="getCalifi()">
-                    <option value="A" selected>Ordinario</option>
-                    <option value="B">% Asistencia</option>
-                    <option value="E">Recuperativo</option>
-                    <option value="G">Especial</option>
-                  </select>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="doctos">
+              <!-- Información del estudiante -->
+              <div class="student-info mb-4">
+                <div class="table-responsive">
+                  <table class="table table-bordered student-table">
+                    <thead class="table-light">
+                      <tr>
+                        <th scope="col">NOMBRE</th>
+                        <th scope="col">MATRÍCULA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="student-name">{{ NOMBRE }} {{PATERNO}} {{MATERNO}}</td>
+                        <td class="student-id">{{ MATRICULA }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Tabla de calificaciones (ahora con cards) -->
-          <div class="card grades-card mb-4">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="bi bi-journal-bookmark me-2"></i>Calificaciones</h5>
-            </div>
-            <div class="card-body p-0">
-              <div id="grades-container" class="p-3">
-                <!-- Contenido dinámico de las cards de materias -->
-                <div id="loading" class="loading-container" style="display: none;">
-                  <div class="text-center">
-                    <div class="spinner-border text-primary"></div>
-                    <p class="mt-2 text-muted">Cargando calificaciones...</p>
+              <div class="filter-section p-3 mb-4">
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label for="cuatrimestre" class="form-label fw-bold">Selecciona el cuatrimestre:</label>
+                    <select id="cuatrimestre" class="form-select custom-select" onchange="getCalifi()">
+                      <option disabled selected>Elegir cuatrimestre</option>
+                      <option value="1">Cuatrimestre 1</option>
+                      <option value="2">Cuatrimestre 2</option>
+                      <option value="3">Cuatrimestre 3</option>
+                      <option value="4">Cuatrimestre 4</option>
+                      <option value="5">Cuatrimestre 5</option>
+                      <option value="6">Cuatrimestre 6</option>
+                      <option value="7">Cuatrimestre 7</option>
+                      <option value="8">Cuatrimestre 8</option>
+                      <option value="9">Cuatrimestre 9</option>
+                      <option value="10">Cuatrimestre 10</option>
+                      <option value="11">Cuatrimestre 11</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="tipo_eval" class="form-label fw-bold">Tipo de evaluación:</label>
+                    <select id="tipo_eval" class="form-select custom-select" onchange="getCalifi()">
+                      <option value="A" selected>Ordinario</option>
+                      <option value="B">% Asistencia</option>
+                      <option value="E">Recuperativo</option>
+                      <option value="G">Especial</option>
+                    </select>
                   </div>
                 </div>
-                
-                <div id="empty-state" class="text-center py-5">
-                  <i class="bi bi-journal-x" style="font-size: 3rem; color: #6c757d;"></i>
-                  <h5 class="mt-3">No hay calificaciones para mostrar</h5>
-                  <p class="text-muted">Selecciona un cuatrimestre para ver las calificaciones</p>
+              </div>
+
+              <!-- Tabla de calificaciones -->
+              <div class="grades-table-container">
+                <div class="table-responsive">
+                  <table class="table table-hover grades-table">
+                    <thead class="table-primary">
+                      <tr>
+                        <th scope="col" class="text-nowrap">Asignatura</th>
+                        <th scope="col" class="text-center" width="150">Calificación</th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-content">
+                      <!-- Contenido dinámico -->
+                    </tbody>
+                  </table>
                 </div>
-                
-                <div id="subjects-container" class="row g-3" style="display: none;">
-                  <!-- Las cards de materias se insertarán aquí -->
-                </div>
-                
-                <div id="average-container" class="mt-4" style="display: none;">
-                  <!-- El promedio se insertará aquí -->
+
+                <!-- Indicador de carga -->
+                <div class="text-center py-4" id="loading" style="display: none;">
+                  <div class="spinner-border text-primary"></div>
+                  <p class="mt-2 text-muted">Cargando calificaciones...</p>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <!-- Área de firmas -->
-          <div class="row mt-4">
-            <div class="col-md-6 mb-3 mb-md-0">
-              <div class="signature-line">
-                <span class="signature-text">Firma del tutor</span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="signature-line">
-                <span class="signature-text">Sello de la institución</span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Nota legal -->
-          <div class="text-center mt-4">
-            <p class="text-muted small">
-              Este documento es válido sin firma manuscrita y sello según el artículo 89 de la Ley General de Educación Superior.
-            </p>
-            <p class="text-muted small">
-              Fecha de emisión: <span id="fecha-emision"></span>
-            </p>
           </div>
         </div>
       </div>
@@ -297,104 +253,51 @@
   <script src="/js/services/alumno/getCalifiAlumno.js"></script>
 
   <script>
-    // Configurar fecha de emisión
-    const fechaHoy = new Date();
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('fecha-emision').textContent = fechaHoy.toLocaleDateString('es-ES', options);
-    
-    // Configurar período académico
-    const periodoText = document.getElementById("periodo-text");
-    const mes = fechaHoy.getMonth() + 1;
-    const anio = fechaHoy.getFullYear();
-    
-    let periodo = "";
-    if (mes >= 1 && mes <= 4) {
-      periodo = `Enero-Abril ${anio}`;
-    } else if (mes >= 5 && mes <= 8) {
-      periodo = `Mayo-Agosto ${anio}`;
-    } else if (mes >= 9 && mes <= 12) {
-      periodo = `Septiembre-Diciembre ${anio}`;
-    }
-    
-    periodoText.innerHTML = `<i class="bi bi-calendar3 me-2"></i>${periodo}`;
-
-    // Función para formatear las calificaciones en cards
+    // Función mejorada para formatear las calificaciones en la tabla (manteniendo la original)
     function formatGrades(data) {
-      const loading = document.getElementById('loading');
-      const emptyState = document.getElementById('empty-state');
-      const subjectsContainer = document.getElementById('subjects-container');
-      const averageContainer = document.getElementById('average-container');
-      
-      loading.style.display = 'none';
-      
-      // Limpiar contenedores
-      subjectsContainer.innerHTML = '';
-      subjectsContainer.style.display = 'none';
-      averageContainer.style.display = 'none';
-      
+      const tableContent = document.getElementById('table-content');
+      tableContent.innerHTML = '';
+
       if (!data || data.length === 0) {
-        emptyState.style.display = 'block';
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+        <td colspan="2" class="text-center py-4">
+          <div class="alert alert-info mb-0">
+            No hay calificaciones disponibles para el periodo seleccionado
+          </div>
+        </td>
+      `;
+        tableContent.appendChild(emptyRow);
         return;
       }
-      
-      emptyState.style.display = 'none';
-      subjectsContainer.style.display = 'flex';
-      
-      // Crear cards para cada materia
+
       data.forEach(item => {
+        const row = document.createElement('tr');
         const grade = parseFloat(item.calificacion);
         const gradeClass = grade >= 7 ? 'grade-pass' : 'grade-fail';
-        const statusText = grade >= 7 ? 'Aprobado' : 'Reprobado';
-        const statusIcon = grade >= 7 ? 'bi-check-circle' : 'bi-exclamation-circle';
-        
-        const subjectCard = document.createElement('div');
-        subjectCard.className = 'col-md-6 col-lg-4';
-        subjectCard.innerHTML = `
-          <div class="card subject-card h-100">
-            <div class="card-body">
-              <h6 class="card-title">${item.asignatura}</h6>
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                  <span class="badge bg-light text-dark"><i class="bi bi-journal-text me-1"></i>Materia</span>
-                </div>
-                <div class="text-end">
-                  <div class="${gradeClass} p-2 rounded text-center">
-                    <div class="fw-bold" style="font-size: 1.2rem;">${item.calificacion}</div>
-                    <small class="d-block"><i class="bi ${statusIcon} me-1"></i>${statusText}</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        subjectsContainer.appendChild(subjectCard);
+
+        row.innerHTML = `
+        <td>${item.asignatura}</td>
+        <td class="text-center ${gradeClass}">${item.calificacion}</td>
+      `;
+
+        tableContent.appendChild(row);
       });
-      
-      // Calcular y mostrar promedio
+
+      // Agregar promedio si hay calificaciones
       if (data.length > 0) {
         const totalGrades = data.reduce((sum, item) => sum + parseFloat(item.calificacion), 0);
         const average = (totalGrades / data.length).toFixed(1);
         const averageClass = average >= 7 ? 'grade-pass' : 'grade-fail';
-        const statusText = average >= 7 ? 'Promedio satisfactorio' : 'Promedio no satisfactorio';
-        
-        averageContainer.style.display = 'block';
-        averageContainer.innerHTML = `
-          <div class="card average-card">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Promedio general</h5>
-                <div class="${averageClass} p-3 rounded text-center" style="min-width: 100px;">
-                  <div class="fw-bold" style="font-size: 1.5rem;">${average}</div>
-                  <small>${statusText}</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        // Actualizar estado del estudiante
-        document.getElementById('status-text').textContent = `Estatus: ${average >= 7 ? 'Regular' : 'Irregular'}`;
+
+        const averageRow = document.createElement('tr');
+        averageRow.classList.add('table-light');
+        averageRow.innerHTML = `
+        <td class="fw-bold">Promedio</td>
+        <td class="text-center fw-bold ${averageClass}">${average}</td>
+      `;
+
+        tableContent.appendChild(averageRow);
       }
     }
 
@@ -406,11 +309,11 @@
       const loadingEl = document.createElement('div');
       loadingEl.classList.add('pdf-loading');
       loadingEl.innerHTML = `
-        <div class="loading-overlay">
-          <div class="spinner-border text-primary"></div>
-          <p class="mt-2">Generando PDF...</p>
-        </div>
-      `;
+      <div class="loading-overlay">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2">Generando PDF...</p>
+      </div>
+    `;
       document.body.appendChild(loadingEl);
 
       // Obtener elemento a convertir
@@ -432,29 +335,35 @@
         html2canvas(element, {
           scale: 2,
           useCORS: true,
-          logging: false,
-          scrollY: -window.scrollY
+          logging: false
         }).then(canvas => {
           const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF('p', 'mm', 'a4');
 
-          // Agregar encabezado adicional
-          pdf.setFontSize(12);
+          // Agregar encabezado
+          pdf.setFontSize(18);
           pdf.setTextColor(51, 51, 51);
-          pdf.text('Documento oficial - Universidad Tecnológica de Poniente', 105, 15, { align: 'center' });
+          pdf.text('Universidad Tecnológica de Poniente', 105, 20, { align: 'center' });
+          pdf.setFontSize(14);
+          pdf.text('Sistema Integral de Información', 105, 30, { align: 'center' });
+
+          // Agregar fecha
+          pdf.setFontSize(10);
+          pdf.setTextColor(102, 102, 102);
+          const today = new Date();
+          pdf.text(`Fecha de generación: ${today.toLocaleDateString()}`, 105, 40, { align: 'center' });
 
           // Calcular dimensiones
-          const imgWidth = 180;
+          const imgWidth = 170;
           const imgHeight = canvas.height * imgWidth / canvas.width;
-          const positionY = 20;
 
           // Agregar imagen
-          pdf.addImage(imgData, 'PNG', 15, positionY, imgWidth, imgHeight);
+          pdf.addImage(imgData, 'PNG', 20, 50, imgWidth, imgHeight);
 
           // Agregar pie de página
           pdf.setFontSize(8);
           pdf.setTextColor(128, 128, 128);
-          pdf.text('Este documento es una representación digital válida según el artículo 89 de la LGES.', 105, 285, { align: 'center' });
+          pdf.text('Este documento es una representación digital de las calificaciones y no requiere firma.', 105, 285, { align: 'center' });
 
           // Descargar PDF
           pdf.save(fileName);
@@ -467,64 +376,74 @@
 
     // Estilo para el indicador de carga durante la generación del PDF
     document.head.insertAdjacentHTML('beforeend', `
-      <style>
-        .pdf-loading {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(255, 255, 255, 0.8);
-          z-index: 9999;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        
-        .loading-overlay {
-          background-color: white;
-          padding: 30px;
-          border-radius: 10px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-          text-align: center;
-        }
-      </style>
-    `);
+    <style>
+      .pdf-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .loading-overlay {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+    </style>
+  `);
 
-    // Adaptar la función getCalifi original
+    // Nota: Esto debe adaptarse a la implementación actual de getCalifi()
     const originalGetCalifi = window.getCalifi;
     window.getCalifi = function () {
       const loading = document.getElementById('loading');
-      const emptyState = document.getElementById('empty-state');
-      const subjectsContainer = document.getElementById('subjects-container');
-      const averageContainer = document.getElementById('average-container');
-      
-      loading.style.display = 'flex';
-      emptyState.style.display = 'none';
-      subjectsContainer.style.display = 'none';
-      averageContainer.style.display = 'none';
-      
+      loading.style.display = 'block';
+
       // Asumiendo que la función original devuelve una promesa o usa un callback
       const result = originalGetCalifi();
-      
+
       if (result && result.then) {
         result.then(data => {
           formatGrades(data);
+          loading.style.display = 'none';
         }).catch(err => {
           console.error('Error al obtener calificaciones:', err);
           loading.style.display = 'none';
-          emptyState.style.display = 'block';
-          emptyState.innerHTML = `
-            <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
-            <h5 class="mt-3">Error al cargar calificaciones</h5>
-            <p class="text-muted">Intenta nuevamente más tarde</p>
-          `;
         });
       }
-      
+
       return result;
     };
   </script>
 </body>
 
 </html>
+
+
+
+
+<script>
+  const periodoText = document.getElementById("periodo-text");
+  const fecha = new Date();
+  const anio = fecha.getFullYear();
+  const mes = fecha.getMonth() + 1;
+
+  let periodo = "";
+
+  if (mes >= 1 && mes <= 4) {
+    periodo = `Enero-Abril ${anio}`;
+  } else if (mes >= 5 && mes <= 8) {
+    periodo = `Mayo-Agosto ${anio}`;
+  } else if (mes >= 9 && mes <= 12) {
+    periodo = `Septiembre-Diciembre ${anio}`;
+  }
+
+  periodoText.innerHTML = `<strong>PERIODO:</strong><br>${periodo}`;
+</script>

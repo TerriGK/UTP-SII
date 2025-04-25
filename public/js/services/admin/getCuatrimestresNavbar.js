@@ -33,38 +33,30 @@ const cargarCiclosNavbar = async () => {
       throw new Error(`Error al obtener ciclos: ${response.status}`);
     }
 
-    const { ciclos = [], periodoSelected: periodoDesdeAPI } = await response.json();
-
-    // Usar ciclo guardado localmente si existe, de lo contrario el que viene de la API
-    const periodoGuardado = localStorage.getItem("periodoSeleccionado");
-    const periodoSeleccionado = periodoGuardado || periodoDesdeAPI;
+    const { ciclos = [], periodoSelected } = await response.json();
 
     // Limpiar el select
     selectCuatri.innerHTML = "";
 
-    let optionsHTML = periodoSeleccionado
-      ? `<option value="${periodoSeleccionado}">${periodoSeleccionado}</option>`
-      : `<option value="none">Seleccionar Ciclo</option>`;
+    let optionsHTML = "";
 
-    // Generar opciones para el select
+    // Si hay un periodo seleccionado, mostrarlo como primera opción
+    if (periodoSelected) {
+      optionsHTML += `<option value="${periodoSelected}" selected>${periodoSelected}</option>`;
+    } else {
+      optionsHTML += `<option value="none" selected>Seleccionar Ciclo</option>`;
+    }
+
+    // Agregar los ciclos disponibles
     ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
-      const isSelected = CODIGO_CORTO === periodoSeleccionado ? 'selected' : '';
-      optionsHTML += `<option value="${CODIGO_CORTO}" ${isSelected}>${DESCRIPCION}</option>`;
+      // Evitar duplicar la opción ya seleccionada
+      if (DESCRIPCION !== periodoSelected) {
+        optionsHTML += `<option value="${CODIGO_CORTO}">${DESCRIPCION}</option>`;
+      }
     });
 
+    // Insertar opciones al select
     selectCuatri.innerHTML = optionsHTML;
-
-    // Si el ciclo 2 existe y no está seleccionado, lo seleccionamos automáticamente (opcional)
-    const cicloDos = ciclos.find(c => c.CODIGO_CORTO === "2");
-    if (cicloDos && cicloDos.CODIGO_CORTO !== periodoSeleccionado && !periodoGuardado) {
-      console.log("Cargando automáticamente el periodo 2...");
-      selectCuatri.value = cicloDos.CODIGO_CORTO;
-
-      await actualizarPeriodo(cicloDos.CODIGO_CORTO);
-      localStorage.setItem("periodoSeleccionado", cicloDos.CODIGO_CORTO);
-      console.log("Periodo 2 cargado exitosamente.");
-      location.reload();
-    }
 
   } catch (error) {
     console.error("Error al cargar los ciclos del navbar:", error);
@@ -78,9 +70,6 @@ const cargarCiclosNavbar = async () => {
 selectCuatri.addEventListener("change", async (event) => {
   const nuevoPeriodo = event.target.value;
   try {
-    // Guardar el nuevo período en localStorage
-    localStorage.setItem("periodoSeleccionado", nuevoPeriodo);
-
     const resultado = await actualizarPeriodo(nuevoPeriodo);
     console.log("Periodo actualizado:", resultado);
 
@@ -90,9 +79,6 @@ selectCuatri.addEventListener("change", async (event) => {
     alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
   }
 });
-
-
-
 
 // Cargar ciclos al iniciar
 cargarCiclosNavbar();

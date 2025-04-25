@@ -7,6 +7,7 @@
   <title>Gestión de Ciclos Académicos</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="/css/ciclo.css">
+
 </head>
 
 <body>
@@ -16,7 +17,6 @@
     <div class="cycles-container">
       <div class="cycles-column">
         <div class="column-title">Ciclos Disponibles</div>
-        <button id="hideAllButton" class="btn btn-danger">Ocultar Todos</button>
         <ul class="cycles-list" id="activeCyclesList">
           <div class="loading">
             <i class="fas fa-spinner fa-spin"></i> Cargando ciclos...
@@ -25,7 +25,6 @@
       </div>
       <div class="cycles-column">
         <div class="column-title">Ciclos Ocultos</div>
-        <button id="showAllButton" class="btn btn-success">Mostrar Todos</button>
         <ul class="cycles-list" id="hiddenCyclesList">
           <div class="no-cycles">
             <i class="fas fa-eye-slash"></i> No hay ciclos ocultos
@@ -36,102 +35,7 @@
   </div>
 
   <div id="notification" class="notification"></div>
-
-  <script>
-    const STORAGE_KEY = 'hiddenCycles';
-    const $ = id => document.getElementById(id);
-    const elements = {
-      activeList: $('activeCyclesList'),
-      hiddenList: $('hiddenCyclesList'),
-      notification: $('notification'),
-    };
-
-    const state = {
-      cycles: [],
-      selected: new Set(),
-      hidden: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')),  // Carga los ciclos ocultos desde localStorage
-    };
-
-    const saveHiddenToStorage = () => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(state.hidden)));  // Guarda el estado de los ciclos ocultos en localStorage
-    };
-
-    const notify = (msg, type = 'success', time = 3000) => {
-      const el = elements.notification;
-      el.textContent = msg;
-      el.className = `notification ${type} show`;
-      setTimeout(() => el.classList.remove('show'), time);
-    };
-
-    const fetchCycles = async () => {
-      try {
-        elements.activeList.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando ciclos...</div>`;
-        const res = await fetch('/api/cuatris-navbar');
-        if (!res.ok) throw new Error('Error al cargar ciclos');
-        const data = await res.json();
-        state.cycles = data.ciclos || [];
-        renderAll();
-        notify('Ciclos cargados correctamente');
-      } catch (e) {
-        elements.activeList.innerHTML = `<div class="loading"><i class="fas fa-exclamation-triangle"></i> ${e.message}</div>`;
-        notify(e.message, 'error');
-      }
-    };
-
-    const renderAll = () => {
-      renderCycles(elements.activeList, cycle => !state.hidden.has(cycle.CODIGO_CORTO), true);
-      renderCycles(elements.hiddenList, cycle => state.hidden.has(cycle.CODIGO_CORTO), false);
-    };
-
-    const renderCycles = (container, filterFn, isActive) => {
-      container.innerHTML = '';
-      const filtered = state.cycles.filter(filterFn);
-      if (!filtered.length) {
-        container.innerHTML = `<div class="no-cycles">${isActive ? 'No hay ciclos disponibles' : 'No hay ciclos ocultos'}</div>`;
-        return;
-      }
-      filtered.forEach(cycle => renderItem(cycle, container, isActive));
-    };
-
-    const renderItem = (cycle, container, isActive) => {
-      const li = document.createElement('li');
-      li.className = `cycle-item ${state.selected.has(cycle.CODIGO_CORTO) ? 'selected' : ''}`;
-      li.dataset.id = cycle.CODIGO_CORTO;
-      li.innerHTML = `
-        <div class="cycle-info">
-          <span class="cycle-name">${cycle.DESCRIPCION}</span>
-          <span class="cycle-code">${cycle.CODIGO_CORTO}</span>
-        </div>
-      `;
-      container.appendChild(li);
-    };
-
-    // Nueva funcionalidad para ocultar y mostrar todos los ciclos
-    const hideAllCycles = () => {
-      state.cycles.forEach(cycle => {
-        state.hidden.add(cycle.CODIGO_CORTO);
-      });
-      saveHiddenToStorage();
-      renderAll();
-      notify('Todos los ciclos han sido ocultos');
-    };
-
-    const showAllCycles = () => {
-      state.cycles.forEach(cycle => {
-        state.hidden.delete(cycle.CODIGO_CORTO);
-      });
-      saveHiddenToStorage();
-      renderAll();
-      notify('Todos los ciclos han sido mostrados');
-    };
-
-    // Enlazamos los botones con las funciones
-    document.getElementById('hideAllButton').addEventListener('click', hideAllCycles);
-    document.getElementById('showAllButton').addEventListener('click', showAllCycles);
-
-    // Cargar los ciclos al inicio
-    fetchCycles();
-  </script>
+  <script src="/js/services/admin/getciclos.js"></script>
 </body>
 
 </html>

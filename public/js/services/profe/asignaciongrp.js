@@ -19,13 +19,15 @@ async function getProfesoresAsig() {
   const api = await response.json();
 
   let content = "";
+
+  // Verificar si hay ciclo seleccionado
+  const cicloSeleccionado = selectCuatri.value !== "none";
+  
   api.data.forEach((item, index) => {
-    // Filtrar solo los periodos 1, 2 y 3
     if (item.PERIODO < 1 || item.PERIODO > 3) {
-      return; // Si el periodo no está entre 1 y 3, se omite el item
+      return;
     }
 
-    // Querys que servirán para la consulta de los alumnos en el grupo
     let query = `idPlan=${item.ID_PLAN}`;
     query += `&claveAsig=${item.CLAVEASIGNATURA}`;
     query += `&nombreAsig=${item.NOMBREASIGNATURA}`;
@@ -40,33 +42,33 @@ async function getProfesoresAsig() {
     content += `<td>${item.CLAVEASIGNATURA}</td>`;
     content += `<td>${item.NOMBREASIGNATURA}</td>`;
     content += `<td>${item.CODIGO_GRUPO}</td>`;
-    content += `<td><div class="dropdown">
-      <a class="btn btn-custom dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="bi bi-three-dots"></i> Opciones
-    </a>
 
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    
-      <li>
-        <a 
-          class="dropdown-item" 
-          href="/grupoprofe/${item.CLAVEPROFESOR}/ver_calif?${query}"
-        >
-          <i class="bi bi-eye"></i> Ver calificaciones
-        </a>
-      </li>
+    // Solo mostrar el dropdown si hay ciclo seleccionado
+    if (cicloSeleccionado) {
+      content += `<td><div class="dropdown">
+        <a class="btn btn-custom dropdown-toggle" href="#" role="button" id="dropdownMenuLink${index}" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots"></i> Opciones
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink${index}">
+        <li>
+          <a class="dropdown-item" href="/grupoprofe/${item.CLAVEPROFESOR}/ver_calif?${query}">
+            <i class="bi bi-eye"></i> Ver calificaciones
+          </a>
+        </li>`;
 
-      <li>
-        <a 
-          class="dropdown-item" 
-          href="/grupoprofe/${item.CLAVEPROFESOR}/subir_calif?${query}"
-        >
-          <i class="bi bi-upload"></i> Subir Calificaciones
-        </a>
-      </li>
-     
-    </ul>
-      </div></td>`;
+      // Mostrar el botón de "Subir Calificaciones" si el ciclo tiene un año final >= 2025
+      if (item.FINAL >= 2025) {
+        content += `<li>
+          <a class="dropdown-item" href="/grupoprofe/${item.CLAVEPROFESOR}/subir_calif?${query}">
+            <i class="bi bi-upload"></i> Subir Calificaciones
+          </a>
+        </li>`;
+      }
+
+      content += `</ul></div></td>`;
+    } else {
+      content += `<td>Seleccione un ciclo</td>`;
+    }
 
     content += "</tr>";
   });
