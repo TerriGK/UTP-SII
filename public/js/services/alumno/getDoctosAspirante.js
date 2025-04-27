@@ -3,7 +3,6 @@ const body = document.getElementById("content");
 const numalumno = document.getElementById("numeroalumno");
 const select = document.getElementById("filterDocto");
 let gradoSelected = 0;
-let currentOpenPreview = null; // Variable global para controlar la vista previa actual
 
 /**
  * Función principal para obtener documentos
@@ -14,66 +13,11 @@ const getDoctos = async () => {
   try {
     const { doctos = [] } = await fetchDoctos();
     renderContent(doctos);
-    setupPreviewEvents();
   } catch (error) {
     console.error(error);
     showErrorMessage("Error al cargar documentos");
   }
 };
-
-/**
- * Configura los eventos de vista previa
- */
-const setupPreviewEvents = () => {
-  document.querySelectorAll('.preview-btn').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      const doctoId = this.dataset.doctoId;
-      const previewContainer = document.getElementById(`preview-container-${doctoId}`);
-
-      // Si ya está abierto, solo cerrarlo
-      if (currentOpenPreview === previewContainer) {
-        previewContainer.style.display = 'none';
-        currentOpenPreview = null;
-        return;
-      }
-
-      // Cerrar el anterior si existe
-      if (currentOpenPreview) {
-        currentOpenPreview.style.display = 'none';
-      }
-
-      // Configurar el nuevo
-      if (!previewContainer.innerHTML) {
-        previewContainer.innerHTML = `
-          <div class="preview-wrapper bg-light p-3 rounded-3 border" style="box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1)">
-            <iframe src="/doctos/${doctoId}#toolbar=0&navpanes=0" width="100%" height="400px" class="border-0 mb-3 rounded-2"></iframe>
-            <div class="d-flex justify-content-center gap-3">
-              <a href="/doctos/${doctoId}" target="_blank" class="btn btn-primary px-3 py-2 d-flex align-items-center">
-                <i class="fas fa-external-link-alt me-2"></i> Abrir completo
-              </a>
-              <button class="btn btn-outline-secondary px-3 py-2 d-flex align-items-center close-preview">
-                <i class="fas fa-times me-2"></i> Cerrar
-              </button>
-            </div>
-          </div>
-        `;
-
-        previewContainer.querySelector('.close-preview').addEventListener('click', (e) => {
-          e.preventDefault();
-          previewContainer.style.display = 'none';
-          currentOpenPreview = null;
-        });
-      }
-
-      // Mostrar el nuevo
-      previewContainer.style.display = 'block';
-      currentOpenPreview = previewContainer;
-    });
-  });
-};
-
-// Eliminé la función showPreview ya que su lógica está integrada en setupPreviewEvents
 
 /**
  * Muestra el spinner de carga
@@ -132,16 +76,12 @@ const generateDoctoCards = (doctos) => {
           
           <!-- Botones de acción -->
           <div class="mt-auto d-grid gap-2">
-            <button class="btn btn-outline-primary preview-btn py-2 d-flex align-items-center justify-content-center" data-docto-id="${item.ID_DOCTO}">
-              <i class="far fa-eye me-2"></i> Vista previa
-            </button>
             <a href="/doctos/${item.ID_DOCTO}" target="_blank" class="btn btn-primary py-2 d-flex align-items-center justify-content-center">
               <i class="fas fa-file-download me-2"></i> Descargar
             </a>
           </div>
         </div>
       </div>
-      <div id="preview-container-${item.ID_DOCTO}" class="preview-container mt-3" style="display:none;"></div>
     </div>`;
   }).join('');
 };

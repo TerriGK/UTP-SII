@@ -13,7 +13,7 @@ boton.addEventListener(
   })
 );
 
-async function getProfesoresAsig() {
+async function getProfesoresAsig() { 
   let url = `/api/profesores/${idprofesor.value}/grupos?page=${page}`;
   const response = await fetch(url);
   const api = await response.json();
@@ -68,8 +68,11 @@ async function getProfesoresAsig() {
       </a>
     </li>`;
 
-    // Mostrar el botón de "Subir Calificaciones" solo si el ciclo seleccionado es posterior al ciclo actual
-    if (item.FINAL >= añoActual) {
+    // Mostrar el botón de "Subir Calificaciones" solo si:
+    // - El ciclo es posterior a 2024
+    // - El periodo es 2, 3 o mayor
+    // - El año final es mayor o igual que el año actual
+    if ((item.INICIAL > 2024 || (item.INICIAL === 2024 && item.FINAL >= 2025)) && item.PERIODO >= 2 && item.FINAL >= añoActual) {
       content += `<li>
         <a class="dropdown-item" href="/grupoprofe/${item.CLAVEPROFESOR}/subir_calif?${query}">
           <i class="bi bi-upload"></i> Subir Calificaciones

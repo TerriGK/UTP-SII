@@ -1,41 +1,235 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión de Ciclos Académicos</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link rel="stylesheet" href="/css/ciclo.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleccionar Ciclo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <style>
+    .notification {
+      display: none;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .notification.show {
+      display: block;
+    }
+    .notification.success {
+      background-color: #28a745;
+      color: white;
+    }
+    .notification.error {
+      background-color: #dc3545;
+      color: white;
+    }
 
+    .cycle-list {
+      margin-top: 10px;
+    }
+
+    .toggle-button {
+      margin-top: 10px;
+    }
+
+    .content-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .content-left, .content-right {
+      width: 48%;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .hidden-content {
+      display: none;
+    }
+
+    .cycle-list li {
+      list-style-type: none;
+      padding: 5px 0;
+    }
+
+    /* Añadimos espaciado a los botones para asegurar que no se solapen */
+    #showLeftButton, #showRightButton {
+      margin-top: 15px;
+    }
+  </style>
 </head>
-
 <body>
   <div class="container">
-    <h1><i class="fas fa-calendar-alt"></i> Gestión de Ciclos Académicos</h1>
+    <h1 class="my-4">Seleccionar Ciclo</h1>
 
-    <div class="cycles-container">
-      <div class="cycles-column">
-        <div class="column-title">Ciclos Disponibles</div>
-        <ul class="cycles-list" id="activeCyclesList">
-          <div class="loading">
-            <i class="fas fa-spinner fa-spin"></i> Cargando ciclos...
-          </div>
-        </ul>
+    <!-- Notificación de Estado -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Lista de ciclos disponibles -->
+    <ul class="list-group mt-4" id="cicloList">
+      <!-- Los ciclos serán cargados dinámicamente aquí -->
+    </ul>
+
+    <!-- Botón para actualizar el periodo seleccionado -->
+    <button id="updateButton" class="btn btn-primary mt-3">Actualizar Periodo Seleccionado</button>
+
+    <!-- Botones para mostrar y ocultar contenido en izquierda y derecha -->
+    <button id="showLeftButton" class="btn btn-secondary toggle-button">Mostrar/Ocultar Izquierda</button>
+    <button id="showRightButton" class="btn btn-secondary toggle-button">Mostrar/Ocultar Derecha</button>
+
+    <div class="content-container">
+      <!-- Contenido izquierdo (oculto inicialmente) -->
+      <div id="contentLeft" class="content-left hidden-content">
+        <p>Contenido de la izquierda que puede ser mostrado u ocultado.</p>
       </div>
-      <div class="cycles-column">
-        <div class="column-title">Ciclos Ocultos</div>
-        <ul class="cycles-list" id="hiddenCyclesList">
-          <div class="no-cycles">
-            <i class="fas fa-eye-slash"></i> No hay ciclos ocultos
-          </div>
-        </ul>
+
+      <!-- Contenido derecho (oculto inicialmente) -->
+      <div id="contentRight" class="content-right hidden-content">
+        <p>Contenido de la derecha que puede ser mostrado u ocultado.</p>
       </div>
     </div>
   </div>
 
-  <div id="notification" class="notification"></div>
-  <script src="/js/services/admin/getciclos.js"></script>
-</body>
+  <!-- Cargar JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    "use strict";
 
+    // Elemento del DOM
+    const cicloList = document.getElementById("cicloList");
+    const notification = document.getElementById("notification");
+    const updateButton = document.getElementById("updateButton");
+
+    /**
+     * Actualiza el período seleccionado en el servidor
+     * @param {string} periodo - Código del período a actualizar
+     * @returns {Promise<object>} Respuesta JSON del servidor
+     */
+    const actualizarPeriodo = async (periodo) => {
+      const config = {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ periodo })
+      };
+
+      const response = await fetch("/api/update/CuatriXGrupos", config);
+      if (!response.ok) {
+        throw new Error(`Error en la actualización: ${response.status}`);
+      }
+
+      return response.json();
+    };
+
+    /**
+     * Carga los ciclos disponibles en la lista
+     */
+    const cargarCiclosLista = async () => {
+      try {
+        const response = await fetch("/api/cuatris-navbar");
+        if (!response.ok) {
+          throw new Error(`Error al obtener ciclos: ${response.status}`);
+        }
+
+        const { ciclos = [] } = await response.json();
+
+        // Limpiar la lista de ciclos
+        cicloList.innerHTML = "";
+
+        // Agregar los ciclos disponibles a la lista
+        ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION, INICIAL, FINAL, PERIODO }) => {
+          const listItem = document.createElement("li");
+          listItem.classList.add("list-group-item");
+
+          // Crear el texto del ciclo
+          const texto = document.createElement("span");
+          texto.textContent = `${DESCRIPCION} (${CODIGO_CORTO})`;
+
+          // Crear una lista de los detalles (inicial, final, periodo)
+          const detailsList = document.createElement("ul");
+          detailsList.classList.add("cycle-list");
+          detailsList.innerHTML = `
+            <li><strong>Inicial:</strong> ${INICIAL}</li>
+            <li><strong>Final:</strong> ${FINAL}</li>
+            <li><strong>Periodo:</strong> ${PERIODO}</li>
+          `;
+
+          // Agregar el texto y la lista de detalles al item de la lista
+          listItem.appendChild(texto);
+          listItem.appendChild(detailsList);
+          cicloList.appendChild(listItem);
+        });
+
+      } catch (error) {
+        console.error("Error al cargar los ciclos:", error);
+        alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
+      }
+    };
+
+    /**
+     * Evento para actualizar el período de los ciclos seleccionados
+     */
+    updateButton.addEventListener("click", async () => {
+      // Obtener los ciclos seleccionados del localStorage
+      const selectedCycles = JSON.parse(localStorage.getItem("selectedCycles") || "[]");
+
+      if (selectedCycles.length === 0) {
+        alert("Debe seleccionar al menos un ciclo.");
+        return;
+      }
+
+      try {
+        // Actualizar el período con los ciclos seleccionados
+        const resultado = await actualizarPeriodo(selectedCycles.join(","));
+        console.log("Periodo actualizado:", resultado);
+
+        // Mostrar notificación de éxito
+        notify("Periodo actualizado correctamente", "success");
+
+        // Recargar la página para reflejar los cambios
+        location.reload();
+      } catch (error) {
+        console.warn("Error al cambiar periodo:", error);
+        alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
+      }
+    });
+
+    /**
+     * Evento para mostrar/ocultar contenido izquierdo
+     */
+    document.getElementById("showLeftButton").addEventListener("click", () => {
+      const leftContent = document.getElementById("contentLeft");
+      const isVisible = leftContent.style.display !== "none";
+      
+      if (isVisible) {
+        leftContent.style.display = "none";
+        document.getElementById("showLeftButton").textContent = "Mostrar Izquierda";
+      } else {
+        leftContent.style.display = "block";
+        document.getElementById("showLeftButton").textContent = "Ocultar Izquierda";
+      }
+    });
+
+    /**
+     * Evento para mostrar/ocultar contenido derecho
+     */
+    document.getElementById("showRightButton").addEventListener("click", () => {
+      const rightContent = document.getElementById("contentRight");
+      const isVisible = rightContent.style.display !== "none";
+      
+      if (isVisible) {
+        rightContent.style.display = "none";
+        document.getElementById("showRightButton").textContent = "Mostrar Derecha";
+      } else {
+        rightContent.style.display = "block";
+        document.getElementById("showRightButton").textContent = "Ocultar Derecha";
+      }
+    });
+
+    // Cargar ciclos al iniciar
+    cargarCiclosLista();
+  </script>
+</body>
 </html>

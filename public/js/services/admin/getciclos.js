@@ -1,5 +1,6 @@
-const STORAGE_KEY = 'hiddenCycles';
+const STORAGE_KEY = 'hiddenCycles'; 
 const $ = id => document.getElementById(id);
+
 const elements = {
   activeList: $('activeCyclesList'),
   hiddenList: $('hiddenCyclesList'),
@@ -10,6 +11,7 @@ const state = {
   cycles: [],
   selected: new Set(),
   hidden: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')),
+  currentCycle: null,  // Almacenamos el ciclo actualmente seleccionado
 };
 
 const saveHiddenToStorage = () => {
@@ -57,6 +59,10 @@ const renderItem = (cycle, container, isActive) => {
   const li = document.createElement('li');
   li.className = `cycle-item ${state.selected.has(cycle.CODIGO_CORTO) ? 'selected' : ''}`;
   li.dataset.id = cycle.CODIGO_CORTO;
+
+  // Condición de "Subir Calificaciones"
+  const showUploadButton = cycle.FINAL >= 2025 && cycle.PERIODO >= 1 && cycle.PERIODO <= 3 && state.currentCycle === cycle.CODIGO_CORTO;
+
   li.innerHTML = `
     <div class="cycle-info">
       <span class="cycle-name">${cycle.DESCRIPCION}</span>
@@ -66,10 +72,16 @@ const renderItem = (cycle, container, isActive) => {
       <i class="fas fa-${isActive ? 'eye-slash' : 'eye'}"></i>
       ${isActive ? 'Ocultar' : 'Mostrar'}
     </button>
+    ${showUploadButton ? `
+      <button class="btn btn-success">
+        <i class="bi bi-upload"></i> Subir Calificaciones
+      </button>` : ''}
   `;
+
   li.querySelector('button').onclick = () => {
     isActive ? hideCycle(cycle) : showCycle(cycle);
   };
+
   container.appendChild(li);
 };
 
@@ -85,6 +97,12 @@ const showCycle = (cycle) => {
   saveHiddenToStorage();
   renderAll();
   notify(`${cycle.DESCRIPCION} mostrado`);
+};
+
+const selectCycle = (cycleCodigo) => {
+  state.currentCycle = cycleCodigo;
+  renderAll();  // Para que se actualice la lista y se vea el cambio del ciclo seleccionado
+  notify(`Ciclo ${cycleCodigo} seleccionado`);
 };
 
 fetchCycles();
