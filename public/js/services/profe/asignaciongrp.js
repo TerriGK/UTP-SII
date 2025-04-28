@@ -155,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function() {
     return;
   }
   
-  // Si todos los elementos existen, inicializar la aplicación
   getProfesoresAsig();
 });
 
