@@ -211,7 +211,7 @@ router.get("/gruposCalifi", async (req, res) => {
 
 //GRUPO POR CALIFICACIONES -->
 router.get("/gruposCalifi_alumnos/:idGrupo", async (req, res) => {
-  const { limit = 40, skip = 0 } = req.query;
+  const { limit = 500, skip = 0 } = req.query;
   const idGrupo = req.params.idGrupo;
 
   let sql = `SELECT FIRST ${limit} SKIP ${skip} `;

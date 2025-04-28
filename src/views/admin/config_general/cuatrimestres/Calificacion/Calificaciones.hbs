@@ -1,66 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seleccionar Ciclo</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-  <style>
-    .notification {
-      display: none;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-    }
-    .notification.show {
-      display: block;
-    }
-    .notification.success {
-      background-color: #28a745;
-      color: white;
-    }
-    .notification.error {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .cycle-list {
-      margin-top: 10px;
-    }
-
-    .toggle-button {
-      margin-top: 10px;
-    }
-
-    .content-container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-
-    .content-left, .content-right {
-      width: 48%;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-
-    .hidden-content {
-      display: none;
-    }
-
-    .cycle-list li {
-      list-style-type: none;
-      padding: 5px 0;
-    }
-
-    /* Añadimos espaciado a los botones para asegurar que no se solapen */
-    #showLeftButton, #showRightButton {
-      margin-top: 15px;
-    }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/ciclo.css">
 </head>
+
 <body>
   <div class="container">
     <h1 class="my-4">Seleccionar Ciclo</h1>
@@ -68,27 +17,37 @@
     <!-- Notificación de Estado -->
     <div id="notification" class="notification"></div>
 
-    <!-- Lista de ciclos disponibles -->
-    <ul class="list-group mt-4" id="cicloList">
-      <!-- Los ciclos serán cargados dinámicamente aquí -->
-    </ul>
-
-    <!-- Botón para actualizar el periodo seleccionado -->
-    <button id="updateButton" class="btn btn-primary mt-3">Actualizar Periodo Seleccionado</button>
-
-    <!-- Botones para mostrar y ocultar contenido en izquierda y derecha -->
-    <button id="showLeftButton" class="btn btn-secondary toggle-button">Mostrar/Ocultar Izquierda</button>
-    <button id="showRightButton" class="btn btn-secondary toggle-button">Mostrar/Ocultar Derecha</button>
-
     <div class="content-container">
-      <!-- Contenido izquierdo (oculto inicialmente) -->
-      <div id="contentLeft" class="content-left hidden-content">
-        <p>Contenido de la izquierda que puede ser mostrado u ocultado.</p>
+      <!-- Ciclos activos (izquierda) -->
+      <div id="activeCycles" class="active-cycles">
+        <div class="section-title">
+          <h4><i class="fas fa-calendar-alt"></i> Ciclos Disponibles <span id="activeCount" class="badge-count">0</span></h4>
+          <button id="selectAllActive" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-check-square"></i> Seleccionar Todos
+          </button>
+        </div>
+        <div id="emptyActiveCycles" class="no-cycles-message" style="display: none;">
+          <i class="fas fa-exclamation-circle"></i> No hay ciclos disponibles
+        </div>
+        <ul class="list-group" id="cicloList">
+          <!-- Los ciclos serán cargados dinámicamente aquí -->
+        </ul>
       </div>
 
-      <!-- Contenido derecho (oculto inicialmente) -->
-      <div id="contentRight" class="content-right hidden-content">
-        <p>Contenido de la derecha que puede ser mostrado u ocultado.</p>
+      <!-- Ciclos ocultos (derecha) -->
+      <div id="hiddenCycles" class="hidden-cycles">
+        <div class="section-title">
+          <h4><i class="fas fa-eye-slash"></i> Ciclos Ocultos <span id="hiddenCount" class="badge-count">0</span></h4>
+          <button id="restoreAllHidden" class="btn btn-sm btn-outline-success">
+            <i class="fas fa-sync-alt"></i> Restaurar Todos
+          </button>
+        </div>
+        <div id="emptyHiddenCycles" class="no-cycles-message" style="display: none;">
+          <i class="fas fa-check-circle"></i> No hay ciclos ocultos
+        </div>
+        <ul class="list-group" id="hiddenCyclesList">
+          <!-- Los ciclos ocultos se mostrarán aquí -->
+        </ul>
       </div>
     </div>
   </div>
@@ -98,138 +57,140 @@
   <script>
     "use strict";
 
-    // Elemento del DOM
-    const cicloList = document.getElementById("cicloList");
-    const notification = document.getElementById("notification");
-    const updateButton = document.getElementById("updateButton");
-
-    /**
-     * Actualiza el período seleccionado en el servidor
-     * @param {string} periodo - Código del período a actualizar
-     * @returns {Promise<object>} Respuesta JSON del servidor
-     */
-    const actualizarPeriodo = async (periodo) => {
-      const config = {
-        method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ periodo })
-      };
-
-      const response = await fetch("/api/update/CuatriXGrupos", config);
-      if (!response.ok) {
-        throw new Error(`Error en la actualización: ${response.status}`);
-      }
-
-      return response.json();
+    // Elementos del DOM
+    const elements = {
+      cicloList: document.getElementById("cicloList"),
+      hiddenCyclesList: document.getElementById("hiddenCyclesList"),
+      notification: document.getElementById("notification"),
+      activeCountBadge: document.getElementById("activeCount"),
+      hiddenCountBadge: document.getElementById("hiddenCount")
     };
 
-    /**
-     * Carga los ciclos disponibles en la lista
-     */
+    // Arrays de ciclos
+    let allCycles = [];
+    let hiddenCycleIds = JSON.parse(localStorage.getItem("hiddenCycles") || "[]");
+
+    // Notificación
+    const notify = (message, type) => {
+      const { notification } = elements;
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      setTimeout(() => notification.className = "notification", 3000);
+    };
+
+    // Crear botones de acción
+    const createButton = (iconClass, text, btnClass, onClick) => {
+      const button = document.createElement("button");
+      button.className = `btn btn-sm btn-toggle ${btnClass}`;
+      button.innerHTML = `<i class="${iconClass}"></i> ${text}`;
+      button.addEventListener("click", onClick);
+      return button;
+    };
+
+    // Crear elemento de ciclo
+    const createCycleElement = (cycle, isHidden) => {
+      const { CODIGO_CORTO, DESCRIPCION, INICIAL, FINAL, PERIODO } = cycle;
+
+      const listItem = document.createElement("li");
+      listItem.className = "list-group-item cycle-card";
+      listItem.dataset.id = CODIGO_CORTO;
+
+      const header = document.createElement("div");
+      header.className = "cycle-header";
+
+      const titulo = document.createElement("h5");
+      titulo.textContent = `${DESCRIPCION} (${CODIGO_CORTO})`;
+
+      const actions = document.createElement("div");
+      actions.className = "cycle-actions";
+
+      const button = isHidden
+        ? createButton("fas fa-eye", "Mostrar", "btn-restore", () => restoreCycle(CODIGO_CORTO))
+        : createButton("fas fa-eye-slash", "Ocultar", "btn-hide", () => hideCycle(CODIGO_CORTO));
+
+      actions.appendChild(button);
+      header.append(titulo, actions);
+
+      const detailsList = document.createElement("ul");
+      detailsList.className = "cycle-list";
+      detailsList.innerHTML = `
+        <li><strong>Inicial:</strong> ${INICIAL}</li>
+        <li><strong>Final:</strong> ${FINAL}</li>
+        <li><strong>Periodo:</strong> ${PERIODO}</li>
+      `;
+
+      listItem.append(header, detailsList);
+      return listItem;
+    };
+
+    // Ocultar ciclo
+    const hideCycle = (id) => {
+      const cycle = allCycles.find(c => c.CODIGO_CORTO === id);
+      if (!cycle) return;
+
+      if (!hiddenCycleIds.includes(id)) {
+        hiddenCycleIds.push(id);
+        localStorage.setItem("hiddenCycles", JSON.stringify(hiddenCycleIds));
+      }
+
+      document.querySelector(`#cicloList li[data-id="${id}"]`)?.remove();
+      elements.hiddenCyclesList.appendChild(createCycleElement(cycle, true));
+      updateCounters();
+      notify(`Ciclo ${id} ocultado`, "success");
+    };
+
+    // Restaurar ciclo
+    const restoreCycle = (id) => {
+      const cycle = allCycles.find(c => c.CODIGO_CORTO === id);
+      if (!cycle) return;
+
+      hiddenCycleIds = hiddenCycleIds.filter(cycleId => cycleId !== id);
+      localStorage.setItem("hiddenCycles", JSON.stringify(hiddenCycleIds));
+
+      document.querySelector(`#hiddenCyclesList li[data-id="${id}"]`)?.remove();
+      elements.cicloList.appendChild(createCycleElement(cycle, false));
+      updateCounters();
+      notify(`Ciclo ${id} restaurado`, "success");
+    };
+
+    // Actualizar contadores
+    const updateCounters = () => {
+      elements.activeCountBadge.textContent = elements.cicloList.querySelectorAll('li').length;
+      elements.hiddenCountBadge.textContent = elements.hiddenCyclesList.querySelectorAll('li').length;
+    };
+
+    // Cargar ciclos
     const cargarCiclosLista = async () => {
       try {
         const response = await fetch("/api/cuatris-navbar");
-        if (!response.ok) {
-          throw new Error(`Error al obtener ciclos: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`Error al obtener ciclos: ${response.status}`);
         const { ciclos = [] } = await response.json();
 
-        // Limpiar la lista de ciclos
-        cicloList.innerHTML = "";
+        // Filtrar ciclos con PERIODO > 0
+        allCycles = ciclos
+          .filter(cycle => cycle.PERIODO > 0)
+          // Ordenar por CODIGO_CORTO descendente (2025 a 2012)
+          .sort((a, b) => b.CODIGO_CORTO.localeCompare(a.CODIGO_CORTO));
 
-        // Agregar los ciclos disponibles a la lista
-        ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION, INICIAL, FINAL, PERIODO }) => {
-          const listItem = document.createElement("li");
-          listItem.classList.add("list-group-item");
+        elements.cicloList.innerHTML = "";
+        elements.hiddenCyclesList.innerHTML = "";
 
-          // Crear el texto del ciclo
-          const texto = document.createElement("span");
-          texto.textContent = `${DESCRIPCION} (${CODIGO_CORTO})`;
-
-          // Crear una lista de los detalles (inicial, final, periodo)
-          const detailsList = document.createElement("ul");
-          detailsList.classList.add("cycle-list");
-          detailsList.innerHTML = `
-            <li><strong>Inicial:</strong> ${INICIAL}</li>
-            <li><strong>Final:</strong> ${FINAL}</li>
-            <li><strong>Periodo:</strong> ${PERIODO}</li>
-          `;
-
-          // Agregar el texto y la lista de detalles al item de la lista
-          listItem.appendChild(texto);
-          listItem.appendChild(detailsList);
-          cicloList.appendChild(listItem);
+        allCycles.forEach(cycle => {
+          const isHidden = hiddenCycleIds.includes(cycle.CODIGO_CORTO);
+          const cycleElement = createCycleElement(cycle, isHidden);
+          (isHidden ? elements.hiddenCyclesList : elements.cicloList).appendChild(cycleElement);
         });
 
+        updateCounters();
       } catch (error) {
         console.error("Error al cargar los ciclos:", error);
-        alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
+        notify("No se pudieron cargar los ciclos. Intente nuevamente más tarde.", "error");
       }
     };
 
-    /**
-     * Evento para actualizar el período de los ciclos seleccionados
-     */
-    updateButton.addEventListener("click", async () => {
-      // Obtener los ciclos seleccionados del localStorage
-      const selectedCycles = JSON.parse(localStorage.getItem("selectedCycles") || "[]");
-
-      if (selectedCycles.length === 0) {
-        alert("Debe seleccionar al menos un ciclo.");
-        return;
-      }
-
-      try {
-        // Actualizar el período con los ciclos seleccionados
-        const resultado = await actualizarPeriodo(selectedCycles.join(","));
-        console.log("Periodo actualizado:", resultado);
-
-        // Mostrar notificación de éxito
-        notify("Periodo actualizado correctamente", "success");
-
-        // Recargar la página para reflejar los cambios
-        location.reload();
-      } catch (error) {
-        console.warn("Error al cambiar periodo:", error);
-        alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
-      }
-    });
-
-    /**
-     * Evento para mostrar/ocultar contenido izquierdo
-     */
-    document.getElementById("showLeftButton").addEventListener("click", () => {
-      const leftContent = document.getElementById("contentLeft");
-      const isVisible = leftContent.style.display !== "none";
-      
-      if (isVisible) {
-        leftContent.style.display = "none";
-        document.getElementById("showLeftButton").textContent = "Mostrar Izquierda";
-      } else {
-        leftContent.style.display = "block";
-        document.getElementById("showLeftButton").textContent = "Ocultar Izquierda";
-      }
-    });
-
-    /**
-     * Evento para mostrar/ocultar contenido derecho
-     */
-    document.getElementById("showRightButton").addEventListener("click", () => {
-      const rightContent = document.getElementById("contentRight");
-      const isVisible = rightContent.style.display !== "none";
-      
-      if (isVisible) {
-        rightContent.style.display = "none";
-        document.getElementById("showRightButton").textContent = "Mostrar Derecha";
-      } else {
-        rightContent.style.display = "block";
-        document.getElementById("showRightButton").textContent = "Ocultar Derecha";
-      }
-    });
-
-    // Cargar ciclos al iniciar
+    // Inicializar
     cargarCiclosLista();
   </script>
 </body>
+
 </html>

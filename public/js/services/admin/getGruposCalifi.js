@@ -1,63 +1,70 @@
-"use strict";
+'use strict';
 
-const table = document.getElementById("table-container");
-const inputSearch = document.getElementById("buscar");
-const load = document.getElementById("load");
+const table      = document.getElementById('table-container');
+const inputSearch= document.getElementById('buscar');
 
-let limit = 1000;
-let skip = 0;
-let search = "";
-let orderBy = "inicial";
-let sort = "desc";
+let limit        = 300;
+let skip         = 0;
+let search       = '';
+let orderBy      = 'inicial';
+let sort         = 'desc';
 let gruposLength = 0;
 
-inputSearch.addEventListener("input", debounce(() => {
+inputSearch.addEventListener('input', debounce(() => {
   search = inputSearch.value;
-  skip = 0; // Reinicia la paginación
+  skip   = 0;   
   getGrupos();
-}));
+}, 500));
 
 // 📌 Llamada a la API
 const getGrupos = async () => {
-  table.innerHTML = ""; // Vacía la tabla en caso de que ya tenga datos
-  load.style.display = "block";
+  table.innerHTML = '';
 
-  const url = `/api/gruposCalifi?limit=${limit}&skip=${skip}&orderBy=${orderBy}&sort=${sort}`;
-  const res = await fetch(url);
-  const { grupos } = await res.json();
+  const url = `/api/gruposCalifi`
+            + `?limit=${limit}`
+            + `&skip=${skip}`
+            + `&orderBy=${orderBy}`
+            + `&sort=${sort}`
+            + `&search=${encodeURIComponent(search)}`;
 
-  load.style.display = "none";
+  try {
+    const res    = await fetch(url);
+    const { grupos } = await res.json();
 
-  let content = "";
-  grupos
-    .filter(item => item.CLAVEPROFESOR_TITULAR) // 📌 Filtra los grupos sin tutor
-    .forEach((item, i) => {
-      content += `<tr onclick="window.location.href=window.location.href+'/${item.CODIGO_GRUPO}'">`;
-      content += `<td>${i + 1}</td>`;
-      content += `<td>${item.CODIGO_CARRERA}</td>`;
-      content += `<td>${item.INICIAL}</td>`;
-      content += `<td>${item.FINAL}</td>`;
-      content += `<td>${item.CODIGO_GRUPO}</td>`;
-      content += `<td>${item.GRADO}</td>`;
-      content += `<td>${item.GRUPO}</td>`;
-      content += `<td>${item.INSCRITOS} de ${item.CUPO_MAXIMO}</td>`;
-      content += `<td>${item.CLAVEPROFESOR_TITULAR}</td>`;
-      content += "</tr>";
-    });
+    let content = '';
+    grupos
+      .filter(item => item.CLAVEPROFESOR_TITULAR)   
+      .forEach((item, i) => {
+        content += `
+          <tr onclick="window.location.href='${window.location.pathname}/${item.CODIGO_GRUPO}'">
+            <td>${i + 1}</td>
+            <td>${item.CODIGO_CARRERA}</td>
+            <td>${item.INICIAL}</td>
+            <td>${item.FINAL}</td>
+            <td>${item.CODIGO_GRUPO}</td>
+            <td>${item.GRADO}</td>
+            <td>${item.GRUPO}</td>
+            <td>${item.INSCRITOS} de ${item.CUPO_MAXIMO}</td>
+            <td>${item.CLAVEPROFESOR_TITULAR}</td>
+          </tr>`;
+      });
 
-  table.innerHTML = content;
-  gruposLength = grupos.length;
+    table.innerHTML = content;
+    gruposLength    = grupos.length;
+
+  } catch (error) {
+    console.error('Error al cargar grupos:', error);
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center; color:red;">
+          Error al cargar los datos.
+        </td>
+      </tr>`;
+  }
 };
 
-const handleOrder = (by) => {
-  orderBy = by;
-  getGrupos();
-};
-
-const handleSort = (by) => {
-  sort = by;
-  getGrupos();
-};
+const handleOrder = by => { orderBy = by; getGrupos(); };
+const handleSort  = by => { sort    = by; getGrupos(); };
 
 const prev = () => {
   if (skip >= limit) {
@@ -67,10 +74,11 @@ const prev = () => {
 };
 
 const next = () => {
-  if (!(gruposLength < limit)) {
+  if (gruposLength >= limit) {
     skip += limit;
     getGrupos();
   }
 };
 
+// Primera carga
 getGrupos();
