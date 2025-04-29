@@ -16,17 +16,17 @@
       --light-color: #ecf0f1;
       --dark-color: #2c3e50;
     }
-    
+
     body {
       background-color: #f5f7fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
+
     .container {
       max-width: 1200px;
       margin-top: 2rem;
     }
-    
+
     .page-title {
       color: var(--dark-color);
       font-weight: 700;
@@ -35,27 +35,27 @@
       padding-bottom: 1rem;
       border-bottom: 2px solid var(--light-color);
     }
-    
+
     .content-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2rem;
       margin-bottom: 1rem;
     }
-    
+
     @media (max-width: 768px) {
       .content-container {
         grid-template-columns: 1fr;
       }
     }
-    
+
     .cycles-section {
       background: white;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       padding: 1.5rem;
     }
-    
+
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -64,7 +64,7 @@
       padding-bottom: 0.5rem;
       border-bottom: 1px solid #eee;
     }
-    
+
     .section-title {
       display: flex;
       align-items: center;
@@ -74,7 +74,7 @@
       margin: 0;
       font-size: 1.25rem;
     }
-    
+
     .badge-count {
       background-color: var(--primary-color);
       color: white;
@@ -86,7 +86,7 @@
       justify-content: center;
       font-size: 0.85rem;
     }
-    
+
     .cycle-list {
       list-style: none;
       padding: 0;
@@ -95,7 +95,7 @@
       flex-direction: column;
       gap: 1rem;
     }
-    
+
     .cycle-card {
       background: white;
       border: 1px solid #e3e6f0;
@@ -104,48 +104,48 @@
       transition: all 0.3s ease;
       position: relative;
     }
-    
+
     .cycle-card.selected {
       background-color: #e8f4fc;
       border-left: 4px solid var(--primary-color);
     }
-    
+
     .cycle-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     }
-    
+
     .cycle-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.75rem;
     }
-    
+
     .cycle-name {
       font-weight: 600;
       color: var(--dark-color);
       margin: 0;
       font-size: 1.1rem;
     }
-    
+
     .cycle-code {
       color: var(--primary-color);
       font-weight: 700;
     }
-    
+
     .cycle-details {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
     }
-    
+
     .detail-item {
       display: flex;
       flex-direction: column;
     }
-    
+
     .detail-label {
       font-size: 0.8rem;
       color: #7f8c8d;
@@ -153,17 +153,17 @@
       text-transform: uppercase;
       margin-bottom: 0.25rem;
     }
-    
+
     .detail-value {
       font-weight: 600;
       color: var(--dark-color);
     }
-    
+
     .cycle-actions {
       display: flex;
       gap: 0.75rem;
     }
-    
+
     .btn-action {
       border-radius: 6px;
       padding: 0.5rem 1rem;
@@ -174,73 +174,73 @@
       font-weight: 500;
       transition: all 0.2s;
     }
-    
+
     .btn-select {
       background-color: var(--primary-color);
       color: white;
       border: none;
     }
-    
+
     .btn-select:hover {
       background-color: #2980b9;
       transform: translateY(-2px);
     }
-    
+
     .btn-deselect {
       background-color: #95a5a6;
       color: white;
       border: none;
     }
-    
+
     .btn-deselect:hover {
       background-color: #7f8c8d;
       transform: translateY(-2px);
     }
-    
+
     .btn-hide {
       background-color: var(--warning-color);
       color: white;
       border: none;
     }
-    
+
     .btn-hide:hover {
       background-color: #e67e22;
       transform: translateY(-2px);
     }
-    
+
     .btn-restore {
       background-color: var(--secondary-color);
       color: white;
       border: none;
     }
-    
+
     .btn-restore:hover {
       background-color: #27ae60;
       transform: translateY(-2px);
     }
-    
+
     .btn-confirm {
       background-color: var(--secondary-color);
       color: white;
       border: none;
     }
-    
+
     .btn-confirm:hover {
       background-color: #27ae60;
       transform: translateY(-2px);
     }
-    
+
     .btn-cancel {
       background-color: var(--danger-color);
       color: white;
       border: none;
     }
-    
+
     .btn-cancel:hover {
       background-color: #c0392b;
       transform: translateY(-2px);
     }
-    
+
     .empty-message {
       text-align: center;
       padding: 2rem;
@@ -249,14 +249,14 @@
       border-radius: 8px;
       margin-top: 1rem;
     }
-    
+
     .empty-message i {
       font-size: 2.5rem;
       margin-bottom: 1rem;
       display: block;
       color: #dfe6e9;
     }
-    
+
     .notification {
       position: fixed;
       top: 20px;
@@ -271,28 +271,28 @@
       transition: all 0.3s ease;
       z-index: 9999;
     }
-    
+
     .notification.show {
       opacity: 1;
       transform: translateY(0);
     }
-    
+
     .notification.success {
       background-color: var(--secondary-color);
     }
-    
+
     .notification.error {
       background-color: var(--danger-color);
     }
-    
+
     .notification.warning {
       background-color: var(--warning-color);
     }
-    
+
     .notification.info {
       background-color: var(--primary-color);
     }
-    
+
     .action-bar {
       display: flex;
       justify-content: center;
@@ -304,7 +304,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       flex-wrap: wrap;
     }
-    
+
     .selection-info {
       background-color: var(--light-color);
       padding: 1rem 1.5rem;
@@ -316,19 +316,19 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
-    
+
     .selection-count {
       font-weight: 700;
       color: var(--primary-color);
       font-size: 1.1rem;
     }
-    
+
     .form-check-input {
       width: 1.2em;
       height: 1.2em;
       margin-top: 0;
     }
-    
+
     .form-check-input:checked {
       background-color: var(--primary-color);
       border-color: var(--primary-color);
@@ -364,12 +364,12 @@
             <span id="activeCount" class="badge-count">0</span>
           </h2>
         </div>
-        
+
         <div id="emptyActiveCycles" class="empty-message" style="display: none;">
           <i class="fas fa-calendar-times"></i>
           <p>No hay ciclos disponibles</p>
         </div>
-        
+
         <ul class="cycle-list" id="cicloList">
           <!-- Los ciclos serán cargados dinámicamente aquí -->
         </ul>
@@ -383,12 +383,12 @@
             <span id="hiddenCount" class="badge-count">0</span>
           </h2>
         </div>
-        
+
         <div id="emptyHiddenCycles" class="empty-message" style="display: none;">
           <i class="fas fa-check-circle"></i>
           <p>No hay ciclos ocultos</p>
         </div>
-        
+
         <ul class="cycle-list" id="hiddenCyclesList">
           <!-- Los ciclos ocultos se mostrarán aquí -->
         </ul>
@@ -423,11 +423,13 @@
       </button>
     </div>
   </div>
-
-  <!-- Cargar JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-  "use strict";
+</body>
+</html>
+
+
+<script>
+"use strict";
 
 // Elementos del DOM
 const elements = {
@@ -451,102 +453,128 @@ const elements = {
   cancelSelectionBtn: document.getElementById("cancelSelectionBtn")
 };
 
-// Datos de la aplicación
-let allCycles = [];
-let hiddenCycleIds = JSON.parse(localStorage.getItem("hiddenCycles") || "[]");
-let selectedCycles = new Set();
-
-// Notificación
-const notify = (message, type) => {
-  const { notification } = elements;
-  notification.textContent = message;
-  notification.className = `notification ${type} show`;
-  setTimeout(() => notification.className = "notification", 3000);
+// Estado de la aplicación
+const state = {
+  allCycles: [],
+  hiddenCycleIds: JSON.parse(localStorage.getItem("hiddenCycles") || "[]"),
+  selectedCycles: new Set()
 };
 
-// Actualizar información de selección
-const updateSelectionInfo = () => {
-  const count = selectedCycles.size;
-  if (count > 0) {
-    elements.selectionInfo.style.display = 'flex';
-    elements.selectedCount.textContent = count;
-    
-    // Calcular tipos de ciclos seleccionados
-    const activeSelected = Array.from(selectedCycles).filter(id => 
-      !hiddenCycleIds.includes(id)).length;
-    const hiddenSelected = count - activeSelected;
-    
-    let typesText = [];
-    if (activeSelected > 0) typesText.push(`${activeSelected} disponibles`);
-    if (hiddenSelected > 0) typesText.push(`${hiddenSelected} ocultos`);
-    
-    elements.selectedTypes.textContent = `(${typesText.join(' + ')})`;
-  } else {
-    elements.selectionInfo.style.display = 'none';
+// Utilidades
+const utils = {
+  notify: (message, type) => {
+    const { notification } = elements;
+    notification.textContent = message;
+    notification.className = `notification ${type} show`;
+    setTimeout(() => notification.className = "notification", 3000);
+  },
+
+  createElement: (tag, className, content = '') => {
+    const el = document.createElement(tag);
+    el.className = className;
+    if (content) el.innerHTML = content;
+    return el;
+  },
+
+  createCheckbox: (isChecked, onChange) => {
+    const div = utils.createElement("div", "form-check");
+    const input = utils.createElement("input", "form-check-input cycle-checkbox");
+    input.type = "checkbox";
+    input.checked = isChecked;
+    input.addEventListener("change", (e) => onChange(e.target.checked));
+    div.appendChild(input);
+    return div;
+  },
+
+  createButton: (iconClass, text, btnClass, onClick) => {
+    const button = utils.createElement("button", `btn btn-action ${btnClass}`);
+    button.innerHTML = `<i class="${iconClass}"></i> ${text}`;
+    button.addEventListener("click", onClick);
+    return button;
   }
 };
 
-// Crear checkbox de selección
-const createCheckbox = (isChecked, onChange) => {
-  const div = document.createElement("div");
-  div.className = "form-check";
-  
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.className = "form-check-input cycle-checkbox";
-  input.checked = isChecked;
-  input.addEventListener("change", (e) => onChange(e.target.checked));
-  
-  div.appendChild(input);
-  return div;
-};
+// Funciones de ciclo
+const cycleActions = {
+  toggleSelection: (id, isSelected) => {
+    const cycleElement = document.querySelector(`[data-id="${id}"]`);
 
-// Crear botón de acción
-const createActionButton = (iconClass, text, btnClass, onClick) => {
-  const button = document.createElement("button");
-  button.className = `btn btn-action ${btnClass}`;
-  button.innerHTML = `<i class="${iconClass}"></i> ${text}`;
-  button.addEventListener("click", onClick);
-  return button;
-};
+    if (isSelected) {
+      state.selectedCycles.add(id);
+      if (cycleElement) cycleElement.classList.add('selected');
+    } else {
+      state.selectedCycles.delete(id);
+      if (cycleElement) cycleElement.classList.remove('selected');
+    }
 
-// Crear elemento de ciclo
-const createCycleElement = (cycle, isHidden) => {
-  const { CODIGO_CORTO, DESCRIPCION, INICIAL, FINAL, PERIODO } = cycle;
-  const isSelected = selectedCycles.has(CODIGO_CORTO);
+    ui.updateSelectionInfo();
+  },
 
-  const listItem = document.createElement("li");
-  listItem.className = `cycle-card ${isSelected ? 'selected' : ''}`;
-  listItem.dataset.id = CODIGO_CORTO;
+  hide: (id) => {
+    const cycle = state.allCycles.find(c => c.CODIGO_CORTO === id);
+    if (!cycle) return;
 
-  const header = document.createElement("div");
-  header.className = "cycle-header";
+    if (!state.hiddenCycleIds.includes(id)) {
+      state.hiddenCycleIds.push(id);
+      localStorage.setItem("hiddenCycles", JSON.stringify(state.hiddenCycleIds));
+    }
 
-  const title = document.createElement("h5");
-  title.className = "cycle-name";
-  title.innerHTML = `${DESCRIPCION} <span class="cycle-code">${CODIGO_CORTO}</span>`;
+    state.selectedCycles.delete(id);
+    document.querySelector(`#cicloList li[data-id="${id}"]`)?.remove();
+    elements.hiddenCyclesList.appendChild(cycleActions.createCycleElement(cycle, true));
+    ui.update();
 
-  const actions = document.createElement("div");
-  actions.className = "cycle-actions";
+    // Disparar evento para informar que un ciclo ha sido ocultado
+    document.dispatchEvent(new CustomEvent('cycleSetting:changed', {
+      detail: { action: 'hide', cycleId: id, hiddenCycles: state.hiddenCycleIds }
+    }));
 
-  // Checkbox de selección
-  const checkbox = createCheckbox(isSelected, (checked) => {
-    toggleCycleSelection(CODIGO_CORTO, checked);
-  });
-  actions.appendChild(checkbox);
+    utils.notify(`Ciclo ${id} ocultado`, "success");
+  },
 
-  // Botón de acción (ocultar/mostrar)
-  const actionButton = isHidden
-    ? createActionButton("fas fa-eye", "Mostrar", "btn-restore", () => restoreCycle(CODIGO_CORTO))
-    : createActionButton("fas fa-eye-slash", "Ocultar", "btn-hide", () => hideCycle(CODIGO_CORTO));
-  actions.appendChild(actionButton);
+  restore: (id) => {
+    const cycle = state.allCycles.find(c => c.CODIGO_CORTO === id);
+    if (!cycle) return;
 
-  header.append(title, actions);
+    state.hiddenCycleIds = state.hiddenCycleIds.filter(cycleId => cycleId !== id);
+    localStorage.setItem("hiddenCycles", JSON.stringify(state.hiddenCycleIds));
 
-  // Detalles del ciclo
-  const details = document.createElement("div");
-  details.className = "cycle-details";
-  details.innerHTML = `
+    document.querySelector(`#hiddenCyclesList li[data-id="${id}"]`)?.remove();
+    elements.cicloList.appendChild(cycleActions.createCycleElement(cycle, false));
+    ui.update();
+
+    // Disparar evento para informar que un ciclo ha sido restaurado
+    document.dispatchEvent(new CustomEvent('cycleSetting:changed', {
+      detail: { action: 'restore', cycleId: id, hiddenCycles: state.hiddenCycleIds }
+    }));
+
+    utils.notify(`Ciclo ${id} restaurado`, "success");
+  },
+
+  createCycleElement: (cycle, isHidden) => {
+    const { CODIGO_CORTO, DESCRIPCION, INICIAL, FINAL, PERIODO } = cycle;
+    const isSelected = state.selectedCycles.has(CODIGO_CORTO);
+
+    const listItem = utils.createElement("li", `cycle-card ${isSelected ? 'selected' : ''}`);
+    listItem.dataset.id = CODIGO_CORTO;
+
+    const header = utils.createElement("div", "cycle-header");
+    const title = utils.createElement("h5", "cycle-name",
+      `${DESCRIPCION} <span class="cycle-code">${CODIGO_CORTO}</span>`);
+
+    const actions = utils.createElement("div", "cycle-actions");
+    actions.appendChild(utils.createCheckbox(isSelected, (checked) => {
+      cycleActions.toggleSelection(CODIGO_CORTO, checked);
+    }));
+
+    const actionButton = isHidden
+      ? utils.createButton("fas fa-eye", "Mostrar", "btn-restore", () => cycleActions.restore(CODIGO_CORTO))
+      : utils.createButton("fas fa-eye-slash", "Ocultar", "btn-hide", () => cycleActions.hide(CODIGO_CORTO));
+    actions.appendChild(actionButton);
+
+    header.append(title, actions);
+
+    const details = utils.createElement("div", "cycle-details", `
     <div class="detail-item">
       <span class="detail-label">Inicio</span>
       <span class="detail-value">${INICIAL}</span>
@@ -559,295 +587,219 @@ const createCycleElement = (cycle, isHidden) => {
       <span class="detail-label">Periodo</span>
       <span class="detail-value">${PERIODO}</span>
     </div>
-  `;
+  `);
 
-  listItem.append(header, details);
-  return listItem;
-};
-
-// Alternar selección de ciclo
-const toggleCycleSelection = (id, isSelected) => {
-  const cycleElement = document.querySelector(`[data-id="${id}"]`);
-  
-  if (isSelected) {
-    selectedCycles.add(id);
-    if (cycleElement) cycleElement.classList.add('selected');
-  } else {
-    selectedCycles.delete(id);
-    if (cycleElement) cycleElement.classList.remove('selected');
+    listItem.append(header, details);
+    return listItem;
   }
-  
-  updateSelectionInfo();
 };
 
-// Ocultar ciclo
-const hideCycle = (id) => {
-  const cycle = allCycles.find(c => c.CODIGO_CORTO === id);
-  if (!cycle) return;
+// Funciones de selección
+const selectionActions = {
+  selectAll: () => {
+    state.allCycles.forEach(cycle => state.selectedCycles.add(cycle.CODIGO_CORTO));
+    document.querySelectorAll('.cycle-checkbox').forEach(cb => cb.checked = true);
+    document.querySelectorAll('.cycle-card').forEach(card => card.classList.add('selected'));
+    ui.updateSelectionInfo();
+    utils.notify(`Todos los ciclos seleccionados (${state.allCycles.length})`, "info");
+  },
 
-  if (!hiddenCycleIds.includes(id)) {
-    hiddenCycleIds.push(id);
-    localStorage.setItem("hiddenCycles", JSON.stringify(hiddenCycleIds));
-  }
+  selectActive: () => {
+    state.selectedCycles.clear();
+    state.allCycles.forEach(cycle => {
+      if (!state.hiddenCycleIds.includes(cycle.CODIGO_CORTO)) {
+        state.selectedCycles.add(cycle.CODIGO_CORTO);
+      }
+    });
+    ui.updateCheckboxes();
+    utils.notify(`${state.selectedCycles.size} ciclos disponibles seleccionados`, "info");
+  },
 
-  // Actualizar selección
-  selectedCycles.delete(id);
-  
-  // Mover el elemento a la lista de ocultos
-  document.querySelector(`#cicloList li[data-id="${id}"]`)?.remove();
-  elements.hiddenCyclesList.appendChild(createCycleElement(cycle, true));
-  updateUI();
-  
-  // Disparar un evento personalizado que pueda ser escuchado por otros scripts
-  const event = new CustomEvent('cycleSetting:changed', { 
-    detail: { 
-      action: 'hide',
-      cycleId: id 
-    } 
-  });
-  document.dispatchEvent(event);
-  
-  notify(`Ciclo ${id} ocultado`, "success");
-};
+  selectHidden: () => {
+    state.selectedCycles.clear();
+    state.allCycles.forEach(cycle => {
+      if (state.hiddenCycleIds.includes(cycle.CODIGO_CORTO)) {
+        state.selectedCycles.add(cycle.CODIGO_CORTO);
+      }
+    });
+    ui.updateCheckboxes();
+    utils.notify(`${state.selectedCycles.size} ciclos ocultos seleccionados`, "info");
+  },
 
-// Restaurar ciclo
-const restoreCycle = (id) => {
-  const cycle = allCycles.find(c => c.CODIGO_CORTO === id);
-  if (!cycle) return;
+  deselectAll: () => {
+    state.selectedCycles.clear();
+    document.querySelectorAll('.cycle-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.cycle-card').forEach(card => card.classList.remove('selected'));
+    ui.updateSelectionInfo();
+    utils.notify("Selección limpiada", "info");
+  },
 
-  hiddenCycleIds = hiddenCycleIds.filter(cycleId => cycleId !== id);
-  localStorage.setItem("hiddenCycles", JSON.stringify(hiddenCycleIds));
-
-  // Mover el elemento a la lista de disponibles
-  document.querySelector(`#hiddenCyclesList li[data-id="${id}"]`)?.remove();
-  elements.cicloList.appendChild(createCycleElement(cycle, false));
-  updateUI();
-  
-  // Disparar un evento personalizado que pueda ser escuchado por otros scripts
-  const event = new CustomEvent('cycleSetting:changed', {
-    detail: {
-      action: 'restore',
-      cycleId: id
+  hideSelected: () => {
+    if (state.selectedCycles.size === 0) {
+      utils.notify("No hay ciclos seleccionados para ocultar", "warning");
+      return;
     }
-  });
-  document.dispatchEvent(event);
-  
-  notify(`Ciclo ${id} restaurado`, "success");
-};
 
-// Seleccionar todos los ciclos (activos y ocultos)
-const selectAllCycles = () => {
-  allCycles.forEach(cycle => {
-    selectedCycles.add(cycle.CODIGO_CORTO);
-  });
-  
-  // Actualizar checkboxes
-  document.querySelectorAll('.cycle-checkbox').forEach(checkbox => {
-    checkbox.checked = true;
-  });
-  
-  // Actualizar clases
-  document.querySelectorAll('.cycle-card').forEach(card => {
-    card.classList.add('selected');
-  });
-  
-  updateSelectionInfo();
-  notify(`Todos los ciclos seleccionados (${allCycles.length})`, "info");
-};
-
-// Seleccionar solo ciclos activos
-const selectActiveCycles = () => {
-  // Limpiar selección primero
-  selectedCycles.clear();
-  
-  // Seleccionar solo los no ocultos
-  allCycles.forEach(cycle => {
-    if (!hiddenCycleIds.includes(cycle.CODIGO_CORTO)) {
-      selectedCycles.add(cycle.CODIGO_CORTO);
-    }
-  });
-  
-  // Actualizar UI
-  document.querySelectorAll('.cycle-checkbox').forEach(checkbox => {
-    const cycleId = checkbox.closest('.cycle-card').dataset.id;
-    checkbox.checked = selectedCycles.has(cycleId);
-  });
-  
-  document.querySelectorAll('.cycle-card').forEach(card => {
-    card.classList.toggle('selected', selectedCycles.has(card.dataset.id));
-  });
-  
-  updateSelectionInfo();
-  notify(`${selectedCycles.size} ciclos disponibles seleccionados`, "info");
-};
-
-// Seleccionar solo ciclos ocultos
-const selectHiddenCycles = () => {
-  // Limpiar selección primero
-  selectedCycles.clear();
-  
-  // Seleccionar solo los ocultos
-  allCycles.forEach(cycle => {
-    if (hiddenCycleIds.includes(cycle.CODIGO_CORTO)) {
-      selectedCycles.add(cycle.CODIGO_CORTO);
-    }
-  });
-  
-  // Actualizar UI
-  document.querySelectorAll('.cycle-checkbox').forEach(checkbox => {
-    const cycleId = checkbox.closest('.cycle-card').dataset.id;
-    checkbox.checked = selectedCycles.has(cycleId);
-  });
-  
-  document.querySelectorAll('.cycle-card').forEach(card => {
-    card.classList.toggle('selected', selectedCycles.has(card.dataset.id));
-  });
-  
-  updateSelectionInfo();
-  notify(`${selectedCycles.size} ciclos ocultos seleccionados`, "info");
-};
-
-// Deseleccionar todos los ciclos
-const deselectAll = () => {
-  selectedCycles.clear();
-  
-  document.querySelectorAll('.cycle-checkbox').forEach(checkbox => {
-    checkbox.checked = false;
-  });
-  
-  document.querySelectorAll('.cycle-card').forEach(card => {
-    card.classList.remove('selected');
-  });
-  
-  updateSelectionInfo();
-  notify("Selección limpiada", "info");
-};
-
-// Ocultar ciclos seleccionados
-const hideSelected = () => {
-  if (selectedCycles.size === 0) {
-    notify("No hay ciclos seleccionados para ocultar", "warning");
-    return;
-  }
-
-  const cyclesToHide = Array.from(selectedCycles);
-  cyclesToHide.forEach(id => {
-    if (!hiddenCycleIds.includes(id)) {
-      hideCycle(id);
-    }
-  });
-  
-  selectedCycles.clear();
-  updateSelectionInfo();
-};
-
-// Restaurar ciclos seleccionados
-const restoreSelected = () => {
-  if (selectedCycles.size === 0) {
-    notify("No hay ciclos seleccionados para restaurar", "warning");
-    return;
-  }
-
-  const cyclesToRestore = Array.from(selectedCycles).filter(id => 
-    hiddenCycleIds.includes(id));
-  
-  if (cyclesToRestore.length === 0) {
-    notify("No hay ciclos ocultos seleccionados", "warning");
-    return;
-  }
-
-  cyclesToRestore.forEach(id => {
-    restoreCycle(id);
-  });
-  
-  selectedCycles.clear();
-  updateSelectionInfo();
-};
-
-// Confirmar selección
-const confirmSelection = () => {
-  if (selectedCycles.size === 0) {
-    notify("No hay ciclos seleccionados", "warning");
-    return;
-  }
-
-  // Aquí puedes implementar la lógica para procesar los ciclos seleccionados
-  const selectedList = Array.from(selectedCycles).join(', ');
-  notify(`Ciclos confirmados: ${selectedList}`, "success");
-  
-  // Limpiar selección
-  deselectAll();
-};
-
-// Cancelar selección
-const cancelSelection = () => {
-  deselectAll();
-  notify("Operación cancelada", "info");
-};
-
-// Actualizar la interfaz
-const updateUI = () => {
-  const activeCount = elements.cicloList.querySelectorAll('li').length;
-  const hiddenCount = elements.hiddenCyclesList.querySelectorAll('li').length;
-  
-  elements.activeCountBadge.textContent = activeCount;
-  elements.hiddenCountBadge.textContent = hiddenCount;
-  
-  elements.emptyActiveMsg.style.display = activeCount === 0 ? "block" : "none";
-  elements.emptyHiddenMsg.style.display = hiddenCount === 0 ? "block" : "none";
-  
-  updateSelectionInfo();
-};
-
-// Cargar ciclos desde el API
-const loadCycles = async () => {
-  try {
-    const response = await fetch("/api/cuatris-navbar");
-    if (!response.ok) throw new Error(`Error al obtener ciclos: ${response.status}`);
-    const { ciclos = [] } = await response.json();
-
-    // Filtrar y ordenar ciclos
-    allCycles = ciclos
-      .filter(cycle => cycle.PERIODO > 0)
-      .sort((a, b) => b.CODIGO_CORTO.localeCompare(a.CODIGO_CORTO));
-
-    // Limpiar listas
-    elements.cicloList.innerHTML = "";
-    elements.hiddenCyclesList.innerHTML = "";
-
-    // Crear elementos para cada ciclo
-    allCycles.forEach(cycle => {
-      const isHidden = hiddenCycleIds.includes(cycle.CODIGO_CORTO);
-      const cycleElement = createCycleElement(cycle, isHidden);
-      (isHidden ? elements.hiddenCyclesList : elements.cicloList).appendChild(cycleElement);
+    Array.from(state.selectedCycles).forEach(id => {
+      if (!state.hiddenCycleIds.includes(id)) cycleActions.hide(id);
     });
 
-    // Configurar event listeners
-    setupEventListeners();
-    
-    // Actualizar UI
-    updateUI();
-  } catch (error) {
-    console.error("Error al cargar los ciclos:", error);
-    notify("Error al cargar los ciclos. Intente nuevamente.", "error");
+    // Notificar que varios ciclos fueron ocultados
+    document.dispatchEvent(new CustomEvent('cycleSetting:bulkChanged', {
+      detail: { action: 'hide', hiddenCycles: state.hiddenCycleIds }
+    }));
+
+    state.selectedCycles.clear();
+    ui.updateSelectionInfo();
+  },
+
+  restoreSelected: () => {
+    if (state.selectedCycles.size === 0) {
+      utils.notify("No hay ciclos seleccionados para restaurar", "warning");
+      return;
+    }
+
+    const cyclesToRestore = Array.from(state.selectedCycles).filter(id =>
+      state.hiddenCycleIds.includes(id));
+
+    if (cyclesToRestore.length === 0) {
+      utils.notify("No hay ciclos ocultos seleccionados", "warning");
+      return;
+    }
+
+    cyclesToRestore.forEach(id => cycleActions.restore(id));
+
+    // Notificar que varios ciclos fueron restaurados
+    document.dispatchEvent(new CustomEvent('cycleSetting:bulkChanged', {
+      detail: { action: 'restore', hiddenCycles: state.hiddenCycleIds }
+    }));
+
+    state.selectedCycles.clear();
+    ui.updateSelectionInfo();
+  },
+
+  confirm: () => {
+    if (state.selectedCycles.size === 0) {
+      utils.notify("No hay ciclos seleccionados", "warning");
+      return;
+    }
+
+    utils.notify(`Ciclos confirmados: ${Array.from(state.selectedCycles).join(', ')}`, "success");
+    selectionActions.deselectAll();
+  },
+
+  cancel: () => {
+    selectionActions.deselectAll();
+    utils.notify("Operación cancelada", "info");
   }
 };
 
-// Configurar event listeners para los botones
-const setupEventListeners = () => {
-  elements.selectAllBtn.addEventListener("click", selectAllCycles);
-  elements.selectActiveBtn.addEventListener("click", selectActiveCycles);
-  elements.selectHiddenBtn.addEventListener("click", selectHiddenCycles);
-  elements.deselectAllBtn.addEventListener("click", deselectAll);
-  elements.hideSelectedBtn.addEventListener("click", hideSelected);
-  elements.restoreSelectedBtn.addEventListener("click", restoreSelected);
-  elements.confirmSelectionBtn.addEventListener("click", confirmSelection);
-  elements.cancelSelectionBtn.addEventListener("click", cancelSelection);
+// Funciones de UI
+const ui = {
+  updateSelectionInfo: () => {
+    const count = state.selectedCycles.size;
+    if (count > 0) {
+      elements.selectionInfo.style.display = 'flex';
+      elements.selectedCount.textContent = count;
+
+      const activeSelected = Array.from(state.selectedCycles).filter(id =>
+        !state.hiddenCycleIds.includes(id)).length;
+      const hiddenSelected = count - activeSelected;
+
+      let typesText = [];
+      if (activeSelected > 0) typesText.push(`${activeSelected} disponibles`);
+      if (hiddenSelected > 0) typesText.push(`${hiddenSelected} ocultos`);
+
+      elements.selectedTypes.textContent = `(${typesText.join(' + ')})`;
+    } else {
+      elements.selectionInfo.style.display = 'none';
+    }
+  },
+
+  updateCheckboxes: () => {
+    document.querySelectorAll('.cycle-checkbox').forEach(checkbox => {
+      const cycleId = checkbox.closest('.cycle-card').dataset.id;
+      checkbox.checked = state.selectedCycles.has(cycleId);
+    });
+
+    document.querySelectorAll('.cycle-card').forEach(card => {
+      card.classList.toggle('selected', state.selectedCycles.has(card.dataset.id));
+    });
+
+    ui.updateSelectionInfo();
+  },
+
+  update: () => {
+    const activeCount = elements.cicloList.querySelectorAll('li').length;
+    const hiddenCount = elements.hiddenCyclesList.querySelectorAll('li').length;
+
+    elements.activeCountBadge.textContent = activeCount;
+    elements.hiddenCountBadge.textContent = hiddenCount;
+
+    elements.emptyActiveMsg.style.display = activeCount === 0 ? "block" : "none";
+    elements.emptyHiddenMsg.style.display = hiddenCount === 0 ? "block" : "none";
+
+    ui.updateSelectionInfo();
+  },
+
+  setupEventListeners: () => {
+    elements.selectAllBtn.addEventListener("click", selectionActions.selectAll);
+    elements.selectActiveBtn.addEventListener("click", selectionActions.selectActive);
+    elements.selectHiddenBtn.addEventListener("click", selectionActions.selectHidden);
+    elements.deselectAllBtn.addEventListener("click", selectionActions.deselectAll);
+    elements.hideSelectedBtn.addEventListener("click", selectionActions.hideSelected);
+    elements.restoreSelectedBtn.addEventListener("click", selectionActions.restoreSelected);
+    elements.confirmSelectionBtn.addEventListener("click", selectionActions.confirm);
+    elements.cancelSelectionBtn.addEventListener("click", selectionActions.cancel);
+  },
+  
+  // Método para exponer la lista de ciclos ocultos a otros componentes
+  getHiddenCycles: () => {
+    return [...state.hiddenCycleIds];
+  }
 };
 
-// Inicializar la aplicación
-document.addEventListener("DOMContentLoaded", loadCycles);
-  </script>
-</body>
+// Funciones de carga de datos
+const data = {
+  load: async () => {
+    try {
+      const response = await fetch("/api/cuatris-navbar");
+      if (!response.ok) throw new Error(`Error al obtener ciclos: ${response.status}`);
+      const { ciclos = [] } = await response.json();
 
-</html>
+      state.allCycles = ciclos
+        .filter(cycle => cycle.PERIODO > 0)
+        .sort((a, b) => b.CODIGO_CORTO.localeCompare(a.CODIGO_CORTO));
+
+      elements.cicloList.innerHTML = "";
+      elements.hiddenCyclesList.innerHTML = "";
+
+      state.allCycles.forEach(cycle => {
+        const isHidden = state.hiddenCycleIds.includes(cycle.CODIGO_CORTO);
+        const cycleElement = cycleActions.createCycleElement(cycle, isHidden);
+        (isHidden ? elements.hiddenCyclesList : elements.cicloList).appendChild(cycleElement);
+      });
+
+      ui.setupEventListeners();
+      ui.update();
+      
+      // Emitir evento inicial para que otros scripts sepan los ciclos actualmente ocultos
+      document.dispatchEvent(new CustomEvent('cycleSetting:initialized', {
+        detail: { hiddenCycles: state.hiddenCycleIds }
+      }));
+    } catch (error) {
+      console.error("Error al cargar los ciclos:", error);
+      utils.notify("Error al cargar los ciclos. Intente nuevamente.", "error");
+    }
+  }
+};
+
+// Exponer funciones y estados que otros scripts pueden necesitar
+window.cycleManager = {
+  getHiddenCycles: () => [...state.hiddenCycleIds],
+  isHidden: (cycleId) => state.hiddenCycleIds.includes(cycleId)
+};
+
+// Inicialización
+document.addEventListener("DOMContentLoaded", data.load);
+</script>

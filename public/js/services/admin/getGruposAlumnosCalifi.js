@@ -209,10 +209,11 @@ const procesarExcel = (excelData) => {
         const matriculaTabla = tds[2].textContent.trim();
         const inputCalificacion = tr.querySelector(".calificacion-input");
 
-        if (nombreTabla === nombre && matriculaTabla === matricula) {
+        // Comparar por matrícula y nombre
+        if (matriculaTabla === matricula) {
           const calificacionActual = inputCalificacion.value.trim();
           if (calificacionActual !== nuevaCalificacion) {
-            inputCalificacion.style.backgroundColor = "#ffeb3b";
+            inputCalificacion.style.backgroundColor = "#ffeb3b"; // Resaltar cambios
             inputCalificacion.dataset.nuevaCalificacion = nuevaCalificacion;
           }
         }
@@ -235,7 +236,7 @@ document.getElementById("guardarCalifBtn").addEventListener("click", async () =>
 
     if (inputCalificacion && inputCalificacion.dataset.nuevaCalificacion) {
       inputCalificacion.value = parseFloat(inputCalificacion.dataset.nuevaCalificacion).toFixed(1);
-      inputCalificacion.style.backgroundColor = "#73b43e";
+      inputCalificacion.style.backgroundColor = "#73b43e"; // Resaltado de cambios
       delete inputCalificacion.dataset.nuevaCalificacion;
       const numeroAlumno = tr.dataset.numeroalumno;
       await guardarCalificacion(numeroAlumno);
