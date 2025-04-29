@@ -48,7 +48,6 @@ function setupCycleSettingListeners() {
   ["cycleSetting:changed", "cycleSetting:bulkChanged", "cycleSetting:initialized"]
     .forEach(evt => document.addEventListener(evt, actualizarCiclos));
 
-  // Backup listener por si falla
   window.addEventListener("storage", (e) => {
     if (e.key === "hiddenCycles") {
       cargarCiclosOcultos();
@@ -65,10 +64,9 @@ async function obtenerGruposProfesor() {
     cargarCiclosOcultos();
 
     const url = `/api/profesores/${inputIdProfesor.value}/grupos?page=${paginaActual}`;
-    tablaContenido.innerHTML = `
-      <tr><td colspan='5' class='text-center'>
-        <div class='spinner-border spinner-border-sm' role='status'></div> Cargando datos...
-      </td></tr>`;
+    tablaContenido.innerHTML = `<tr><td colspan='5' class='text-center'>
+      <div class='spinner-border spinner-border-sm' role='status'></div> Cargando datos...
+    </td></tr>`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -80,6 +78,8 @@ async function obtenerGruposProfesor() {
     }
 
     const anioSistema = new Date().getFullYear();
+    const ocultosConDatos = [];
+
     const contenidoHTML = data.map((item, index) => {
       const query = new URLSearchParams({
         idPlan: item.ID_PLAN,
@@ -97,6 +97,18 @@ async function obtenerGruposProfesor() {
         && (item.INICIAL > 2024 || (item.INICIAL === 2024 && item.FINAL >= 2025))
         && item.PERIODO >= 2
         && item.FINAL >= anioSistema;
+
+      if (!mostrarSubir) {
+        console.log(`🚫 Botón oculto para ciclo ${cycleCode} - INICIAL: ${item.INICIAL}, FINAL: ${item.FINAL}, PERIODO: ${item.PERIODO}`);
+        if (isCycleHidden(cycleCode)) {
+          ocultosConDatos.push({
+            CODIGO: cycleCode,
+            INICIAL: item.INICIAL,
+            FINAL: item.FINAL,
+            PERIODO: item.PERIODO
+          });
+        }
+      }
 
       return `
         <tr>
@@ -120,7 +132,9 @@ async function obtenerGruposProfesor() {
                     <a class="dropdown-item" href="/grupoprofe/${item.CLAVEPROFESOR}/subir_calif?${query}">
                       <i class="bi bi-upload"></i> Subir Calificaciones
                     </a>
-                  </li>` : ''}
+                  </li>`:`
+                  <!-- Botón oculto: INICIAL ${item.INICIAL}, FINAL ${item.FINAL}, PERIODO ${item.PERIODO} -->
+                `}
               </ul>
             </div>
           </td>
@@ -128,6 +142,11 @@ async function obtenerGruposProfesor() {
     }).join("");
 
     tablaContenido.innerHTML = contenidoHTML;
+
+    // 📌 Mostrar tabla en consola de los ocultos
+    if (ocultosConDatos.length) {
+      console.table(ocultosConDatos);
+    }
 
   } catch (error) {
     console.error("Error:", error);
@@ -146,6 +165,49 @@ function irPaginaAnterior() {
 function irPaginaSiguiente() {
   paginaActual++;
   obtenerGruposProfesor();
+}
+
+// 📌 Ciclos ocultos en localStorage
+function getHiddenCycles() {
+  try {
+    return JSON.parse(localStorage.getItem("hiddenCycles") || "[]");
+  } catch (e) {
+    console.error("Error cargando hiddenCycles:", e);
+    return [];
+  }
+}
+
+function saveHiddenCycles(cycles) {
+  localStorage.setItem("hiddenCycles", JSON.stringify(cycles));
+}
+
+function ocultarCiclo(cycleCode) {
+  const hiddenCycles = getHiddenCycles();
+  if (!hiddenCycles.includes(cycleCode)) {
+    hiddenCycles.push(cycleCode);
+    saveHiddenCycles(hiddenCycles);
+    console.log(`✅ Ciclo ${cycleCode} ocultado.`);
+  }
+}
+
+function mostrarCiclo(cycleCode) {
+  let hiddenCycles = getHiddenCycles();
+  hiddenCycles = hiddenCycles.filter(c => c !== cycleCode);
+  saveHiddenCycles(hiddenCycles);
+  console.log(`✅ Ciclo ${cycleCode} mostrado.`);
+}
+
+function estaOculto(cycleCode) {
+  return getHiddenCycles().includes(cycleCode);
+}
+
+function limpiarCiclosOcultos() {
+  localStorage.removeItem("hiddenCycles");
+  console.log("✅ Ocultos limpiados.");
+}
+
+function mostrarOcultos() {
+  console.table(getHiddenCycles());
 }
 
 // 📌 Configuración inicial
@@ -172,55 +234,6 @@ document.addEventListener("DOMContentLoaded", () => {
       obtenerGruposProfesor();
     }));
   }
-  // 📌 Cargar ciclos ocultos actuales
-function getHiddenCycles() {
-  try {
-    return JSON.parse(localStorage.getItem("hiddenCycles") || "[]");
-  } catch (e) {
-    console.error("Error cargando hiddenCycles:", e);
-    return [];
-  }
-}
-
-// 📌 Guardar ciclos ocultos
-function saveHiddenCycles(cycles) {
-  localStorage.setItem("hiddenCycles", JSON.stringify(cycles));
-}
-
-// 📌 Ocultar ciclo
-function ocultarCiclo(cycleCode) {
-  const hiddenCycles = getHiddenCycles();
-  if (!hiddenCycles.includes(cycleCode)) {
-    hiddenCycles.push(cycleCode);
-    saveHiddenCycles(hiddenCycles);
-    console.log(`✅ Ciclo ${cycleCode} ocultado.`);
-  }
-}
-
-// 📌 Mostrar ciclo
-function mostrarCiclo(cycleCode) {
-  let hiddenCycles = getHiddenCycles();
-  hiddenCycles = hiddenCycles.filter(c => c !== cycleCode);
-  saveHiddenCycles(hiddenCycles);
-  console.log(`✅ Ciclo ${cycleCode} mostrado.`);
-}
-
-// 📌 Verificar si ciclo está oculto
-function estaOculto(cycleCode) {
-  return getHiddenCycles().includes(cycleCode);
-}
-
-// 📌 Limpiar todos
-function limpiarCiclosOcultos() {
-  localStorage.removeItem("hiddenCycles");
-  console.log("✅ Ocultos limpiados.");
-}
-
-// 📌 Mostrar lista actual en consola
-function mostrarOcultos() {
-  console.table(getHiddenCycles());
-}
-
 
   setupCycleSettingListeners();
   obtenerGruposProfesor();

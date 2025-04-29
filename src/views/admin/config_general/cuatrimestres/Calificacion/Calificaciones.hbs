@@ -1,805 +1,704 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Ciclos Académicos</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <style>
-    :root {
-      --primary-color: #3498db;
-      --secondary-color: #2ecc71;
-      --warning-color: #f39c12;
-      --danger-color: #e74c3c;
-      --light-color: #ecf0f1;
-      --dark-color: #2c3e50;
-    }
-
-    body {
-      background-color: #f5f7fa;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin-top: 2rem;
-    }
-
-    .page-title {
-      color: var(--dark-color);
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid var(--light-color);
-    }
-
-    .content-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    @media (max-width: 768px) {
-      .content-container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .cycles-section {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--dark-color);
-      font-weight: 600;
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
-    .badge-count {
-      background-color: var(--primary-color);
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-    }
-
-    .cycle-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .cycle-card {
-      background: white;
-      border: 1px solid #e3e6f0;
-      border-radius: 8px;
-      padding: 1.25rem;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .cycle-card.selected {
-      background-color: #e8f4fc;
-      border-left: 4px solid var(--primary-color);
-    }
-
-    .cycle-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .cycle-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .cycle-name {
-      font-weight: 600;
-      color: var(--dark-color);
-      margin: 0;
-      font-size: 1.1rem;
-    }
-
-    .cycle-code {
-      color: var(--primary-color);
-      font-weight: 700;
-    }
-
-    .cycle-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .detail-label {
-      font-size: 0.8rem;
-      color: #7f8c8d;
-      font-weight: 600;
-      text-transform: uppercase;
-      margin-bottom: 0.25rem;
-    }
-
-    .detail-value {
-      font-weight: 600;
-      color: var(--dark-color);
-    }
-
-    .cycle-actions {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .btn-action {
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .btn-select {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-    }
-
-    .btn-select:hover {
-      background-color: #2980b9;
-      transform: translateY(-2px);
-    }
-
-    .btn-deselect {
-      background-color: #95a5a6;
-      color: white;
-      border: none;
-    }
-
-    .btn-deselect:hover {
-      background-color: #7f8c8d;
-      transform: translateY(-2px);
-    }
-
-    .btn-hide {
-      background-color: var(--warning-color);
-      color: white;
-      border: none;
-    }
-
-    .btn-hide:hover {
-      background-color: #e67e22;
-      transform: translateY(-2px);
-    }
-
-    .btn-restore {
-      background-color: var(--secondary-color);
-      color: white;
-      border: none;
-    }
-
-    .btn-restore:hover {
-      background-color: #27ae60;
-      transform: translateY(-2px);
-    }
-
-    .btn-confirm {
-      background-color: var(--secondary-color);
-      color: white;
-      border: none;
-    }
-
-    .btn-confirm:hover {
-      background-color: #27ae60;
-      transform: translateY(-2px);
-    }
-
-    .btn-cancel {
-      background-color: var(--danger-color);
-      color: white;
-      border: none;
-    }
-
-    .btn-cancel:hover {
-      background-color: #c0392b;
-      transform: translateY(-2px);
-    }
-
-    .empty-message {
-      text-align: center;
-      padding: 2rem;
-      color: #bdc3c7;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      margin-top: 1rem;
-    }
-
-    .empty-message i {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      display: block;
-      color: #dfe6e9;
-    }
-
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      color: white;
-      font-weight: 600;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.3s ease;
-      z-index: 9999;
-    }
-
-    .notification.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .notification.success {
-      background-color: var(--secondary-color);
-    }
-
-    .notification.error {
-      background-color: var(--danger-color);
-    }
-
-    .notification.warning {
-      background-color: var(--warning-color);
-    }
-
-    .notification.info {
-      background-color: var(--primary-color);
-    }
-
-    .action-bar {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 2rem;
-      padding: 1.5rem;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      flex-wrap: wrap;
-    }
-
-    .selection-info {
-      background-color: var(--light-color);
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .selection-count {
-      font-weight: 700;
-      color: var(--primary-color);
-      font-size: 1.1rem;
-    }
-
-    .form-check-input {
-      width: 1.2em;
-      height: 1.2em;
-      margin-top: 0;
-    }
-
-    .form-check-input:checked {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Administración de Períodos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .periodo-selector-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-active {
+            background-color: #28a745;
+        }
+        
+        .status-locked {
+            background-color: #dc3545;
+        }
+        
+        .period-info {
+            border-left: 3px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
-
 <body>
-  <div class="container">
-    <h1 class="page-title">
-      <i class="fas fa-calendar-alt"></i> Gestor de Ciclos Académicos
-    </h1>
+    <!-- Navbar con selector de período -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Sistema Académico</a>
+            
+            <div class="periodo-selector-container ms-auto">
+                <label for="selectciclo" class="me-2">Período Académico:</label>
+                <select id="selectciclo" class="form-select form-select-sm" style="width: 200px;">
+                    <option value="none">Cargando períodos...</option>
+                </select>
+                <!-- El botón de administrar se añadirá mediante JavaScript -->
+            </div>
+        </div>
+    </nav>
 
-    <!-- Notificación de Estado -->
-    <div id="notification" class="notification"></div>
-
-    <!-- Info de selección -->
-    <div id="selectionInfo" class="selection-info" style="display: none;">
-      <div>
-        <span class="selection-count" id="selectedCount">0</span> ciclos seleccionados
-      </div>
-      <div>
-        <span id="selectedTypes"></span>
-      </div>
+    <!-- Contenido principal -->
+    <div class="container main-content">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Información del Período Actual</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="periodo-actual-info">
+                            <p>No hay período seleccionado. Por favor, seleccione un período desde el menú superior.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Este panel muestra información relacionada con el período académico seleccionado.</p>
+                        <div class="period-info">
+                            <h6>Estado del período:</h6>
+                            <div id="periodo-estado">
+                                <p><em>Seleccione un período para ver su información</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Estado de Períodos</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Períodos Disponibles:</h6>
+                        <ul id="lista-periodos" class="list-group">
+                            <li class="list-group-item">Cargando períodos...</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <button id="btn-actualizar-lista" class="btn btn-sm btn-primary">Actualizar Lista</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="content-container">
-      <!-- Ciclos activos -->
-      <div class="cycles-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <i class="fas fa-calendar-check"></i> Ciclos Disponibles
-            <span id="activeCount" class="badge-count">0</span>
-          </h2>
-        </div>
+    <!-- Mock API para desarrollo local -->
+    <script>
+        // Simulación de la API de períodos para pruebas
+        async function mockFetch(url, options) {
+            console.log("Petición a:", url, options);
+            
+            // Simular delay de red
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Mock de datos para pruebas
+            if (url === "/api/cuatris-navbar") {
+                return {
+                    ok: true,
+                    json: () => Promise.resolve({
+                        ciclos: [
+                            { CODIGO_CORTO: "2023-1", DESCRIPCION: "Primer Semestre 2023" },
+                            { CODIGO_CORTO: "2023-2", DESCRIPCION: "Segundo Semestre 2023" },
+                            { CODIGO_CORTO: "2024-1", DESCRIPCION: "Primer Semestre 2024" },
+                            { CODIGO_CORTO: "2024-2", DESCRIPCION: "Segundo Semestre 2024" },
+                            { CODIGO_CORTO: "2025-1", DESCRIPCION: "Primer Semestre 2025" }
+                        ],
+                        periodoSelected: localStorage.getItem("periodoSeleccionado")
+                    })
+                };
+            }
+            
+            if (url === "/api/update/CuatriXGrupos") {
+                // Simular actualización en el servidor
+                const data = JSON.parse(options.body);
+                console.log("Período actualizado en servidor:", data.periodo);
+                return {
+                    ok: true,
+                    json: () => Promise.resolve({ success: true, message: "Período actualizado" })
+                };
+            }
+            
+            return {
+                ok: false,
+                status: 404,
+                json: () => Promise.resolve({ error: "Endpoint no encontrado" })
+            };
+        }
+        
+        // Reemplazar fetch con mockFetch para desarrollo
+        window.fetch = mockFetch;
+        
+        // Actualizar UI con la información de período
+        function actualizarInterfaz() {
+            const periodoActual = localStorage.getItem("periodoSeleccionado");
+            const periodosBloqueados = JSON.parse(localStorage.getItem("periodosBloqueados") || "[]");
+            
+            // Actualizar información del período actual
+            const infoContainer = document.getElementById("periodo-actual-info");
+            const estadoContainer = document.getElementById("periodo-estado");
+            
+            if (periodoActual) {
+                const estaBloqueado = periodosBloqueados.includes(periodoActual);
+                
+                infoContainer.innerHTML = `
+                    <h4>${periodoActual}</h4>
+                    <p>Estado: 
+                        <span class="badge ${estaBloqueado ? 'bg-danger' : 'bg-success'}">
+                            ${estaBloqueado ? 'Bloqueado 🔒' : 'Activo ✓'}
+                        </span>
+                    </p>
+                    <p>Este período es el actualmente seleccionado para todas las operaciones del sistema.</p>
+                `;
+                
+                estadoContainer.innerHTML = `
+                    <p>Período actual: <strong>${periodoActual}</strong></p>
+                    <p>Estado: ${estaBloqueado ? 'Bloqueado (No se puede cambiar)' : 'Desbloqueado (Se puede cambiar)'}</p>
+                `;
+            } else {
+                infoContainer.innerHTML = `
+                    <p>No hay período seleccionado. Por favor, seleccione un período desde el menú superior.</p>
+                `;
+                
+                estadoContainer.innerHTML = `
+                    <p><em>Seleccione un período para ver su información</em></p>
+                `;
+            }
+            
+            // Actualizar lista de períodos
+            const listaContainer = document.getElementById("lista-periodos");
+            
+            // Obtener información de períodos (en un caso real esto vendría del servidor)
+            fetch("/api/cuatris-navbar").then(res => {
+                if (res.ok) return res.json();
+                throw new Error("Error al obtener períodos");
+            }).then(data => {
+                const { ciclos = [] } = data;
+                
+                listaContainer.innerHTML = '';
+                
+                if (ciclos.length === 0) {
+                    listaContainer.innerHTML = '<li class="list-group-item">No hay períodos disponibles</li>';
+                    return;
+                }
+                
+                ciclos.forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
+                    const estaBloqueado = periodosBloqueados.includes(CODIGO_CORTO);
+                    const esActual = CODIGO_CORTO === periodoActual;
+                    
+                    const itemHTML = `
+                        <li class="list-group-item d-flex justify-content-between align-items-center 
+                            ${esActual ? 'active' : ''}">
+                            <div>
+                                <div class="status-indicator ${estaBloqueado ? 'status-locked' : 'status-active'}"></div>
+                                <strong>${DESCRIPCION}</strong>
+                                <small class="d-block text-muted">Código: ${CODIGO_CORTO}</small>
+                            </div>
+                            <div>
+                                ${esActual ? '<span class="badge bg-primary">Actual</span>' : ''}
+                                ${estaBloqueado ? 
+                                    '<span class="badge bg-danger">Bloqueado</span>' : 
+                                    '<span class="badge bg-success">Disponible</span>'}
+                            </div>
+                        </li>
+                    `;
+                    
+                    listaContainer.innerHTML += itemHTML;
+                });
+            }).catch(error => {
+                console.error(error);
+                listaContainer.innerHTML = `
+                    <li class="list-group-item text-danger">
+                        Error al cargar los períodos. Intente nuevamente.
+                    </li>
+                `;
+            });
+        }
+        
+        // Evento para actualizar lista de períodos
+        document.getElementById("btn-actualizar-lista").addEventListener("click", actualizarInterfaz);
+        
+        // Actualizar interfaz al cargar la página
+        document.addEventListener("DOMContentLoaded", actualizarInterfaz);
+    </script>
+    
+    <!-- Script principal de gestión de períodos -->
+    <script>
+        "use strict";
 
-        <div id="emptyActiveCycles" class="empty-message" style="display: none;">
-          <i class="fas fa-calendar-times"></i>
-          <p>No hay ciclos disponibles</p>
-        </div>
+        // Elementos del DOM
+        const selectCuatri = document.getElementById("selectciclo");
 
-        <ul class="cycle-list" id="cicloList">
-          <!-- Los ciclos serán cargados dinámicamente aquí -->
-        </ul>
-      </div>
+        // Claves para localStorage
+        const STORAGE_KEY_PERIODO = "periodoSeleccionado";
+        const STORAGE_KEY_BLOQUEADOS = "periodosBloqueados";
 
-      <!-- Ciclos ocultos -->
-      <div class="cycles-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <i class="fas fa-eye-slash"></i> Ciclos Ocultos
-            <span id="hiddenCount" class="badge-count">0</span>
-          </h2>
-        </div>
+        /**
+         * Actualiza el período seleccionado en el servidor
+         * @param {string} periodo - Código del período a actualizar
+         * @returns {Promise<object>} Respuesta JSON del servidor
+         */
+        const actualizarPeriodo = async (periodo) => {
+          const config = {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ periodo })
+          };
 
-        <div id="emptyHiddenCycles" class="empty-message" style="display: none;">
-          <i class="fas fa-check-circle"></i>
-          <p>No hay ciclos ocultos</p>
-        </div>
+          const response = await fetch("/api/update/CuatriXGrupos", config);
+          if (!response.ok) {
+            throw new Error(`Error en la actualización: ${response.status}`);
+          }
 
-        <ul class="cycle-list" id="hiddenCyclesList">
-          <!-- Los ciclos ocultos se mostrarán aquí -->
-        </ul>
-      </div>
-    </div>
+          return response.json();
+        };
 
-    <!-- Barra de acciones -->
-    <div class="action-bar">
-      <button id="selectAllBtn" class="btn btn-action btn-select">
-        <i class="fas fa-check-square"></i> Seleccionar Todos
-      </button>
-      <button id="selectActiveBtn" class="btn btn-action btn-select">
-        <i class="fas fa-check-circle"></i> Seleccionar Disponibles
-      </button>
-      <button id="selectHiddenBtn" class="btn btn-action btn-select">
-        <i class="fas fa-eye-slash"></i> Seleccionar Ocultos
-      </button>
-      <button id="deselectAllBtn" class="btn btn-action btn-deselect">
-        <i class="fas fa-times-circle"></i> Limpiar Selección
-      </button>
-      <button id="hideSelectedBtn" class="btn btn-action btn-hide">
-        <i class="fas fa-eye-slash"></i> Ocultar Selección
-      </button>
-      <button id="restoreSelectedBtn" class="btn btn-action btn-restore">
-        <i class="fas fa-eye"></i> Mostrar Selección
-      </button>
-      <button id="confirmSelectionBtn" class="btn btn-action btn-confirm">
-        <i class="fas fa-check"></i> Confirmar
-      </button>
-      <button id="cancelSelectionBtn" class="btn btn-action btn-cancel">
-        <i class="fas fa-times"></i> Cancelar
-      </button>
-    </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        /**
+         * Gestión del período seleccionado en localStorage
+         */
+        const storageManager = {
+          // Guardar período seleccionado
+          guardarPeriodo: (periodo) => {
+            localStorage.setItem(STORAGE_KEY_PERIODO, periodo);
+          },
+          
+          // Obtener período guardado
+          obtenerPeriodo: () => {
+            return localStorage.getItem(STORAGE_KEY_PERIODO);
+          },
+          
+          // Eliminar período guardado
+          eliminarPeriodo: () => {
+            localStorage.removeItem(STORAGE_KEY_PERIODO);
+          },
+          
+          // Obtener lista de períodos bloqueados
+          obtenerPeriodosBloqueados: () => {
+            const bloqueados = localStorage.getItem(STORAGE_KEY_BLOQUEADOS);
+            return bloqueados ? JSON.parse(bloqueados) : [];
+          },
+          
+          // Guardar lista de períodos bloqueados
+          guardarPeriodosBloqueados: (listaBloqueados) => {
+            localStorage.setItem(STORAGE_KEY_BLOQUEADOS, JSON.stringify(listaBloqueados));
+          },
+          
+          // Comprobar si un período está bloqueado
+          estaBloqueado: (periodo) => {
+            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
+            return periodosBloqueados.includes(periodo);
+          },
+          
+          // Bloquear un período específico
+          bloquearPeriodo: (periodo) => {
+            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
+            if (!periodosBloqueados.includes(periodo)) {
+              periodosBloqueados.push(periodo);
+              storageManager.guardarPeriodosBloqueados(periodosBloqueados);
+            }
+          },
+          
+          // Desbloquear un período específico
+          desbloquearPeriodo: (periodo) => {
+            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
+            const nuevosBloqueados = periodosBloqueados.filter(p => p !== periodo);
+            storageManager.guardarPeriodosBloqueados(nuevosBloqueados);
+          }
+        };
+
+        /**
+         * Crea y agrega el botón de administración para cada período
+         * @param {HTMLElement} container - Contenedor donde se agregará el botón
+         * @param {string} periodo - Código del período
+         * @param {boolean} bloqueado - Si el período está bloqueado
+         */
+        const crearBotonAdministracion = (container, periodo, bloqueado) => {
+          // Crear contenedor para el botón
+          const btnContainer = document.createElement('div');
+          btnContainer.className = 'periodo-admin-btn';
+          btnContainer.style.marginLeft = '10px';
+          btnContainer.style.display = 'inline-block';
+          
+          // Crear botón
+          const btn = document.createElement('button');
+          btn.className = bloqueado ? 'btn-desbloquear' : 'btn-bloquear';
+          btn.textContent = bloqueado ? '🔓 Desbloquear' : '🔒 Bloquear';
+          btn.style.padding = '2px 8px';
+          btn.style.fontSize = '12px';
+          btn.style.borderRadius = '4px';
+          btn.style.border = '1px solid #ccc';
+          btn.style.backgroundColor = bloqueado ? '#f8d7da' : '#d1e7dd';
+          btn.style.cursor = 'pointer';
+          
+          // Agregar evento al botón
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (bloqueado) {
+              storageManager.desbloquearPeriodo(periodo);
+              btn.textContent = '🔒 Bloquear';
+              btn.className = 'btn-bloquear';
+              btn.style.backgroundColor = '#d1e7dd';
+            } else {
+              storageManager.bloquearPeriodo(periodo);
+              btn.textContent = '🔓 Desbloquear';
+              btn.className = 'btn-desbloquear';
+              btn.style.backgroundColor = '#f8d7da';
+            }
+            
+            // Recargar para reflejar los cambios
+            cargarCiclosNavbar();
+            // Actualizar también la interfaz de usuario
+            actualizarInterfaz();
+          });
+          
+          btnContainer.appendChild(btn);
+          container.appendChild(btnContainer);
+        };
+
+        /**
+         * Crea el panel de administración de períodos
+         */
+        const crearPanelAdministracion = async () => {
+          // Verificar si ya existe el panel para no duplicarlo
+          if (document.getElementById('admin-periodos-panel')) {
+            return document.getElementById('admin-periodos-panel');
+          }
+          
+          try {
+            // Obtener los ciclos disponibles
+            const response = await fetch("/api/cuatris-navbar");
+            if (!response.ok) {
+              throw new Error(`Error al obtener ciclos: ${response.status}`);
+            }
+            
+            const { ciclos = [] } = await response.json();
+            
+            // Crear panel
+            const panel = document.createElement('div');
+            panel.id = 'admin-periodos-panel';
+            panel.style.position = 'fixed';
+            panel.style.top = '60px';
+            panel.style.right = '20px';
+            panel.style.width = '300px';
+            panel.style.backgroundColor = 'white';
+            panel.style.border = '1px solid #ccc';
+            panel.style.borderRadius = '5px';
+            panel.style.padding = '15px';
+            panel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            panel.style.zIndex = '9999';
+            panel.style.display = 'none';
+            
+            // Cabecera del panel
+            const header = document.createElement('div');
+            header.style.borderBottom = '1px solid #eee';
+            header.style.paddingBottom = '10px';
+            header.style.marginBottom = '10px';
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+            
+            const title = document.createElement('h4');
+            title.textContent = 'Administrar Períodos';
+            title.style.margin = '0';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '✕';
+            closeBtn.style.border = 'none';
+            closeBtn.style.background = 'none';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.addEventListener('click', () => {
+              panel.style.display = 'none';
+            });
+            
+            header.appendChild(title);
+            header.appendChild(closeBtn);
+            panel.appendChild(header);
+            
+            // Lista de períodos
+            const periodosList = document.createElement('div');
+            periodosList.style.maxHeight = '400px';
+            periodosList.style.overflowY = 'auto';
+            
+            // Obtener los períodos bloqueados
+            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
+            
+            // Crear elementos para cada período
+            ciclos.forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
+              const periodoItem = document.createElement('div');
+              periodoItem.style.padding = '8px 0';
+              periodoItem.style.borderBottom = '1px solid #eee';
+              periodoItem.style.display = 'flex';
+              periodoItem.style.justifyContent = 'space-between';
+              periodoItem.style.alignItems = 'center';
+              
+              const periodoInfo = document.createElement('div');
+              periodoInfo.textContent = DESCRIPCION;
+              periodoInfo.style.fontWeight = 'bold';
+              
+              const periodoCode = document.createElement('div');
+              periodoCode.textContent = `Código: ${CODIGO_CORTO}`;
+              periodoCode.style.fontSize = '12px';
+              periodoCode.style.color = '#666';
+              
+              const infoContainer = document.createElement('div');
+              infoContainer.appendChild(periodoInfo);
+              infoContainer.appendChild(periodoCode);
+              
+              periodoItem.appendChild(infoContainer);
+              
+              // Botón de bloqueo/desbloqueo
+              const bloqueado = periodosBloqueados.includes(CODIGO_CORTO);
+              crearBotonAdministracion(periodoItem, CODIGO_CORTO, bloqueado);
+              
+              periodosList.appendChild(periodoItem);
+            });
+            
+            panel.appendChild(periodosList);
+            
+            // Botón para cerrar todos los bloqueos
+            const resetContainer = document.createElement('div');
+            resetContainer.style.marginTop = '15px';
+            resetContainer.style.textAlign = 'center';
+            
+            const resetBtn = document.createElement('button');
+            resetBtn.textContent = 'Desbloquear Todos los Períodos';
+            resetBtn.style.padding = '8px 16px';
+            resetBtn.style.backgroundColor = '#dc3545';
+            resetBtn.style.color = 'white';
+            resetBtn.style.border = 'none';
+            resetBtn.style.borderRadius = '4px';
+            resetBtn.style.cursor = 'pointer';
+            
+            resetBtn.addEventListener('click', () => {
+              storageManager.guardarPeriodosBloqueados([]);
+              cargarCiclosNavbar();
+              actualizarInterfaz();
+              panel.style.display = 'none';
+            });
+            
+            resetContainer.appendChild(resetBtn);
+            panel.appendChild(resetContainer);
+            
+            // Agregar panel al body
+            document.body.appendChild(panel);
+            
+            return panel;
+          } catch (error) {
+            console.error("Error al crear panel de administración:", error);
+            return null;
+          }
+        };
+
+        /**
+         * Muestra u oculta el panel de administración
+         */
+        const togglePanelAdministracion = async () => {
+          let panel = document.getElementById('admin-periodos-panel');
+          
+          if (!panel) {
+            panel = await crearPanelAdministracion();
+            if (!panel) return;
+          }
+          
+          panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        };
+
+        /**
+         * Crea el botón de administración en el navbar
+         */
+        const crearBotonAdminNavbar = () => {
+          const navbarContainer = selectCuatri.parentElement;
+          
+          // Verificar si ya existe el botón
+          if (document.getElementById('btn-admin-periodos')) {
+            return;
+          }
+          
+          // Crear botón de administración
+          const adminBtn = document.createElement('button');
+          adminBtn.id = 'btn-admin-periodos';
+          adminBtn.textContent = '⚙️ Administrar';
+          adminBtn.className = 'btn btn-outline-secondary btn-sm ms-2';
+          
+          // Evento para mostrar/ocultar el panel
+          adminBtn.addEventListener('click', togglePanelAdministracion);
+          
+          // Agregar al DOM
+          navbarContainer.appendChild(adminBtn);
+        };
+
+        /**
+         * Carga los ciclos disponibles en el select del navbar
+         */
+        const cargarCiclosNavbar = async () => {
+          try {
+            const response = await fetch("/api/cuatris-navbar");
+            if (!response.ok) {
+              throw new Error(`Error al obtener ciclos: ${response.status}`);
+            }
+
+            const { ciclos = [], periodoSelected } = await response.json();
+            
+            // Verificar si hay un periodo guardado en localStorage
+            const periodoGuardado = storageManager.obtenerPeriodo();
+            
+            // Determinar qué periodo usar (prioridad: localStorage, luego servidor)
+            const periodoActual = periodoGuardado || periodoSelected;
+
+            // Limpiar el select
+            selectCuatri.innerHTML = "";
+
+            let optionsHTML = "";
+            
+            // Opción por defecto
+            optionsHTML += `<option value="none">Seleccionar Ciclo</option>`;
+            
+            // Verificar si el ciclo actual está bloqueado
+            const estaBloqueado = periodoActual ? storageManager.estaBloqueado(periodoActual) : false;
+            
+            // Configurar el select según si hay periodo seleccionado y si está bloqueado
+            if (periodoActual && estaBloqueado) {
+              selectCuatri.disabled = true; // Bloquear si está bloqueado
+            } else {
+              selectCuatri.disabled = false; // Mantener habilitado si no está bloqueado
+            }
+
+            // Agregar los ciclos disponibles
+            ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
+              const selected = CODIGO_CORTO === periodoActual ? 'selected' : '';
+              const bloqueado = storageManager.estaBloqueado(CODIGO_CORTO);
+              
+              // Marcar visualmente los períodos bloqueados
+              const estado = bloqueado ? ' 🔒' : '';
+              
+              optionsHTML += `<option value="${CODIGO_CORTO}" ${selected}>${DESCRIPCION}${estado}</option>`;
+            });
+
+            // Insertar opciones al select
+            selectCuatri.innerHTML = optionsHTML;
+            
+            // Si tenemos periodo en localStorage pero no en el servidor, actualizarlo en el servidor
+            if (periodoGuardado && !periodoSelected && !storageManager.estaBloqueado(periodoGuardado)) {
+              try {
+                await actualizarPeriodo(periodoGuardado);
+              } catch (error) {
+                console.warn("No se pudo sincronizar el periodo con el servidor:", error);
+              }
+            }
+            
+            // Crear botón de administración si no existe
+            crearBotonAdminNavbar();
+
+          } catch (error) {
+            console.error("Error al cargar los ciclos del navbar:", error);
+            alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
+          }
+        };
+
+        /**
+         * Evento para cambio manual del usuario en el select de ciclo
+         */
+        selectCuatri.addEventListener("change", async (event) => {
+          const nuevoPeriodo = event.target.value;
+          
+          // Ignorar si se selecciona la opción "none"
+          if (nuevoPeriodo === "none") return;
+          
+          // Verificar si el período seleccionado está bloqueado
+          if (storageManager.estaBloqueado(nuevoPeriodo)) {
+            alert("Este período está bloqueado. Desbloquéelo desde el panel de administración para poder seleccionarlo.");
+            // Revertir selección
+            event.target.value = storageManager.obtenerPeriodo() || "none";
+            return;
+          }
+          
+          try {
+            const resultado = await actualizarPeriodo(nuevoPeriodo);
+            console.log("Periodo actualizado:", resultado);
+            
+            // Guardar en localStorage
+            storageManager.guardarPeriodo(nuevoPeriodo);
+            
+            // Actualizar interfaz sin recargar la página (para fines de demostración)
+            cargarCiclosNavbar();
+            actualizarInterfaz();
+            
+            // En un entorno real podríamos recargar la página:
+            // location.reload();
+          } catch (error) {
+            console.warn("Error al cambiar periodo:", error);
+            alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
+            // Revertir la selección en caso de error
+            event.target.value = storageManager.obtenerPeriodo() || "none";
+          }
+        });
+
+        // Exponer funciones al objeto window para acceso desde otras partes de la aplicación
+        window.periodoManager = {
+          bloquearPeriodo: (periodo) => {
+            storageManager.bloquearPeriodo(periodo);
+            cargarCiclosNavbar();
+            actualizarInterfaz();
+          },
+          
+          desbloquearPeriodo: (periodo) => {
+            storageManager.desbloquearPeriodo(periodo);
+            cargarCiclosNavbar();
+            actualizarInterfaz();
+          },
+          
+          desbloquearTodos: () => {
+            storageManager.guardarPeriodosBloqueados([]);
+            cargarCiclosNavbar();
+            actualizarInterfaz();
+          },
+          
+          abrirPanel: togglePanelAdministracion
+        };
+
+        // Cargar ciclos al iniciar
+        cargarCiclosNavbar();
+    </script>
 </body>
 </html>
-
-
-<script>
-"use strict";
-
-// Elementos del DOM
-const elements = {
-  cicloList: document.getElementById("cicloList"),
-  hiddenCyclesList: document.getElementById("hiddenCyclesList"),
-  notification: document.getElementById("notification"),
-  activeCountBadge: document.getElementById("activeCount"),
-  hiddenCountBadge: document.getElementById("hiddenCount"),
-  emptyActiveMsg: document.getElementById("emptyActiveCycles"),
-  emptyHiddenMsg: document.getElementById("emptyHiddenCycles"),
-  selectionInfo: document.getElementById("selectionInfo"),
-  selectedCount: document.getElementById("selectedCount"),
-  selectedTypes: document.getElementById("selectedTypes"),
-  selectAllBtn: document.getElementById("selectAllBtn"),
-  selectActiveBtn: document.getElementById("selectActiveBtn"),
-  selectHiddenBtn: document.getElementById("selectHiddenBtn"),
-  deselectAllBtn: document.getElementById("deselectAllBtn"),
-  hideSelectedBtn: document.getElementById("hideSelectedBtn"),
-  restoreSelectedBtn: document.getElementById("restoreSelectedBtn"),
-  confirmSelectionBtn: document.getElementById("confirmSelectionBtn"),
-  cancelSelectionBtn: document.getElementById("cancelSelectionBtn")
-};
-
-// Estado de la aplicación
-const state = {
-  allCycles: [],
-  hiddenCycleIds: JSON.parse(localStorage.getItem("hiddenCycles") || "[]"),
-  selectedCycles: new Set()
-};
-
-// Utilidades
-const utils = {
-  notify: (message, type) => {
-    const { notification } = elements;
-    notification.textContent = message;
-    notification.className = `notification ${type} show`;
-    setTimeout(() => notification.className = "notification", 3000);
-  },
-
-  createElement: (tag, className, content = '') => {
-    const el = document.createElement(tag);
-    el.className = className;
-    if (content) el.innerHTML = content;
-    return el;
-  },
-
-  createCheckbox: (isChecked, onChange) => {
-    const div = utils.createElement("div", "form-check");
-    const input = utils.createElement("input", "form-check-input cycle-checkbox");
-    input.type = "checkbox";
-    input.checked = isChecked;
-    input.addEventListener("change", (e) => onChange(e.target.checked));
-    div.appendChild(input);
-    return div;
-  },
-
-  createButton: (iconClass, text, btnClass, onClick) => {
-    const button = utils.createElement("button", `btn btn-action ${btnClass}`);
-    button.innerHTML = `<i class="${iconClass}"></i> ${text}`;
-    button.addEventListener("click", onClick);
-    return button;
-  }
-};
-
-// Funciones de ciclo
-const cycleActions = {
-  toggleSelection: (id, isSelected) => {
-    const cycleElement = document.querySelector(`[data-id="${id}"]`);
-
-    if (isSelected) {
-      state.selectedCycles.add(id);
-      if (cycleElement) cycleElement.classList.add('selected');
-    } else {
-      state.selectedCycles.delete(id);
-      if (cycleElement) cycleElement.classList.remove('selected');
-    }
-
-    ui.updateSelectionInfo();
-  },
-
-  hide: (id) => {
-    const cycle = state.allCycles.find(c => c.CODIGO_CORTO === id);
-    if (!cycle) return;
-
-    if (!state.hiddenCycleIds.includes(id)) {
-      state.hiddenCycleIds.push(id);
-      localStorage.setItem("hiddenCycles", JSON.stringify(state.hiddenCycleIds));
-    }
-
-    state.selectedCycles.delete(id);
-    document.querySelector(`#cicloList li[data-id="${id}"]`)?.remove();
-    elements.hiddenCyclesList.appendChild(cycleActions.createCycleElement(cycle, true));
-    ui.update();
-
-    // Disparar evento para informar que un ciclo ha sido ocultado
-    document.dispatchEvent(new CustomEvent('cycleSetting:changed', {
-      detail: { action: 'hide', cycleId: id, hiddenCycles: state.hiddenCycleIds }
-    }));
-
-    utils.notify(`Ciclo ${id} ocultado`, "success");
-  },
-
-  restore: (id) => {
-    const cycle = state.allCycles.find(c => c.CODIGO_CORTO === id);
-    if (!cycle) return;
-
-    state.hiddenCycleIds = state.hiddenCycleIds.filter(cycleId => cycleId !== id);
-    localStorage.setItem("hiddenCycles", JSON.stringify(state.hiddenCycleIds));
-
-    document.querySelector(`#hiddenCyclesList li[data-id="${id}"]`)?.remove();
-    elements.cicloList.appendChild(cycleActions.createCycleElement(cycle, false));
-    ui.update();
-
-    // Disparar evento para informar que un ciclo ha sido restaurado
-    document.dispatchEvent(new CustomEvent('cycleSetting:changed', {
-      detail: { action: 'restore', cycleId: id, hiddenCycles: state.hiddenCycleIds }
-    }));
-
-    utils.notify(`Ciclo ${id} restaurado`, "success");
-  },
-
-  createCycleElement: (cycle, isHidden) => {
-    const { CODIGO_CORTO, DESCRIPCION, INICIAL, FINAL, PERIODO } = cycle;
-    const isSelected = state.selectedCycles.has(CODIGO_CORTO);
-
-    const listItem = utils.createElement("li", `cycle-card ${isSelected ? 'selected' : ''}`);
-    listItem.dataset.id = CODIGO_CORTO;
-
-    const header = utils.createElement("div", "cycle-header");
-    const title = utils.createElement("h5", "cycle-name",
-      `${DESCRIPCION} <span class="cycle-code">${CODIGO_CORTO}</span>`);
-
-    const actions = utils.createElement("div", "cycle-actions");
-    actions.appendChild(utils.createCheckbox(isSelected, (checked) => {
-      cycleActions.toggleSelection(CODIGO_CORTO, checked);
-    }));
-
-    const actionButton = isHidden
-      ? utils.createButton("fas fa-eye", "Mostrar", "btn-restore", () => cycleActions.restore(CODIGO_CORTO))
-      : utils.createButton("fas fa-eye-slash", "Ocultar", "btn-hide", () => cycleActions.hide(CODIGO_CORTO));
-    actions.appendChild(actionButton);
-
-    header.append(title, actions);
-
-    const details = utils.createElement("div", "cycle-details", `
-    <div class="detail-item">
-      <span class="detail-label">Inicio</span>
-      <span class="detail-value">${INICIAL}</span>
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Fin</span>
-      <span class="detail-value">${FINAL}</span>
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Periodo</span>
-      <span class="detail-value">${PERIODO}</span>
-    </div>
-  `);
-
-    listItem.append(header, details);
-    return listItem;
-  }
-};
-
-// Funciones de selección
-const selectionActions = {
-  selectAll: () => {
-    state.allCycles.forEach(cycle => state.selectedCycles.add(cycle.CODIGO_CORTO));
-    document.querySelectorAll('.cycle-checkbox').forEach(cb => cb.checked = true);
-    document.querySelectorAll('.cycle-card').forEach(card => card.classList.add('selected'));
-    ui.updateSelectionInfo();
-    utils.notify(`Todos los ciclos seleccionados (${state.allCycles.length})`, "info");
-  },
-
-  selectActive: () => {
-    state.selectedCycles.clear();
-    state.allCycles.forEach(cycle => {
-      if (!state.hiddenCycleIds.includes(cycle.CODIGO_CORTO)) {
-        state.selectedCycles.add(cycle.CODIGO_CORTO);
-      }
-    });
-    ui.updateCheckboxes();
-    utils.notify(`${state.selectedCycles.size} ciclos disponibles seleccionados`, "info");
-  },
-
-  selectHidden: () => {
-    state.selectedCycles.clear();
-    state.allCycles.forEach(cycle => {
-      if (state.hiddenCycleIds.includes(cycle.CODIGO_CORTO)) {
-        state.selectedCycles.add(cycle.CODIGO_CORTO);
-      }
-    });
-    ui.updateCheckboxes();
-    utils.notify(`${state.selectedCycles.size} ciclos ocultos seleccionados`, "info");
-  },
-
-  deselectAll: () => {
-    state.selectedCycles.clear();
-    document.querySelectorAll('.cycle-checkbox').forEach(cb => cb.checked = false);
-    document.querySelectorAll('.cycle-card').forEach(card => card.classList.remove('selected'));
-    ui.updateSelectionInfo();
-    utils.notify("Selección limpiada", "info");
-  },
-
-  hideSelected: () => {
-    if (state.selectedCycles.size === 0) {
-      utils.notify("No hay ciclos seleccionados para ocultar", "warning");
-      return;
-    }
-
-    Array.from(state.selectedCycles).forEach(id => {
-      if (!state.hiddenCycleIds.includes(id)) cycleActions.hide(id);
-    });
-
-    // Notificar que varios ciclos fueron ocultados
-    document.dispatchEvent(new CustomEvent('cycleSetting:bulkChanged', {
-      detail: { action: 'hide', hiddenCycles: state.hiddenCycleIds }
-    }));
-
-    state.selectedCycles.clear();
-    ui.updateSelectionInfo();
-  },
-
-  restoreSelected: () => {
-    if (state.selectedCycles.size === 0) {
-      utils.notify("No hay ciclos seleccionados para restaurar", "warning");
-      return;
-    }
-
-    const cyclesToRestore = Array.from(state.selectedCycles).filter(id =>
-      state.hiddenCycleIds.includes(id));
-
-    if (cyclesToRestore.length === 0) {
-      utils.notify("No hay ciclos ocultos seleccionados", "warning");
-      return;
-    }
-
-    cyclesToRestore.forEach(id => cycleActions.restore(id));
-
-    // Notificar que varios ciclos fueron restaurados
-    document.dispatchEvent(new CustomEvent('cycleSetting:bulkChanged', {
-      detail: { action: 'restore', hiddenCycles: state.hiddenCycleIds }
-    }));
-
-    state.selectedCycles.clear();
-    ui.updateSelectionInfo();
-  },
-
-  confirm: () => {
-    if (state.selectedCycles.size === 0) {
-      utils.notify("No hay ciclos seleccionados", "warning");
-      return;
-    }
-
-    utils.notify(`Ciclos confirmados: ${Array.from(state.selectedCycles).join(', ')}`, "success");
-    selectionActions.deselectAll();
-  },
-
-  cancel: () => {
-    selectionActions.deselectAll();
-    utils.notify("Operación cancelada", "info");
-  }
-};
-
-// Funciones de UI
-const ui = {
-  updateSelectionInfo: () => {
-    const count = state.selectedCycles.size;
-    if (count > 0) {
-      elements.selectionInfo.style.display = 'flex';
-      elements.selectedCount.textContent = count;
-
-      const activeSelected = Array.from(state.selectedCycles).filter(id =>
-        !state.hiddenCycleIds.includes(id)).length;
-      const hiddenSelected = count - activeSelected;
-
-      let typesText = [];
-      if (activeSelected > 0) typesText.push(`${activeSelected} disponibles`);
-      if (hiddenSelected > 0) typesText.push(`${hiddenSelected} ocultos`);
-
-      elements.selectedTypes.textContent = `(${typesText.join(' + ')})`;
-    } else {
-      elements.selectionInfo.style.display = 'none';
-    }
-  },
-
-  updateCheckboxes: () => {
-    document.querySelectorAll('.cycle-checkbox').forEach(checkbox => {
-      const cycleId = checkbox.closest('.cycle-card').dataset.id;
-      checkbox.checked = state.selectedCycles.has(cycleId);
-    });
-
-    document.querySelectorAll('.cycle-card').forEach(card => {
-      card.classList.toggle('selected', state.selectedCycles.has(card.dataset.id));
-    });
-
-    ui.updateSelectionInfo();
-  },
-
-  update: () => {
-    const activeCount = elements.cicloList.querySelectorAll('li').length;
-    const hiddenCount = elements.hiddenCyclesList.querySelectorAll('li').length;
-
-    elements.activeCountBadge.textContent = activeCount;
-    elements.hiddenCountBadge.textContent = hiddenCount;
-
-    elements.emptyActiveMsg.style.display = activeCount === 0 ? "block" : "none";
-    elements.emptyHiddenMsg.style.display = hiddenCount === 0 ? "block" : "none";
-
-    ui.updateSelectionInfo();
-  },
-
-  setupEventListeners: () => {
-    elements.selectAllBtn.addEventListener("click", selectionActions.selectAll);
-    elements.selectActiveBtn.addEventListener("click", selectionActions.selectActive);
-    elements.selectHiddenBtn.addEventListener("click", selectionActions.selectHidden);
-    elements.deselectAllBtn.addEventListener("click", selectionActions.deselectAll);
-    elements.hideSelectedBtn.addEventListener("click", selectionActions.hideSelected);
-    elements.restoreSelectedBtn.addEventListener("click", selectionActions.restoreSelected);
-    elements.confirmSelectionBtn.addEventListener("click", selectionActions.confirm);
-    elements.cancelSelectionBtn.addEventListener("click", selectionActions.cancel);
-  },
-  
-  // Método para exponer la lista de ciclos ocultos a otros componentes
-  getHiddenCycles: () => {
-    return [...state.hiddenCycleIds];
-  }
-};
-
-// Funciones de carga de datos
-const data = {
-  load: async () => {
-    try {
-      const response = await fetch("/api/cuatris-navbar");
-      if (!response.ok) throw new Error(`Error al obtener ciclos: ${response.status}`);
-      const { ciclos = [] } = await response.json();
-
-      state.allCycles = ciclos
-        .filter(cycle => cycle.PERIODO > 0)
-        .sort((a, b) => b.CODIGO_CORTO.localeCompare(a.CODIGO_CORTO));
-
-      elements.cicloList.innerHTML = "";
-      elements.hiddenCyclesList.innerHTML = "";
-
-      state.allCycles.forEach(cycle => {
-        const isHidden = state.hiddenCycleIds.includes(cycle.CODIGO_CORTO);
-        const cycleElement = cycleActions.createCycleElement(cycle, isHidden);
-        (isHidden ? elements.hiddenCyclesList : elements.cicloList).appendChild(cycleElement);
-      });
-
-      ui.setupEventListeners();
-      ui.update();
-      
-      // Emitir evento inicial para que otros scripts sepan los ciclos actualmente ocultos
-      document.dispatchEvent(new CustomEvent('cycleSetting:initialized', {
-        detail: { hiddenCycles: state.hiddenCycleIds }
-      }));
-    } catch (error) {
-      console.error("Error al cargar los ciclos:", error);
-      utils.notify("Error al cargar los ciclos. Intente nuevamente.", "error");
-    }
-  }
-};
-
-// Exponer funciones y estados que otros scripts pueden necesitar
-window.cycleManager = {
-  getHiddenCycles: () => [...state.hiddenCycleIds],
-  isHidden: (cycleId) => state.hiddenCycleIds.includes(cycleId)
-};
-
-// Inicialización
-document.addEventListener("DOMContentLoaded", data.load);
-</script>

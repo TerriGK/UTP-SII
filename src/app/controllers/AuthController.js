@@ -50,7 +50,7 @@ AuthController.authAlumno = async (req = request, res = response) => {
 
 // Aspirante
 AuthController.authAspirante = async (req = request, res = response) => {
-  const { user, password } = req.body;
+  const { user } = req.body;
   try {
     if (!user || isNaN(user.trim()))
       return handleError(req, res, 'Por favor ingresa un folio válido (solo números).');
@@ -62,12 +62,6 @@ AuthController.authAspirante = async (req = request, res = response) => {
     if (aspirante.STATUS.trim() !== "S")
       return handleError(req, res, 'Este folio ya no está habilitado para ingresar.');
 
-    if (!aspirante.ASPIRANTE_PASSWORD?.trim())
-      return handleError(req, res, 'No hay contraseña registrada para este folio. Solicítala en la oficina.');
-
-    if (password !== aspirante.ASPIRANTE_PASSWORD)
-      return handleError(req, res, 'La contraseña ingresada no es correcta. Inténtalo nuevamente.');
-
     req.session.regenerate((err) => {
       if (err) return handleError(req, res, 'Ocurrió un error al iniciar sesión. Inténtalo otra vez.');
       setSession(req, aspirante, 'isAspirante');
@@ -78,6 +72,7 @@ AuthController.authAspirante = async (req = request, res = response) => {
     handleError(req, res, 'No se pudo completar la autenticación en este momento.', `Error en authAspirante: ${error}`);
   }
 };
+
 
 // Profesor
 AuthController.authProfe = async (req = request, res = response) => {

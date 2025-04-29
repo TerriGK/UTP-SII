@@ -14,12 +14,23 @@
     <div class="col-md-3">
       <select id="selectciclo" class="form-select"></select>
     </div>
+    <script>
+      // Marcar al usuario como administrador para el script de gestión de períodos
+      document.body.classList.add('admin-user');
+      // Agregar una variable global para indicar que es admin (alternativa)
+      window.isAdmin = true;
+    </script>
     <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
   {{else}}
     {{#if isProfe}}
       <div class="col-md-3">
         <select id="selectciclo" class="form-select"></select>
       </div>
+      <script>
+        // Asegurarse de que no tiene clase de admin
+        document.body.classList.remove('admin-user');
+        window.isAdmin = false;
+      </script>
       <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
     {{/if}}
   {{/if}}
