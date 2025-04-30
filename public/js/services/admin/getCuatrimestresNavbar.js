@@ -304,15 +304,28 @@ const crearBotonAdminNavbar = () => {
     return;
   }
   
-  // Crear botón de administración con estilo mejorado
+  // Crear botón de administración pero invisible
   const adminBtn = document.createElement('button');
   adminBtn.id = 'btn-admin-periodos';
   adminBtn.innerHTML = '<i class="bi bi-gear-fill"></i> Administrar';
   adminBtn.className = 'btn btn-outline-secondary btn-sm';
   adminBtn.style.marginLeft = '15px';
   
+  // Hacer el botón invisible pero funcional
+  adminBtn.style.opacity = '0';         // Completamente transparente
+  adminBtn.style.pointerEvents = 'all'; // Sigue siendo funcional
+  adminBtn.style.position = 'absolute'; // Sacarlo del flujo normal
+  
   // Evento para mostrar/ocultar el panel
   adminBtn.addEventListener('click', togglePanelAdministracion);
+  
+  // Registrar combinación de teclas para administrador (Alt+P)
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && e.key === 'p') {
+      togglePanelAdministracion();
+      e.preventDefault();
+    }
+  });
   
   // Agregar al DOM
   navbarContainer.appendChild(adminBtn);
@@ -400,20 +413,6 @@ const cargarCiclosNavbar = async () => {
 
   } catch (error) {
     console.error("Error al cargar los ciclos del navbar:", error);
-    
-    // Mostrar mensaje de error más amigable con toastify si está disponible
-    if (typeof Toastify !== 'undefined') {
-      Toastify({
-        text: "No se pudieron cargar los ciclos. Intente nuevamente más tarde.",
-        duration: 4000,
-        close: true,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "#dc3545"
-      }).showToast();
-    } else {
-      alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
-    }
   }
 };
 
@@ -428,86 +427,23 @@ selectCuatri.addEventListener("change", async (event) => {
   
   // Verificar si el período seleccionado está bloqueado
   if (storageManager.estaBloqueado(nuevoPeriodo)) {
-    // Mostrar mensaje de error más amigable con toastify si está disponible
-    if (typeof Toastify !== 'undefined') {
-      Toastify({
-        text: "Este período está bloqueado. Desbloquéelo desde el panel de administración para poder seleccionarlo.",
-        duration: 4000,
-        close: true,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "#dc3545"
-      }).showToast();
-    } else {
-      alert("Este período está bloqueado. Desbloquéelo desde el panel de administración para poder seleccionarlo.");
-    }
-    
     // Revertir selección
     event.target.value = storageManager.obtenerPeriodo() || "none";
     return;
   }
   
   try {
-    // Mostrar indicador de carga
-    const loadingToast = typeof Toastify !== 'undefined' ? 
-      Toastify({
-        text: "Actualizando período...",
-        duration: -1,
-        close: false,
-        gravity: "top",
-        position: "center",
-        backgroundColor: "#007bff"
-      }).showToast() : null;
-      
     const resultado = await actualizarPeriodo(nuevoPeriodo);
     console.log("Periodo actualizado:", resultado);
-    
-    // Cerrar toast de carga si existe
-    if (loadingToast && loadingToast.hideToast) {
-      loadingToast.hideToast();
-    }
-    
+        
     // Guardar en localStorage
     storageManager.guardarPeriodo(nuevoPeriodo);
     
-    // Mostrar mensaje de éxito antes de recargar
-    if (typeof Toastify !== 'undefined') {
-      Toastify({
-        text: "Período actualizado correctamente. Recargando...",
-        duration: 2000,
-        close: false,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "#28a745",
-        callback: function() {
-          location.reload();
-        }
-      }).showToast();
-      
-      // Retrasar la recarga para permitir que se muestre el toast
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
-    } else {
-      location.reload();
-    }
+    // Recargar la página 
+    location.reload();
     
   } catch (error) {
     console.warn("Error al cambiar periodo:", error);
-    
-    // Mostrar mensaje de error más amigable
-    if (typeof Toastify !== 'undefined') {
-      Toastify({
-        text: "No se pudo actualizar el período. Por favor, intente nuevamente.",
-        duration: 4000,
-        close: true,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "#dc3545"
-      }).showToast();
-    } else {
-      alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
-    }
     
     // Revertir la selección en caso de error
     event.target.value = storageManager.obtenerPeriodo() || "none";
