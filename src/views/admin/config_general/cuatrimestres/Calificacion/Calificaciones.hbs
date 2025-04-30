@@ -4,701 +4,650 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Administración de Períodos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .navbar {
             padding: 10px 20px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
         }
-        
-        .periodo-selector-container {
-            display: flex;
-            align-items: center;
+        .periodo-bloqueado {
+            background-color: #f8d7da;
+            color: #721c24;
         }
-        
-        .main-content {
-            padding: 30px;
+        .periodo-normal {
+            background-color: #d1e7dd;
+            color: #0f5132;
         }
-        
-        .card {
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .dashboard-container {
+            padding: 20px;
         }
-        
-        .navbar-brand {
-            font-weight: bold;
-            color: #0d6efd;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .status-active {
-            background-color: #28a745;
-        }
-        
-        .status-locked {
-            background-color: #dc3545;
-        }
-        
-        .period-info {
-            border-left: 3px solid #0d6efd;
+        .dashboard-card {
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 15px;
-            margin: 20px 0;
+            margin-bottom: 20px;
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
             background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
 <body>
-    <!-- Navbar con selector de período -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Sistema Académico</a>
-            
-            <div class="periodo-selector-container ms-auto">
-                <label for="selectciclo" class="me-2">Período Académico:</label>
-                <select id="selectciclo" class="form-select form-select-sm" style="width: 200px;">
-                    <option value="none">Cargando períodos...</option>
-                </select>
-                <!-- El botón de administrar se añadirá mediante JavaScript -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Estudiantes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Profesores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Materias</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <select id="selectciclo" class="form-select form-select-sm me-2" style="width: auto;">
+                        <option value="none">Seleccionar Ciclo</option>
+                    </select>
+                    <!-- El botón de administración se creará dinámicamente desde JS -->
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Contenido principal -->
-    <div class="container main-content">
+    <div class="container dashboard-container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2>Dashboard - Administración de Períodos</h2>
+                <p class="text-muted">Aquí puede visualizar y gestionar los períodos académicos activos.</p>
+            </div>
+        </div>
+        
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h5>Período Actual</h5>
+                <p id="periodo-actual">Cargando...</p>
+            </div>
+            <div class="stat-card">
+                <h5>Períodos Bloqueados</h5>
+                <p id="contador-bloqueados">Cargando...</p>
+            </div>
+            <div class="stat-card">
+                <h5>Períodos Disponibles</h5>
+                <p id="contador-disponibles">Cargando...</p>
+            </div>
+            <div class="stat-card">
+                <h5>Último Cambio</h5>
+                <p id="ultimo-cambio">No hay cambios recientes</p>
+            </div>
+        </div>
+        
         <div class="row">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Información del Período Actual</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="periodo-actual-info">
-                            <p>No hay período seleccionado. Por favor, seleccione un período desde el menú superior.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Dashboard</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Este panel muestra información relacionada con el período académico seleccionado.</p>
-                        <div class="period-info">
-                            <h6>Estado del período:</h6>
-                            <div id="periodo-estado">
-                                <p><em>Seleccione un período para ver su información</em></p>
-                            </div>
-                        </div>
+                <div class="dashboard-card">
+                    <h4>Períodos Disponibles</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-periodos">
+                                <tr>
+                                    <td colspan="4" class="text-center">Cargando períodos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Estado de Períodos</h5>
-                    </div>
-                    <div class="card-body">
-                        <h6>Períodos Disponibles:</h6>
-                        <ul id="lista-periodos" class="list-group">
-                            <li class="list-group-item">Cargando períodos...</li>
+                <div class="dashboard-card">
+                    <h4>Información</h4>
+                    <div class="alert alert-info">
+                        <p><strong>¿Cómo funciona?</strong></p>
+                        <p>Este sistema permite gestionar los períodos académicos disponibles:</p>
+                        <ul>
+                            <li>Seleccione un período desde el menú superior</li>
+                            <li>Utilice el botón "Administrar" para bloquear/desbloquear períodos</li>
+                            <li>Los períodos bloqueados no pueden ser seleccionados</li>
                         </ul>
                     </div>
-                    <div class="card-footer">
-                        <button id="btn-actualizar-lista" class="btn btn-sm btn-primary">Actualizar Lista</button>
+                    <div class="d-grid gap-2">
+                        <button id="btn-desbloquear-todos" class="btn btn-danger">Desbloquear Todos los Períodos</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Mock API para desarrollo local -->
     <script>
-        // Simulación de la API de períodos para pruebas
-        async function mockFetch(url, options) {
-            console.log("Petición a:", url, options);
-            
-            // Simular delay de red
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            // Mock de datos para pruebas
-            if (url === "/api/cuatris-navbar") {
-                return {
-                    ok: true,
-                    json: () => Promise.resolve({
-                        ciclos: [
-                            { CODIGO_CORTO: "2023-1", DESCRIPCION: "Primer Semestre 2023" },
-                            { CODIGO_CORTO: "2023-2", DESCRIPCION: "Segundo Semestre 2023" },
-                            { CODIGO_CORTO: "2024-1", DESCRIPCION: "Primer Semestre 2024" },
-                            { CODIGO_CORTO: "2024-2", DESCRIPCION: "Segundo Semestre 2024" },
-                            { CODIGO_CORTO: "2025-1", DESCRIPCION: "Primer Semestre 2025" }
-                        ],
-                        periodoSelected: localStorage.getItem("periodoSeleccionado")
-                    })
-                };
-            }
-            
-            if (url === "/api/update/CuatriXGrupos") {
-                // Simular actualización en el servidor
-                const data = JSON.parse(options.body);
-                console.log("Período actualizado en servidor:", data.periodo);
-                return {
-                    ok: true,
-                    json: () => Promise.resolve({ success: true, message: "Período actualizado" })
-                };
-            }
-            
-            return {
-                ok: false,
-                status: 404,
-                json: () => Promise.resolve({ error: "Endpoint no encontrado" })
-            };
+    "use strict";
+
+    // Elemento del DOM
+    const selectCuatri = document.getElementById("selectciclo");
+
+    // Claves para localStorage
+    const STORAGE_KEY_PERIODO = "periodoSeleccionado";
+    const STORAGE_KEY_BLOQUEADOS = "periodosBloqueados";
+
+    /**
+     * Obtiene la lista de períodos bloqueados desde localStorage
+     * @returns {string[]} Array con los códigos de los períodos bloqueados
+     */
+    const obtenerPeriodosBloqueados = () => {
+      const bloqueados = localStorage.getItem(STORAGE_KEY_BLOQUEADOS);
+      return bloqueados ? JSON.parse(bloqueados) : [];
+    };
+
+    /**
+     * Guarda la lista de períodos bloqueados
+     * @param {string[]} listaBloqueados - Lista de códigos de períodos bloqueados
+     */
+    const guardarPeriodosBloqueados = (listaBloqueados) => {
+      localStorage.setItem(STORAGE_KEY_BLOQUEADOS, JSON.stringify(listaBloqueados));
+    };
+
+    /**
+     * Bloquea un período específico
+     * @param {string} periodo - Código del período a bloquear
+     */
+    const bloquearPeriodo = (periodo) => {
+      const periodosBloqueados = obtenerPeriodosBloqueados();
+      if (!periodosBloqueados.includes(periodo)) {
+        periodosBloqueados.push(periodo);
+        guardarPeriodosBloqueados(periodosBloqueados);
+        actualizarEstadisticas();
+      }
+    };
+
+    /**
+     * Desbloquea un período específico
+     * @param {string} periodo - Código del período a desbloquear
+     */
+    const desbloquearPeriodo = (periodo) => {
+      const periodosBloqueados = obtenerPeriodosBloqueados();
+      const nuevosBloqueados = periodosBloqueados.filter(p => p !== periodo);
+      guardarPeriodosBloqueados(nuevosBloqueados);
+      actualizarEstadisticas();
+    };
+
+    /**
+     * Verifica si un período está bloqueado
+     * @param {string} periodo - Código del período a verificar
+     * @returns {boolean} true si está bloqueado, false en caso contrario
+     */
+    const estaBloqueado = (periodo) => {
+      return obtenerPeriodosBloqueados().includes(periodo);
+    };
+
+    /**
+     * Actualiza el período seleccionado en el servidor
+     * @param {string} periodo - Código del período a actualizar
+     * @returns {Promise<object>} Respuesta JSON del servidor
+     */
+    const actualizarPeriodo = async (periodo) => {
+      const config = {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ periodo })
+      };
+
+      const response = await fetch("/api/update/CuatriXGrupos", config);
+      if (!response.ok) {
+        throw new Error(`Error en la actualización: ${response.status}`);
+      }
+
+      // Guardar en localStorage para mantener la selección
+      localStorage.setItem(STORAGE_KEY_PERIODO, periodo);
+      
+      // Guardar la hora del último cambio
+      localStorage.setItem('ultimoCambioPeriodo', new Date().toISOString());
+      
+      // Actualizar la UI
+      actualizarEstadisticas();
+
+      return response.json();
+    };
+
+    /**
+     * Crea y muestra un panel con la lista de períodos para bloquear/desbloquear
+     * @param {Array} ciclos - Lista de ciclos disponibles
+     */
+    const mostrarPanelBloqueo = (ciclos) => {
+      // Verificar si ya existe el panel
+      let panelExistente = document.getElementById('panel-bloqueo-periodos');
+      if (panelExistente) {
+        panelExistente.style.display = 'block';
+        return;
+      }
+
+      // Obtener períodos bloqueados
+      const periodosBloqueados = obtenerPeriodosBloqueados();
+
+      // Crear panel
+      const panel = document.createElement('div');
+      panel.id = 'panel-bloqueo-periodos';
+      panel.style.position = 'absolute';
+      panel.style.top = '50px';
+      panel.style.right = '10px';
+      panel.style.width = '300px';
+      panel.style.backgroundColor = 'white';
+      panel.style.border = '1px solid #ccc';
+      panel.style.borderRadius = '5px';
+      panel.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+      panel.style.zIndex = '9999';
+      panel.style.padding = '10px';
+
+      // Crear encabezado
+      const header = document.createElement('div');
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+      header.style.marginBottom = '10px';
+
+      const title = document.createElement('h5');
+      title.textContent = 'Administrar Períodos';
+      title.style.margin = '0';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '✕';
+      closeBtn.style.background = 'none';
+      closeBtn.style.border = 'none';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '16px';
+      closeBtn.onclick = () => panel.style.display = 'none';
+
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      panel.appendChild(header);
+
+      // Crear lista de períodos
+      const list = document.createElement('div');
+      list.style.maxHeight = '300px';
+      list.style.overflowY = 'auto';
+      list.style.marginBottom = '10px';
+
+      // Agregar cada período a la lista
+      ciclos.forEach(ciclo => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+        item.style.padding = '8px 5px';
+        item.style.borderBottom = '1px solid #eee';
+
+        const itemInfo = document.createElement('div');
+        itemInfo.innerHTML = `
+          <div><strong>${ciclo.DESCRIPCION}</strong></div>
+          <div style="font-size: 12px; color: #666;">Código: ${ciclo.CODIGO_CORTO}</div>
+        `;
+
+        const toggleBtn = document.createElement('button');
+        const bloqueado = periodosBloqueados.includes(ciclo.CODIGO_CORTO);
+        toggleBtn.textContent = bloqueado ? '🔓 Desbloquear' : '🔒 Bloquear';
+        toggleBtn.style.padding = '5px 10px';
+        toggleBtn.style.backgroundColor = bloqueado ? '#f8d7da' : '#d1e7dd';
+        toggleBtn.style.border = '1px solid #ccc';
+        toggleBtn.style.borderRadius = '3px';
+        toggleBtn.style.cursor = 'pointer';
+
+        toggleBtn.onclick = () => {
+          if (bloqueado) {
+            desbloquearPeriodo(ciclo.CODIGO_CORTO);
+            toggleBtn.textContent = '🔒 Bloquear';
+            toggleBtn.style.backgroundColor = '#d1e7dd';
+          } else {
+            bloquearPeriodo(ciclo.CODIGO_CORTO);
+            toggleBtn.textContent = '🔓 Desbloquear';
+            toggleBtn.style.backgroundColor = '#f8d7da';
+          }
+          // Recargar el navbar para actualizar los estados
+          cargarCiclosNavbar();
+          // Actualizar la tabla de períodos
+          actualizarTablaPeriodos(ciclos);
+        };
+
+        item.appendChild(itemInfo);
+        item.appendChild(toggleBtn);
+        list.appendChild(item);
+      });
+
+      panel.appendChild(list);
+
+      // Botón para desbloquear todos
+      const desbloquearBtn = document.createElement('button');
+      desbloquearBtn.textContent = 'Desbloquear Todos';
+      desbloquearBtn.style.padding = '8px 15px';
+      desbloquearBtn.style.backgroundColor = '#dc3545';
+      desbloquearBtn.style.color = 'white';
+      desbloquearBtn.style.border = 'none';
+      desbloquearBtn.style.borderRadius = '4px';
+      desbloquearBtn.style.cursor = 'pointer';
+      desbloquearBtn.style.width = '100%';
+
+      desbloquearBtn.onclick = () => {
+        if (confirm('¿Está seguro que desea desbloquear todos los períodos?')) {
+          guardarPeriodosBloqueados([]);
+          cargarCiclosNavbar();
+          actualizarTablaPeriodos(ciclos);
+          panel.style.display = 'none';
+        }
+      };
+
+      panel.appendChild(desbloquearBtn);
+
+      // Añadir al DOM
+      document.body.appendChild(panel);
+    };
+
+    /**
+     * Crea el botón de administración en el navbar
+     */
+    const crearBotonAdmin = () => {
+      // Verificar si ya existe el botón
+      if (document.getElementById('btn-admin-periodos')) {
+        return;
+      }
+
+      // Crear contenedor para el botón al lado del select
+      const container = selectCuatri.parentElement;
+
+      // Crear botón
+      const btnAdmin = document.createElement('button');
+      btnAdmin.id = 'btn-admin-periodos';
+      btnAdmin.className = 'btn btn-outline-secondary btn-sm';
+      btnAdmin.textContent = '⚙️ Administrar';
+
+      btnAdmin.onclick = async () => {
+        try {
+          const ciclos = await obtenerCiclosAPI();
+          mostrarPanelBloqueo(ciclos);
+        } catch (error) {
+          console.error("Error al obtener los ciclos:", error);
+          alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
+        }
+      };
+
+      container.appendChild(btnAdmin);
+    };
+
+    /**
+     * Obtiene los ciclos desde la API
+     * @returns {Promise<Array>} Lista de ciclos
+     */
+    const obtenerCiclosAPI = async () => {
+      try {
+        const response = await fetch("/api/cuatris-navbar");
+        if (!response.ok) {
+          throw new Error(`Error al obtener ciclos: ${response.status}`);
+        }
+        const { ciclos = [] } = await response.json();
+        return ciclos;
+      } catch (error) {
+        console.error("Error al obtener ciclos:", error);
+        throw error;
+      }
+    };
+
+    /**
+     * Actualiza la tabla de períodos en el dashboard
+     */
+    const actualizarTablaPeriodos = async (ciclos) => {
+      const tablaCuerpo = document.getElementById('tabla-periodos');
+      if (!tablaCuerpo) return;
+
+      // Si ciclos no se proporciona, obtenerlo de la API
+      if (!ciclos) {
+        try {
+          ciclos = await obtenerCiclosAPI();
+        } catch (error) {
+          console.error("Error al obtener ciclos para la tabla:", error);
+          tablaCuerpo.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar datos. ${error.message}</td></tr>`;
+          return;
+        }
+      }
+
+      const periodosBloqueados = obtenerPeriodosBloqueados();
+      const periodoActual = localStorage.getItem(STORAGE_KEY_PERIODO);
+
+      let html = '';
+
+      ciclos.forEach(ciclo => {
+        const bloqueado = periodosBloqueados.includes(ciclo.CODIGO_CORTO);
+        const esActual = ciclo.CODIGO_CORTO === periodoActual;
+        
+        html += `
+          <tr class="${bloqueado ? 'table-danger' : (esActual ? 'table-success' : '')}">
+            <td>${ciclo.CODIGO_CORTO}</td>
+            <td>${ciclo.DESCRIPCION}</td>
+            <td>
+              ${bloqueado 
+                ? '<span class="badge bg-danger">Bloqueado</span>' 
+                : (esActual 
+                  ? '<span class="badge bg-success">Activo</span>' 
+                  : '<span class="badge bg-secondary">Disponible</span>')}
+            </td>
+            <td>
+              <button 
+                class="btn btn-sm ${bloqueado ? 'btn-outline-success' : 'btn-outline-danger'}" 
+                onclick="${bloqueado 
+                  ? `desbloquearPeriodo('${ciclo.CODIGO_CORTO}'); actualizarTablaPeriodos();` 
+                  : `bloquearPeriodo('${ciclo.CODIGO_CORTO}'); actualizarTablaPeriodos();`}">
+                ${bloqueado ? '🔓 Desbloquear' : '🔒 Bloquear'}
+              </button>
+              ${!bloqueado && !esActual 
+                ? `<button class="btn btn-sm btn-outline-primary ms-1" onclick="seleccionarPeriodo('${ciclo.CODIGO_CORTO}')">
+                    ✓ Seleccionar
+                   </button>` 
+                : ''}
+            </td>
+          </tr>
+        `;
+      });
+
+      tablaCuerpo.innerHTML = html;
+    };
+
+    /**
+     * Actualiza las estadísticas del dashboard
+     */
+    const actualizarEstadisticas = async () => {
+      const periodosBloqueados = obtenerPeriodosBloqueados();
+      const periodoActual = localStorage.getItem(STORAGE_KEY_PERIODO);
+      const fechaUltimoCambio = localStorage.getItem('ultimoCambioPeriodo');
+      
+      try {
+        const ciclos = await obtenerCiclosAPI();
+        
+        // Actualizar contadores
+        document.getElementById('contador-bloqueados').textContent = periodosBloqueados.length;
+        document.getElementById('contador-disponibles').textContent = ciclos.length - periodosBloqueados.length;
+        
+        // Mostrar periodo actual
+        const cicloActual = ciclos.find(c => c.CODIGO_CORTO === periodoActual);
+        document.getElementById('periodo-actual').textContent = cicloActual 
+          ? `${cicloActual.DESCRIPCION} (${cicloActual.CODIGO_CORTO})` 
+          : 'No seleccionado';
+        
+        // Mostrar fecha último cambio
+        if (fechaUltimoCambio) {
+          const fecha = new Date(fechaUltimoCambio);
+          document.getElementById('ultimo-cambio').textContent = fecha.toLocaleString();
+        }
+      } catch (error) {
+        console.error("Error al actualizar estadísticas:", error);
+        document.getElementById('contador-bloqueados').textContent = periodosBloqueados.length;
+        document.getElementById('periodo-actual').textContent = periodoActual || 'No seleccionado';
+      }
+    };
+
+    /**
+     * Selecciona un período específico
+     */
+    const seleccionarPeriodo = async (periodo) => {
+      try {
+        await actualizarPeriodo(periodo);
+        await cargarCiclosNavbar();
+        await actualizarTablaPeriodos();
+        alert(`Período ${periodo} seleccionado correctamente.`);
+      } catch (error) {
+        console.error("Error al seleccionar período:", error);
+        alert("No se pudo seleccionar el período. Intente nuevamente.");
+      }
+    };
+
+    /**
+     * Carga los ciclos disponibles en el select del navbar
+     */
+    const cargarCiclosNavbar = async () => {
+      try {
+        const response = await fetch("/api/cuatris-navbar");
+        if (!response.ok) {
+          throw new Error(`Error al obtener ciclos: ${response.status}`);
+        }
+
+        const { ciclos = [], periodoSelected } = await response.json();
+        
+        // Verificar si hay un periodo guardado en localStorage
+        const periodoGuardado = localStorage.getItem(STORAGE_KEY_PERIODO);
+        
+        // Determinar qué periodo usar (prioridad: localStorage, luego servidor)
+        const periodoActual = periodoGuardado || periodoSelected;
+
+        // Limpiar el select
+        selectCuatri.innerHTML = "";
+
+        let optionsHTML = "";
+
+        // Opción por defecto si no hay periodo seleccionado
+        if (!periodoActual) {
+          optionsHTML += `<option value="none" selected>Seleccionar Ciclo</option>`;
+        } else {
+          optionsHTML += `<option value="none">Seleccionar Ciclo</option>`;
         }
         
-        // Reemplazar fetch con mockFetch para desarrollo
-        window.fetch = mockFetch;
+        // Verificar si el ciclo actual está bloqueado
+        const periodoActualBloqueado = periodoActual ? estaBloqueado(periodoActual) : false;
         
-        // Actualizar UI con la información de período
-        function actualizarInterfaz() {
-            const periodoActual = localStorage.getItem("periodoSeleccionado");
-            const periodosBloqueados = JSON.parse(localStorage.getItem("periodosBloqueados") || "[]");
-            
-            // Actualizar información del período actual
-            const infoContainer = document.getElementById("periodo-actual-info");
-            const estadoContainer = document.getElementById("periodo-estado");
-            
-            if (periodoActual) {
-                const estaBloqueado = periodosBloqueados.includes(periodoActual);
-                
-                infoContainer.innerHTML = `
-                    <h4>${periodoActual}</h4>
-                    <p>Estado: 
-                        <span class="badge ${estaBloqueado ? 'bg-danger' : 'bg-success'}">
-                            ${estaBloqueado ? 'Bloqueado 🔒' : 'Activo ✓'}
-                        </span>
-                    </p>
-                    <p>Este período es el actualmente seleccionado para todas las operaciones del sistema.</p>
-                `;
-                
-                estadoContainer.innerHTML = `
-                    <p>Período actual: <strong>${periodoActual}</strong></p>
-                    <p>Estado: ${estaBloqueado ? 'Bloqueado (No se puede cambiar)' : 'Desbloqueado (Se puede cambiar)'}</p>
-                `;
-            } else {
-                infoContainer.innerHTML = `
-                    <p>No hay período seleccionado. Por favor, seleccione un período desde el menú superior.</p>
-                `;
-                
-                estadoContainer.innerHTML = `
-                    <p><em>Seleccione un período para ver su información</em></p>
-                `;
-            }
-            
-            // Actualizar lista de períodos
-            const listaContainer = document.getElementById("lista-periodos");
-            
-            // Obtener información de períodos (en un caso real esto vendría del servidor)
-            fetch("/api/cuatris-navbar").then(res => {
-                if (res.ok) return res.json();
-                throw new Error("Error al obtener períodos");
-            }).then(data => {
-                const { ciclos = [] } = data;
-                
-                listaContainer.innerHTML = '';
-                
-                if (ciclos.length === 0) {
-                    listaContainer.innerHTML = '<li class="list-group-item">No hay períodos disponibles</li>';
-                    return;
-                }
-                
-                ciclos.forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
-                    const estaBloqueado = periodosBloqueados.includes(CODIGO_CORTO);
-                    const esActual = CODIGO_CORTO === periodoActual;
-                    
-                    const itemHTML = `
-                        <li class="list-group-item d-flex justify-content-between align-items-center 
-                            ${esActual ? 'active' : ''}">
-                            <div>
-                                <div class="status-indicator ${estaBloqueado ? 'status-locked' : 'status-active'}"></div>
-                                <strong>${DESCRIPCION}</strong>
-                                <small class="d-block text-muted">Código: ${CODIGO_CORTO}</small>
-                            </div>
-                            <div>
-                                ${esActual ? '<span class="badge bg-primary">Actual</span>' : ''}
-                                ${estaBloqueado ? 
-                                    '<span class="badge bg-danger">Bloqueado</span>' : 
-                                    '<span class="badge bg-success">Disponible</span>'}
-                            </div>
-                        </li>
-                    `;
-                    
-                    listaContainer.innerHTML += itemHTML;
-                });
-            }).catch(error => {
-                console.error(error);
-                listaContainer.innerHTML = `
-                    <li class="list-group-item text-danger">
-                        Error al cargar los períodos. Intente nuevamente.
-                    </li>
-                `;
-            });
+        // Configurar el select según si hay periodo seleccionado y si está bloqueado
+        if (periodoActual && periodoActualBloqueado) {
+          selectCuatri.disabled = true; // Bloquear si está bloqueado
+        } else {
+          selectCuatri.disabled = false; // Mantener habilitado si no está bloqueado
         }
-        
-        // Evento para actualizar lista de períodos
-        document.getElementById("btn-actualizar-lista").addEventListener("click", actualizarInterfaz);
-        
-        // Actualizar interfaz al cargar la página
-        document.addEventListener("DOMContentLoaded", actualizarInterfaz);
-    </script>
-    
-    <!-- Script principal de gestión de períodos -->
-    <script>
-        "use strict";
 
-        // Elementos del DOM
-        const selectCuatri = document.getElementById("selectciclo");
+        // Obtener la lista de períodos bloqueados
+        const periodosBloqueados = obtenerPeriodosBloqueados();
 
-        // Claves para localStorage
-        const STORAGE_KEY_PERIODO = "periodoSeleccionado";
-        const STORAGE_KEY_BLOQUEADOS = "periodosBloqueados";
-
-        /**
-         * Actualiza el período seleccionado en el servidor
-         * @param {string} periodo - Código del período a actualizar
-         * @returns {Promise<object>} Respuesta JSON del servidor
-         */
-        const actualizarPeriodo = async (periodo) => {
-          const config = {
-            method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ periodo })
-          };
-
-          const response = await fetch("/api/update/CuatriXGrupos", config);
-          if (!response.ok) {
-            throw new Error(`Error en la actualización: ${response.status}`);
-          }
-
-          return response.json();
-        };
-
-        /**
-         * Gestión del período seleccionado en localStorage
-         */
-        const storageManager = {
-          // Guardar período seleccionado
-          guardarPeriodo: (periodo) => {
-            localStorage.setItem(STORAGE_KEY_PERIODO, periodo);
-          },
+        // Agregar los ciclos disponibles
+        ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
+          const selected = CODIGO_CORTO === periodoActual ? 'selected' : '';
+          const bloqueado = periodosBloqueados.includes(CODIGO_CORTO);
           
-          // Obtener período guardado
-          obtenerPeriodo: () => {
-            return localStorage.getItem(STORAGE_KEY_PERIODO);
-          },
+          // Marcar visualmente los períodos bloqueados y deshabilitar su selección
+          const estado = bloqueado ? ' 🔒' : '';
+          const disabled = bloqueado ? 'disabled' : '';
           
-          // Eliminar período guardado
-          eliminarPeriodo: () => {
-            localStorage.removeItem(STORAGE_KEY_PERIODO);
-          },
-          
-          // Obtener lista de períodos bloqueados
-          obtenerPeriodosBloqueados: () => {
-            const bloqueados = localStorage.getItem(STORAGE_KEY_BLOQUEADOS);
-            return bloqueados ? JSON.parse(bloqueados) : [];
-          },
-          
-          // Guardar lista de períodos bloqueados
-          guardarPeriodosBloqueados: (listaBloqueados) => {
-            localStorage.setItem(STORAGE_KEY_BLOQUEADOS, JSON.stringify(listaBloqueados));
-          },
-          
-          // Comprobar si un período está bloqueado
-          estaBloqueado: (periodo) => {
-            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
-            return periodosBloqueados.includes(periodo);
-          },
-          
-          // Bloquear un período específico
-          bloquearPeriodo: (periodo) => {
-            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
-            if (!periodosBloqueados.includes(periodo)) {
-              periodosBloqueados.push(periodo);
-              storageManager.guardarPeriodosBloqueados(periodosBloqueados);
-            }
-          },
-          
-          // Desbloquear un período específico
-          desbloquearPeriodo: (periodo) => {
-            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
-            const nuevosBloqueados = periodosBloqueados.filter(p => p !== periodo);
-            storageManager.guardarPeriodosBloqueados(nuevosBloqueados);
-          }
-        };
-
-        /**
-         * Crea y agrega el botón de administración para cada período
-         * @param {HTMLElement} container - Contenedor donde se agregará el botón
-         * @param {string} periodo - Código del período
-         * @param {boolean} bloqueado - Si el período está bloqueado
-         */
-        const crearBotonAdministracion = (container, periodo, bloqueado) => {
-          // Crear contenedor para el botón
-          const btnContainer = document.createElement('div');
-          btnContainer.className = 'periodo-admin-btn';
-          btnContainer.style.marginLeft = '10px';
-          btnContainer.style.display = 'inline-block';
-          
-          // Crear botón
-          const btn = document.createElement('button');
-          btn.className = bloqueado ? 'btn-desbloquear' : 'btn-bloquear';
-          btn.textContent = bloqueado ? '🔓 Desbloquear' : '🔒 Bloquear';
-          btn.style.padding = '2px 8px';
-          btn.style.fontSize = '12px';
-          btn.style.borderRadius = '4px';
-          btn.style.border = '1px solid #ccc';
-          btn.style.backgroundColor = bloqueado ? '#f8d7da' : '#d1e7dd';
-          btn.style.cursor = 'pointer';
-          
-          // Agregar evento al botón
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (bloqueado) {
-              storageManager.desbloquearPeriodo(periodo);
-              btn.textContent = '🔒 Bloquear';
-              btn.className = 'btn-bloquear';
-              btn.style.backgroundColor = '#d1e7dd';
-            } else {
-              storageManager.bloquearPeriodo(periodo);
-              btn.textContent = '🔓 Desbloquear';
-              btn.className = 'btn-desbloquear';
-              btn.style.backgroundColor = '#f8d7da';
-            }
-            
-            // Recargar para reflejar los cambios
-            cargarCiclosNavbar();
-            // Actualizar también la interfaz de usuario
-            actualizarInterfaz();
-          });
-          
-          btnContainer.appendChild(btn);
-          container.appendChild(btnContainer);
-        };
-
-        /**
-         * Crea el panel de administración de períodos
-         */
-        const crearPanelAdministracion = async () => {
-          // Verificar si ya existe el panel para no duplicarlo
-          if (document.getElementById('admin-periodos-panel')) {
-            return document.getElementById('admin-periodos-panel');
-          }
-          
-          try {
-            // Obtener los ciclos disponibles
-            const response = await fetch("/api/cuatris-navbar");
-            if (!response.ok) {
-              throw new Error(`Error al obtener ciclos: ${response.status}`);
-            }
-            
-            const { ciclos = [] } = await response.json();
-            
-            // Crear panel
-            const panel = document.createElement('div');
-            panel.id = 'admin-periodos-panel';
-            panel.style.position = 'fixed';
-            panel.style.top = '60px';
-            panel.style.right = '20px';
-            panel.style.width = '300px';
-            panel.style.backgroundColor = 'white';
-            panel.style.border = '1px solid #ccc';
-            panel.style.borderRadius = '5px';
-            panel.style.padding = '15px';
-            panel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-            panel.style.zIndex = '9999';
-            panel.style.display = 'none';
-            
-            // Cabecera del panel
-            const header = document.createElement('div');
-            header.style.borderBottom = '1px solid #eee';
-            header.style.paddingBottom = '10px';
-            header.style.marginBottom = '10px';
-            header.style.display = 'flex';
-            header.style.justifyContent = 'space-between';
-            header.style.alignItems = 'center';
-            
-            const title = document.createElement('h4');
-            title.textContent = 'Administrar Períodos';
-            title.style.margin = '0';
-            
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '✕';
-            closeBtn.style.border = 'none';
-            closeBtn.style.background = 'none';
-            closeBtn.style.fontSize = '16px';
-            closeBtn.style.cursor = 'pointer';
-            closeBtn.addEventListener('click', () => {
-              panel.style.display = 'none';
-            });
-            
-            header.appendChild(title);
-            header.appendChild(closeBtn);
-            panel.appendChild(header);
-            
-            // Lista de períodos
-            const periodosList = document.createElement('div');
-            periodosList.style.maxHeight = '400px';
-            periodosList.style.overflowY = 'auto';
-            
-            // Obtener los períodos bloqueados
-            const periodosBloqueados = storageManager.obtenerPeriodosBloqueados();
-            
-            // Crear elementos para cada período
-            ciclos.forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
-              const periodoItem = document.createElement('div');
-              periodoItem.style.padding = '8px 0';
-              periodoItem.style.borderBottom = '1px solid #eee';
-              periodoItem.style.display = 'flex';
-              periodoItem.style.justifyContent = 'space-between';
-              periodoItem.style.alignItems = 'center';
-              
-              const periodoInfo = document.createElement('div');
-              periodoInfo.textContent = DESCRIPCION;
-              periodoInfo.style.fontWeight = 'bold';
-              
-              const periodoCode = document.createElement('div');
-              periodoCode.textContent = `Código: ${CODIGO_CORTO}`;
-              periodoCode.style.fontSize = '12px';
-              periodoCode.style.color = '#666';
-              
-              const infoContainer = document.createElement('div');
-              infoContainer.appendChild(periodoInfo);
-              infoContainer.appendChild(periodoCode);
-              
-              periodoItem.appendChild(infoContainer);
-              
-              // Botón de bloqueo/desbloqueo
-              const bloqueado = periodosBloqueados.includes(CODIGO_CORTO);
-              crearBotonAdministracion(periodoItem, CODIGO_CORTO, bloqueado);
-              
-              periodosList.appendChild(periodoItem);
-            });
-            
-            panel.appendChild(periodosList);
-            
-            // Botón para cerrar todos los bloqueos
-            const resetContainer = document.createElement('div');
-            resetContainer.style.marginTop = '15px';
-            resetContainer.style.textAlign = 'center';
-            
-            const resetBtn = document.createElement('button');
-            resetBtn.textContent = 'Desbloquear Todos los Períodos';
-            resetBtn.style.padding = '8px 16px';
-            resetBtn.style.backgroundColor = '#dc3545';
-            resetBtn.style.color = 'white';
-            resetBtn.style.border = 'none';
-            resetBtn.style.borderRadius = '4px';
-            resetBtn.style.cursor = 'pointer';
-            
-            resetBtn.addEventListener('click', () => {
-              storageManager.guardarPeriodosBloqueados([]);
-              cargarCiclosNavbar();
-              actualizarInterfaz();
-              panel.style.display = 'none';
-            });
-            
-            resetContainer.appendChild(resetBtn);
-            panel.appendChild(resetContainer);
-            
-            // Agregar panel al body
-            document.body.appendChild(panel);
-            
-            return panel;
-          } catch (error) {
-            console.error("Error al crear panel de administración:", error);
-            return null;
-          }
-        };
-
-        /**
-         * Muestra u oculta el panel de administración
-         */
-        const togglePanelAdministracion = async () => {
-          let panel = document.getElementById('admin-periodos-panel');
-          
-          if (!panel) {
-            panel = await crearPanelAdministracion();
-            if (!panel) return;
-          }
-          
-          panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        };
-
-        /**
-         * Crea el botón de administración en el navbar
-         */
-        const crearBotonAdminNavbar = () => {
-          const navbarContainer = selectCuatri.parentElement;
-          
-          // Verificar si ya existe el botón
-          if (document.getElementById('btn-admin-periodos')) {
-            return;
-          }
-          
-          // Crear botón de administración
-          const adminBtn = document.createElement('button');
-          adminBtn.id = 'btn-admin-periodos';
-          adminBtn.textContent = '⚙️ Administrar';
-          adminBtn.className = 'btn btn-outline-secondary btn-sm ms-2';
-          
-          // Evento para mostrar/ocultar el panel
-          adminBtn.addEventListener('click', togglePanelAdministracion);
-          
-          // Agregar al DOM
-          navbarContainer.appendChild(adminBtn);
-        };
-
-        /**
-         * Carga los ciclos disponibles en el select del navbar
-         */
-        const cargarCiclosNavbar = async () => {
-          try {
-            const response = await fetch("/api/cuatris-navbar");
-            if (!response.ok) {
-              throw new Error(`Error al obtener ciclos: ${response.status}`);
-            }
-
-            const { ciclos = [], periodoSelected } = await response.json();
-            
-            // Verificar si hay un periodo guardado en localStorage
-            const periodoGuardado = storageManager.obtenerPeriodo();
-            
-            // Determinar qué periodo usar (prioridad: localStorage, luego servidor)
-            const periodoActual = periodoGuardado || periodoSelected;
-
-            // Limpiar el select
-            selectCuatri.innerHTML = "";
-
-            let optionsHTML = "";
-            
-            // Opción por defecto
-            optionsHTML += `<option value="none">Seleccionar Ciclo</option>`;
-            
-            // Verificar si el ciclo actual está bloqueado
-            const estaBloqueado = periodoActual ? storageManager.estaBloqueado(periodoActual) : false;
-            
-            // Configurar el select según si hay periodo seleccionado y si está bloqueado
-            if (periodoActual && estaBloqueado) {
-              selectCuatri.disabled = true; // Bloquear si está bloqueado
-            } else {
-              selectCuatri.disabled = false; // Mantener habilitado si no está bloqueado
-            }
-
-            // Agregar los ciclos disponibles
-            ciclos.reverse().forEach(({ CODIGO_CORTO, DESCRIPCION }) => {
-              const selected = CODIGO_CORTO === periodoActual ? 'selected' : '';
-              const bloqueado = storageManager.estaBloqueado(CODIGO_CORTO);
-              
-              // Marcar visualmente los períodos bloqueados
-              const estado = bloqueado ? ' 🔒' : '';
-              
-              optionsHTML += `<option value="${CODIGO_CORTO}" ${selected}>${DESCRIPCION}${estado}</option>`;
-            });
-
-            // Insertar opciones al select
-            selectCuatri.innerHTML = optionsHTML;
-            
-            // Si tenemos periodo en localStorage pero no en el servidor, actualizarlo en el servidor
-            if (periodoGuardado && !periodoSelected && !storageManager.estaBloqueado(periodoGuardado)) {
-              try {
-                await actualizarPeriodo(periodoGuardado);
-              } catch (error) {
-                console.warn("No se pudo sincronizar el periodo con el servidor:", error);
-              }
-            }
-            
-            // Crear botón de administración si no existe
-            crearBotonAdminNavbar();
-
-          } catch (error) {
-            console.error("Error al cargar los ciclos del navbar:", error);
-            alert("No se pudieron cargar los ciclos. Intente nuevamente más tarde.");
-          }
-        };
-
-        /**
-         * Evento para cambio manual del usuario en el select de ciclo
-         */
-        selectCuatri.addEventListener("change", async (event) => {
-          const nuevoPeriodo = event.target.value;
-          
-          // Ignorar si se selecciona la opción "none"
-          if (nuevoPeriodo === "none") return;
-          
-          // Verificar si el período seleccionado está bloqueado
-          if (storageManager.estaBloqueado(nuevoPeriodo)) {
-            alert("Este período está bloqueado. Desbloquéelo desde el panel de administración para poder seleccionarlo.");
-            // Revertir selección
-            event.target.value = storageManager.obtenerPeriodo() || "none";
-            return;
-          }
-          
-          try {
-            const resultado = await actualizarPeriodo(nuevoPeriodo);
-            console.log("Periodo actualizado:", resultado);
-            
-            // Guardar en localStorage
-            storageManager.guardarPeriodo(nuevoPeriodo);
-            
-            // Actualizar interfaz sin recargar la página (para fines de demostración)
-            cargarCiclosNavbar();
-            actualizarInterfaz();
-            
-            // En un entorno real podríamos recargar la página:
-            // location.reload();
-          } catch (error) {
-            console.warn("Error al cambiar periodo:", error);
-            alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
-            // Revertir la selección en caso de error
-            event.target.value = storageManager.obtenerPeriodo() || "none";
-          }
+          optionsHTML += `<option value="${CODIGO_CORTO}" ${selected} ${disabled}>${DESCRIPCION}${estado}</option>`;
         });
 
-        // Exponer funciones al objeto window para acceso desde otras partes de la aplicación
-        window.periodoManager = {
-          bloquearPeriodo: (periodo) => {
-            storageManager.bloquearPeriodo(periodo);
-            cargarCiclosNavbar();
-            actualizarInterfaz();
-          },
-          
-          desbloquearPeriodo: (periodo) => {
-            storageManager.desbloquearPeriodo(periodo);
-            cargarCiclosNavbar();
-            actualizarInterfaz();
-          },
-          
-          desbloquearTodos: () => {
-            storageManager.guardarPeriodosBloqueados([]);
-            cargarCiclosNavbar();
-            actualizarInterfaz();
-          },
-          
-          abrirPanel: togglePanelAdministracion
-        };
+        // Insertar opciones al select
+        selectCuatri.innerHTML = optionsHTML;
+        
+        // Crear botón de administración si no existe
+        crearBotonAdmin();
+        
+        // Actualizar tabla de períodos
+        await actualizarTablaPeriodos(ciclos);
+        
+        // Actualizar estadísticas
+        await actualizarEstadisticas();
 
-        // Cargar ciclos al iniciar
+      } catch (error) {
+        console.error("Error al cargar los ciclos del navbar:", error);
+        selectCuatri.innerHTML = `<option value="none">Error al cargar ciclos</option>`;
+        document.getElementById('tabla-periodos').innerHTML = `
+          <tr><td colspan="4" class="text-center text-danger">
+            Error al cargar los ciclos. ${error.message}
+          </td></tr>`;
+      }
+    };
+
+    /**
+     * Evento para cambio manual del usuario en el select de ciclo
+     */
+    selectCuatri.addEventListener("change", async (event) => {
+      const nuevoPeriodo = event.target.value;
+      
+      // Ignorar si se selecciona la opción "none"
+      if (nuevoPeriodo === "none") return;
+      
+      // Verificar si el período seleccionado está bloqueado
+      if (estaBloqueado(nuevoPeriodo)) {
+        alert("Este período está bloqueado y no puede ser seleccionado.");
+        
+        // Revertir selección
+        event.target.value = localStorage.getItem(STORAGE_KEY_PERIODO) || "none";
+        return;
+      }
+      
+      try {
+        const resultado = await actualizarPeriodo(nuevoPeriodo);
+        console.log("Periodo actualizado:", resultado);
+
+        if (confirm("Período actualizado correctamente. ¿Desea recargar la página para aplicar los cambios?")) {
+          location.reload();
+        } else {
+          // En lugar de recargar la página, solo actualizamos la UI
+          await cargarCiclosNavbar();
+        }
+      } catch (error) {
+        console.warn("Error al cambiar periodo:", error);
+        alert("No se pudo actualizar el período. Por favor, intente nuevamente.");
+      }
+    });
+
+    // Configurar botón para desbloquear todos
+    document.getElementById('btn-desbloquear-todos').addEventListener('click', async () => {
+      if (confirm('¿Está seguro que desea desbloquear todos los períodos?')) {
+        guardarPeriodosBloqueados([]);
+        await cargarCiclosNavbar();
+        alert('Todos los períodos han sido desbloqueados.');
+      }
+    });
+
+    // Escuchar cambios en localStorage para mantener sincronizado el navbar
+    window.addEventListener('storage', function(e) {
+      if (e.key === STORAGE_KEY_BLOQUEADOS || e.key === STORAGE_KEY_PERIODO) {
+        // Recargar el navbar cuando hay cambios en los bloqueos o el período seleccionado
         cargarCiclosNavbar();
+      }
+    });
+
+    // Cargar ciclos al iniciar
+    cargarCiclosNavbar();
     </script>
 </body>
 </html>

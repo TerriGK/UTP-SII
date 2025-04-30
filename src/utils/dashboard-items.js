@@ -8,6 +8,12 @@ const admin_items = [
     link: "/alumnos",
   },
   {
+    path_img: "./imgs/ciclo.png",
+    title: "Administrar Ciclos",
+    content: "bloquear ciclos",
+    link: "Cuatri-Calific",
+  },
+  {
     path_img: "./imgs/grupos.png",
     title: "Grupos",
     content: "Ver los grupos existentes y a sus alumnos.",
