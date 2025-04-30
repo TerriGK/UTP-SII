@@ -211,7 +211,7 @@ router.get("/gruposCalifi", async (req, res) => {
 
 //GRUPO POR CALIFICACIONES -->
 router.get("/gruposCalifi_alumnos/:idGrupo", async (req, res) => {
-  const { limit = 40, skip = 0 } = req.query;
+  const { limit = 500, skip = 0 } = req.query;
   const idGrupo = req.params.idGrupo;
 
   let sql = `SELECT FIRST ${limit} SKIP ${skip} `;
@@ -480,22 +480,84 @@ router.get("/carreras", async (req, res) => {
   });
 });
 
+
+router.post("/alumnos_doctos_update", async (req, res) => {
+  try {
+    // Obtener los datos del cuerpo de la petición
+    const { id, grado, clave, nombreDoc, archivo, fechaDoc } = req.body;
+
+    // Validar que se proporcionen los campos necesarios
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Se requiere el ID del documento para actualizarlo'
+      });
+    }
+
+    // Buscar el documento por ID
+    const doctoExistente = await Doctos.findById(id);
+    
+    if (!doctoExistente) {
+      return res.status(404).json({
+        success: false,
+        error: 'Documento no encontrado'
+      });
+    }
+    
+    // Verificar que el tipo es 'A' (Alumno) antes de actualizar
+    if (doctoExistente.TIPO !== 'A') {
+      return res.status(400).json({
+        success: false,
+        error: 'Solo se pueden actualizar documentos de tipo Alumno'
+      });
+    }
+
+    // Preparar objeto de actualización con los campos proporcionados
+    const updateData = {};
+    if (grado) updateData.grado = grado;
+    if (clave) updateData.clave = clave;
+    if (nombreDoc) updateData.nombreDoc = nombreDoc;
+    if (archivo) updateData.archivo = archivo;
+    if (fechaDoc) updateData.fechaDoc = fechaDoc;
+
+    // Actualizar el documento
+    const doctoActualizado = await Doctos.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true } // Devuelve el documento actualizado
+    );
+
+    res.json({
+      success: true,
+      message: 'Documento de alumno actualizado exitosamente',
+      data: doctoActualizado
+    });
+    
+  } catch (error) {
+    console.error('Error al actualizar documento:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor al actualizar documento'
+    });
+  }
+});
+
 router.get("/doctos/", async (req, res) => {
   const { grado, numalumno } = req.query;
-
+  
   if (!grado || !numalumno) {
     return res.json({
       error: 'Se necesita el grado a buscar y el numero del alumno'
     });
   }
-
+  
   const doctos = await Doctos.where({
     grado: [grado],
     clave: [numalumno]
   }, {
     strict: true,
   });
-
+  
   res.json({
     query: {
       grado,

@@ -1,93 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-   <div class="text-center">
-    <p><b>
-      <h1>Sistema Integral de Información Institucional</h1>
-    </b></p>
-  </div>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Administración de Períodos</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/ciclo.css">
 
-    .text-center {
-      text-align: center;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: center;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    tr:hover {
-      background-color: #ddd;
-    }
-  </style>
 </head>
-<body onload="mostrarCiclosFiltrados()">
 
-  <h1>Configuración &gt; Cuatrimestre &gt; Calificaciones</h1>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="#">
+        <i class="fas fa-calendar-alt me-2"></i>
+        Sistema de Períodos
+      </a>
+    </div>
+  </nav>
 
-  <h1>Calificaciones:</h1>
+  <!-- Main Container -->
+  <div class="container-fluid main-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <div>
+        <h1 class="page-title">Panel de Administración de Períodos</h1>
+        <p class="text-muted">Gestione los períodos académicos del sistema</p>
+      </div>
+      <div>
+        <button id="btn-recargar" class="btn-admin" onclick="SistemaPeriodos.recargar()">
+          <i class="fas fa-sync-alt me-1"></i> Actualizar
+        </button>
+      </div>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Inicial</th>
-        <th>Final</th>
-        <th>Periodo</th>
-        <th>Funcion Ciclos</th>
-      </tr>
-    </thead>
-    <tbody id="ciclosContainer">
-      <!-- Aquí se mostrarán los ciclos filtrados -->
-    </tbody>
-  </table>
+    <!-- Stats Cards -->
+    <div class="stats-container">
+      <div class="stat-card d-flex align-items-center">
+        <div class="stat-card-icon periodo-actual">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div>
+          <p class="stat-card-title">PERÍODO ACTUAL</p>
+          <h2 class="stat-card-value" id="periodo-actual">Cargando...</h2>
+        </div>
+      </div>
 
-  <script>
-    function mostrarCiclosFiltrados() {
-      const funcionCiclos = 'C'; // Funcion Ciclos que se desee obtener los datos
-      fetch('/api/ciclosAdmi')
-        .then(response => response.json()) // Parseamos la respuesta como JSON
-        .then(data => {
-          let ciclosHTML = '';
-          const ciclosFiltrados = data.filter(ciclo => ciclo.FUNCION_CICLOS === funcionCiclos);
-          ciclosFiltrados.forEach(ciclo => {
-            ciclosHTML += '<tr>';
-            ciclosHTML += '<td>' + ciclo.INICIAL + '</td>';
-            ciclosHTML += '<td>' + ciclo.FINAL + '</td>';
-            ciclosHTML += '<td>' + ciclo.PERIODO + '</td>';
-            ciclosHTML += '<td>' + ciclo.FUNCION_CICLOS + '</td>';
-            ciclosHTML += '</tr>';
-          });
-          document.getElementById('ciclosContainer').innerHTML = ciclosHTML;
-        })
-        .catch(error => {
-          console.error('Error al obtener los datos de la API:', error.message);
-          document.getElementById('ciclosContainer').innerHTML = '<tr><td colspan="4">Error al obtener los datos de la API</td></tr>';
-        });
-    }
-  </script>
+      <div class="stat-card d-flex align-items-center">
+        <div class="stat-card-icon periodos-bloqueados">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div>
+          <p class="stat-card-title">PERÍODOS BLOQUEADOS</p>
+          <h2 class="stat-card-value" id="contador-bloqueados">Cargando...</h2>
+        </div>
+      </div>
+
+      <div class="stat-card d-flex align-items-center">
+        <div class="stat-card-icon periodos-disponibles">
+          <i class="fas fa-unlock"></i>
+        </div>
+        <div>
+          <p class="stat-card-title">PERÍODOS DISPONIBLES</p>
+          <h2 class="stat-card-value" id="contador-disponibles">Cargando...</h2>
+        </div>
+      </div>
+
+      <div class="stat-card d-flex align-items-center">
+        <div class="stat-card-icon ultimo-cambio">
+          <i class="fas fa-history"></i>
+        </div>
+        <div>
+          <p class="stat-card-title">ÚLTIMO CAMBIO</p>
+          <h2 class="stat-card-value" id="ultimo-cambio">No hay cambios</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <!-- Periodos Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <i class="fas fa-list me-2"></i>
+            Listado de Períodos
+          </div>
+          <div class="card-header-action" id="btn-expand-table">
+            <i class="fas fa-expand-alt"></i>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table periodos-table mb-0">
+              <thead>
+                <tr>
+                  <th>CÓDIGO</th>
+                  <th>DESCRIPCIÓN</th>
+                  <th>ESTADO</th>
+                  <th>ACCIONES</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-periodos">
+                <tr>
+                  <td colspan="4" class="text-center">Cargando períodos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <!-- Info Card -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <div>
+              <i class="fas fa-info-circle me-2"></i>
+              Información
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-card">
+              <h5>¿Cómo funciona el sistema?</h5>
+              <p>Este sistema permite gestionar los períodos académicos disponibles en la plataforma:</p>
+              <ul>
+                <li>Seleccione un período desde el menú superior</li>
+                <li>Utilice el botón "Administrar" para bloquear/desbloquear períodos</li>
+                <li>Los períodos bloqueados no pueden ser seleccionados</li>
+              </ul>
+            </div>
+            <div class="d-grid">
+              <button id="btn-desbloquear-todos" class="btn-desbloquear-todos">
+                <i class="fas fa-unlock-alt me-2"></i>
+                Desbloquear Todos los Períodos
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <i class="fas fa-chart-line me-2"></i>
+              Actividad Reciente
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="activity-log" class="activity-log">
+              <p class="text-muted">No hay actividad reciente registrada</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/services/admin/admin-periodos.js" async></script>
 </body>
+
 </html>

@@ -1,125 +1,151 @@
 <section class="section profile">
   <div class="container my-5">
-
     <!-- Botón para regresar -->
-    <div class="mb-3">
+    <div class="mb-4">
       {{>btnBack}}
     </div>
 
     <!-- Tarjeta Principal -->
-    <div class="card shadow-lg border-light">
-      <div class="card-header" style="background-color: #911820; color: white; text-align: center; padding: 2rem;">
-        <h3 class="mb-0">Documentos de {{nombre}}</h3>
+    <div class="card shadow-lg border-0">
+      <div class="card-header" style="background-color: #911820; color: white; padding: 1.25rem 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center">
+          <h3 class="mb-0 fw-bold"><i class="fas fa-folder-open me-2"></i>Documentos de {{nombre}}</h3>
+          <span class="badge bg-white text-dark fs-6 py-2 px-3">
+            <i class="fas fa-id-card me-1"></i> {{numeroalumno}}
+          </span>
+        </div>
         <input type="hidden" value="{{numeroalumno}}" id="numeroalumno">
       </div>
 
-      <div class="card-body">
-        <!-- Filtros y subir documento -->
-        <div class="row row-cols-1 row-cols-md-2 g-4">
+      <div class="card-body p-4">
+        <!-- Filtros y carga de documentos -->
+        <div class="row g-3 align-items-end">
           <!-- Selección de cuatrimestre -->
-          <div class="col">
-            <div class="mb-4">
-              <label class="form-label fs-5"><b>*Selecciona el cuatrimestre:</b></label>
-              <select class="form-select" id="filterDocto">
-                <option disabled selected>-- Haga una elección --</option>
-                <option value="0">Doctos de registro</option>
-                <option value="1">Cuatrimestre 1</option>
-                <option value="2">Cuatrimestre 2</option>
-                <option value="3">Cuatrimestre 3</option>
-                <option value="4">Cuatrimestre 4</option>
-                <option value="5">Cuatrimestre 5</option>
-                <option value="6">Cuatrimestre 6</option>
-                <option value="7">Cuatrimestre 7</option>
-                <option value="8">Cuatrimestre 8</option>
-                <option value="9">Cuatrimestre 9</option>
-                <option value="10">Cuatrimestre 10</option>
-                <option value="11">Cuatrimestre 11</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Subir documentos (visible solo para admins) -->
-          {{#if isAdmin}}
-          <div class="col">
-            <div class="mb-4">
-              <label class="form-label fs-5"><b>Subir documento</b> <small>(cuatrimestre seleccionado)</small></label>
-              <div class="d-flex align-items-center">
-                <input type="file" class="form-control" id="input" accept="application/pdf">
-                <button class="btn btn-outline-light ms-3" title="Subir">
-                  <i class="bi bi-upload"></i> Subir
+          <div class="col-md-6 col-lg-5">
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-dark mb-2 d-flex align-items-center">
+                <i class="fas fa-filter me-2 fs-5"></i>
+                <span class="fs-5">Selecciona el cuatrimestre</span>
+              </label>
+              <div class="input-group" style="height: 46px;">
+                <select class="form-select border-2 py-2 px-3" id="filterDocto" style="border-radius: 6px 0 0 6px !important;">
+                  <option disabled selected>Selecciona un cuatrimestre</option>
+                  <option value="0">Documentos de registro</option>
+                  <option value="1">Cuatrimestre 1</option>
+                  <option value="2">Cuatrimestre 2</option>
+                  <option value="3">Cuatrimestre 3</option>
+                  <option value="4">Cuatrimestre 4</option>
+                  <option value="5">Cuatrimestre 5</option>
+                  <option value="6">Cuatrimestre 6</option>
+                  <option value="7">Cuatrimestre 7</option>
+                  <option value="8">Cuatrimestre 8</option>
+                  <option value="9">Cuatrimestre 9</option>
+                  <option value="10">Cuatrimestre 10</option>
+                  <option value="11">Cuatrimestre 11</option>
+                </select>
+                <button class="btn btn-outline-secondary" type="button" style="border-color: #ced4da; border-left: none; border-radius: 0 6px 6px 0;">
+                  <i class="fas fa-chevron-down"></i>
                 </button>
               </div>
             </div>
           </div>
-          {{/if}}
 
+          <!-- Carga de documentos -->
+          <div class="col-md-6 col-lg-7">
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-dark mb-2 d-flex align-items-center">
+                <i class="fas fa-upload me-2 fs-5"></i>
+                <span class="fs-5">Subir nuevo documento</span>
+              </label>
+              <div class="d-flex" style="height: 46px;">
+                <div class="flex-grow-1 position-relative">
+                  <input type="file" class="form-control border-2 py-2 px-3" id="documentUpload" accept=".pdf,.doc,.docx" style="border-radius: 6px 0 0 6px; border-right: none;">
+                  <div class="position-absolute top-50 end-0 translate-middle-y bg-white px-2 text-muted" style="font-size: 0.85rem;">
+                    PDF, Word
+                  </div>
+                </div>
+                <button class="btn btn-primary px-4 d-flex align-items-center" type="button" id="uploadBtn" style="background-color: #911820; border-color: #911820; border-radius: 0 6px 6px 0;">
+                  <i class="fas fa-save me-2"></i> Guardar
+                </button>
+              </div>
+              <small class="text-muted mt-1 d-block">Tamaño máximo: 5MB</small>
+            </div>
+          </div>
         </div>
 
         <!-- Contenido de los documentos -->
         <div class="row pt-3" id="content">
-          <!-- Aquí se cargarán los documentos dependiendo del cuatrimestre seleccionado -->
+          <!-- Mensaje inicial -->
+          <div class="col-12 text-center py-5 bg-light rounded-3">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted mb-2">Selecciona un cuatrimestre</h4>
+            <p class="text-muted m-0">Para visualizar los documentos disponibles</p>
+          </div>
         </div>
-
       </div>
     </div>
   </div>
 </section>
 
-<script src="/js/services/alumno/getDoctosAspirante.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-
-<!-- Estilos adicionales -->
+<!-- Estilos mejorados -->
 <style>
   .card {
-    border-radius: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.1);
   }
-
+  
   .card-header {
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
   }
-
-  .form-select,
-  .form-control {
-    font-size: 1rem;
-  }
-
-  .btn-outline-light {
-    font-weight: 500;
-    border-color: #911820;
-    color: #911820;
-  }
-
-  .btn-outline-light:hover {
-    background-color: #911820;
-    color: white;
-  }
-
-  .d-flex {
-    display: flex;
-  }
-
-  .ms-3 {
-    margin-left: 1rem;
-  }
-
-
-  /* Hacer el modal de pantalla completa */
-  .modal-fullscreen {
-    max-width: 100%;
-    width: 100%;
+  
+  .form-select, .form-control {
+    box-shadow: none !important;
+    border: 2px solid #ced4da;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
     height: 100%;
-    margin: 0;
-    padding: 0;
   }
-
-  /* Asegurar que el iframe ocupe toda la pantalla */
-  .modal-body iframe {
-    width: 100%;
-    height: 100vh;
-    /* Altura completa de la pantalla */
-    border: none;
-    object-fit: contain;
-    /* Asegura que el contenido del PDF se ajuste bien */
+  
+  .form-select:focus, .form-control:focus {
+    border-color: #911820;
+    box-shadow: 0 0 0 0.2rem rgba(145, 24, 32, 0.15) !important;
+    z-index: 3;
+  }
+  
+  .badge {
+    padding: 0.45em 1em;
+    border-radius: 50px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .btn {
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  
+  .btn-primary:hover {
+    background-color: #7a141a !important;
+    border-color: #7a141a !important;
+  }
+  
+  .input-group button {
+    border: 2px solid #ced4da;
+    border-left: none !important;
+    background-color: #f8f9fa;
+  }
+  
+  .input-group button:hover {
+    background-color: #e9ecef;
+  }
+  
+  #content {
+    min-height: 280px;
   }
 </style>
+
+<!-- Scripts -->
+<script src="/js/services/alumno/getDoctosAspirante.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.8/pdfobject.min.js"></script>

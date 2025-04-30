@@ -1,89 +1,124 @@
-const table = document.getElementById("table-content");
-const boton = document.getElementById("buscar");
-const idplan = document.getElementById("idPlan");
+// 📌 Referencias a elementos del DOM
+const tablaContenido = document.getElementById("table-content");
+const botonBuscar = document.getElementById("buscar");
+const inputIdProfesor = document.getElementById("idprofesor");
 
-let page = 1;
+let paginaActual = 1;
+let textoBusqueda = "";
 
-boton.addEventListener(
-  "input",
-  debounce((event) => {
-    search = event.target.value;
-    page = 1;
-    getProfesoresAsig();
-  })
-);
-
-async function getProfesoresAsig() {
-  let url = `/api/profesores/${idprofesor.value}/grupos?page=${page}`;
-  const response = await fetch(url);
-  const api = await response.json();
-
-  let content = "";
-  api.data.forEach((item, index) => {
-    // Filtrar solo los periodos 1, 2 y 3
-    if (item.PERIODO < 1 || item.PERIODO > 3) {
-      return; // Si el periodo no está entre 1 y 3, se omite el item
-    }
-
-    // Querys que servirán para la consulta de los alumnos en el grupo
-    let query = `idPlan=${item.ID_PLAN}`;
-    query += `&claveAsig=${item.CLAVEASIGNATURA}`;
-    query += `&nombreAsig=${item.NOMBREASIGNATURA}`;
-    query += `&grupo=${item.CODIGO_GRUPO}`;
-    query += `&idEtapa=${item.ID_ETAPA}`;
-    query += `&inicial=${item.INICIAL}`;
-    query += `&final=${item.FINAL}`;
-    query += `&periodo=${item.PERIODO}`;
-
-    content += `<tr>`;
-    content += `<td>${index + 1}</td>`;
-    content += `<td>${item.CLAVEASIGNATURA}</td>`;
-    content += `<td>${item.NOMBREASIGNATURA}</td>`;
-    content += `<td>${item.CODIGO_GRUPO}</td>`;
-    content += `<td><div class="dropdown">
-      <a class="btn btn-custom dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="bi bi-three-dots"></i> Opciones
-    </a>
-
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    
-      <li>
-        <a 
-          class="dropdown-item" 
-          href="/grupoprofe/${item.CLAVEPROFESOR}/ver_calif?${query}"
-        >
-          <i class="bi bi-eye"></i> Ver calificaciones
-        </a>
-      </li>
-
-      <li>
-        <a 
-          class="dropdown-item" 
-          href="/grupoprofe/${item.CLAVEPROFESOR}/subir_calif?${query}"
-        >
-          <i class="bi bi-upload"></i> Subir Calificaciones
-        </a>
-      </li>
-     
-    </ul>
-      </div></td>`;
-
-    content += "</tr>";
-  });
-
-  table.innerHTML = content;
+// 📌 Debounce para controlar frecuencia de eventos
+function debounce(func, delay = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
 }
 
-function onPrev() {
-  if (page > 1) {
-    page--;
-    getProfesoresAsig();
+// 📌 Obtener y renderizar grupos del profesor
+async function obtenerGruposProfesor() {
+  try {
+    if (!tablaContenido || !inputIdProfesor) return;
+
+    const url = `/api/profesores/${inputIdProfesor.value}/grupos?page=${paginaActual}`;
+    tablaContenido.innerHTML = `<tr><td colspan='5' class='text-center'>
+      <div class='spinner-border spinner-border-sm' role='status'></div> Cargando datos...
+    </td></tr>`;
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const { data = [] } = await response.json();
+    if (!data.length) {
+      tablaContenido.innerHTML = "<tr><td colspan='5' class='text-center'>No se encontraron registros.</td></tr>";
+      return;
+    }
+
+    const contenidoHTML = data.map((item, index) => {
+      const query = new URLSearchParams({
+        idPlan: item.ID_PLAN,
+        claveAsig: item.CLAVEASIGNATURA,
+        nombreAsig: item.NOMBREASIGNATURA,
+        grupo: item.CODIGO_GRUPO,
+        idEtapa: item.ID_ETAPA,
+        inicial: item.INICIAL,
+        final: item.FINAL,
+        periodo: item.PERIODO
+      }).toString();
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${item.CLAVEASIGNATURA}</td>
+          <td>${item.NOMBREASIGNATURA}</td>
+          <td>${item.CODIGO_GRUPO}</td>
+          <td>
+            <div class="dropdown">
+              <a class="btn btn-custom dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots"></i> Opciones
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="/grupoprofe/${item.CLAVEPROFESOR}/ver_calif?${query}">
+                    <i class="bi bi-eye"></i> Ver calificaciones
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/grupoprofe/${item.CLAVEPROFESOR}/subir_calif?${query}">
+                    <i class="bi bi-upload"></i> Subir Calificaciones
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    tablaContenido.innerHTML = contenidoHTML;
+
+  } catch (error) {
+    console.error("Error:", error);
+    tablaContenido.innerHTML = `<tr><td colspan='5' class='text-center text-danger'>Error: ${error.message}</td></tr>`;
   }
 }
 
-function onNext() {
-  page++;
-  getProfesoresAsig();
+// 📌 Navegación entre páginas
+function irPaginaAnterior() {
+  if (paginaActual > 1) {
+    paginaActual--;
+    obtenerGruposProfesor();
+  }
 }
 
-getProfesoresAsig();
+function irPaginaSiguiente() {
+  paginaActual++;
+  obtenerGruposProfesor();
+}
+
+// 📌 Configuración inicial
+document.addEventListener("DOMContentLoaded", () => {
+  const elementosRequeridos = [
+    { id: "table-content", nombre: "Tabla de contenido" },
+    { id: "idprofesor", nombre: "ID del profesor" }
+  ];
+
+  const faltantes = elementosRequeridos.filter(e => !document.getElementById(e.id));
+  if (faltantes.length) {
+    const mensajeError = faltantes.map(e => e.nombre).join(", ");
+    console.error("Faltan elementos:", mensajeError);
+    if (tablaContenido) {
+      tablaContenido.innerHTML = `<tr><td colspan='5' class='text-center text-danger'>Error: Faltan ${mensajeError}</td></tr>`;
+    }
+    return;
+  }
+
+  if (botonBuscar) {
+    botonBuscar.addEventListener("input", debounce((e) => {
+      textoBusqueda = e.target.value;
+      paginaActual = 1;
+      obtenerGruposProfesor();
+    }));
+  }
+
+  obtenerGruposProfesor();
+});

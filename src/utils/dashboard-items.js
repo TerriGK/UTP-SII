@@ -20,6 +20,12 @@ const admin_items = [
     link: "admin/calificacion",
   },
   {
+    path_img: "./imgs/ciclo.png",
+    title: "Administrar Ciclos",
+    content: "bloquear ciclos",
+    link: "Cuatri-Calific",
+  },
+  {
     path_img: "./imgs/Subirdocumentos.png",
     title: "Documenos Masivos",
     content: "Subir Documentos Alumnos.",
@@ -100,14 +106,14 @@ const alumno_items = [
 
 const aspirante_items = [
   {
-    path_img: "./imgs/Registro.png",
+    path_img: "./imgs/datos-del-usuario.png",
     title: "REGISTRO ASPIRANTE",
     content:
       "INGRESA TUS DATOS Y ACTUALIZA TUS DATOS",
     link: "/aspirante",
   },
   {
-    path_img: "./imgs/DocumentoAspirante.png",
+    path_img: "./imgs/documentos.png",
     title: "Documentos",
     content: "Ingresa y sube los documentos en formato.pdf",
     link: "/aspirantedoctos",

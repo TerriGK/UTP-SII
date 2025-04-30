@@ -3,90 +3,71 @@
 
   <div class="d-flex align-items-center justify-content-between">
     <a href="/" class="logo d-flex align-items-center">
-      <img src="/imgs/logorojo.jpg" alt="">
+      <img src="/imgs/logorojo.jpg" alt="Logo UTPoniente">
       <span class="d-none d-lg-block">SII-UTPoniente</span>
     </a>
     <i class="bi bi-list toggle-sidebar-btn"></i>
   </div><!-- End Logo -->
 
-  {{!-- Si es admin, muestra la seleccion del periodo --}}
+  {{!-- Mostrar selector de período SOLO para Admin y Profe --}}
   {{#if isAdmin}}
-  <div class="col-md-3">
-    <select id="selectciclo" class="form-select">
-    </select>
-  </div>
-
-  <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
-  {{/if}}
-
-    {{!-- Si es alumno, muestra la seleccion del periodo --}}
-  {{#if isAlumno}}
-  <div class="col-md-3">
-    <select id="selectciclo" class="form-select">
-    </select>
-  </div>
-
-  <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
-
-<!-- End Search Bar -->
-
-  {{/if}}
-
-
-{{!-- Si es profe, muestra la seleccion del periodo --}}
+    <div class="col-md-3">
+      <select id="selectciclo" class="form-select"></select>
+    </div>
+    <script>
+      // Marcar al usuario como administrador para el script de gestión de períodos
+      document.body.classList.add('admin-user');
+      // Agregar una variable global para indicar que es admin (alternativa)
+      window.isAdmin = true;
+    </script>
+    <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
+  {{else}}
     {{#if isProfe}}
-  <div class="col-md-3">
-    <select id="selectciclo" class="form-select">
-    </select>
-  </div>
-    
-  <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
-
-
-
+      <div class="col-md-3">
+        <select id="selectciclo" class="form-select"></select>
+      </div>
+      <script>
+        // Asegurarse de que no tiene clase de admin
+        document.body.classList.remove('admin-user');
+        window.isAdmin = false;
+      </script>
+      <script src="/js/services/admin/getCuatrimestresNavbar.js" async></script>
+    {{/if}}
   {{/if}}
-
 
   <nav class="header-nav ms-auto">
     <ul class="d-flex align-items-center">
 
       {{#if isAdmin}}
       <li class="nav-item d-block d-lg-none">
-        <a class="nav-link nav-icon search-bar-toggle " href="#">
+        <a class="nav-link nav-icon search-bar-toggle" href="#">
           <i class="bi bi-search"></i>
         </a>
       </li><!-- End Search Icon-->
       {{/if}}
 
       <li class="nav-item dropdown pe-3">
-
         <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
           <span class="d-none d-md-block dropdown-toggle ps-2">{{ nameAuth }}</span>
         </a>
 
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-
           <li class="dropdown-header">
             <h6>{{ nameAuth }} {{ lastNameAuth }}</h6>
             {{#if isAlumno}}
               <span>Matrícula: {{ IDAuth }}</span>
             {{/if}}
-              {{#if isProfe}}
-            {{/if}}
           </li>
           <li>
             <hr class="dropdown-divider">
           </li>
-
           <li>
-            <a class="dropdown-item d-flex align-items-center" href="/logout"></method=>
+            <a class="dropdown-item d-flex align-items-center" href="/logout">
               <i class="bi bi-box-arrow-right"></i>
               <span>Cerrar sesión</span>
             </a>
           </li>
-
         </ul><!-- End Profile Dropdown Items -->
-        
       </li><!-- End Profile Nav -->
 
     </ul>

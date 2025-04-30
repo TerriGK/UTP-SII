@@ -1,28 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #911820;
+      --primary-hover: #7a141a;
+      --secondary-color: #f8f9fa;
+      --dark-text: #2c3e50;
+      --medium-text: #495057;
+      --light-text: #6c757d;
+      --border-color: #e9ecef;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
+      --transition: all 0.3s ease;
+    }
 
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: #f5f8fa;
+      color: var(--dark-text);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .header-dash h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+      position: relative;
+      padding-bottom: 15px;
+    }
+
+    .header-dash h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+
+    /* Cards Container */
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      padding: 20px 0;
+    }
+
+    /* Card Styles */
+    .card-dash {
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .card-dash:hover {
+      transform: translateY(-5px);
+    }
+
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: var(--transition);
+      height: 100%;
+      background: white;
+    }
+
+    .card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .icon-box {
+      padding: 30px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .icon-box .image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 20px;
+      transition: var(--transition);
+    }
+
+    .card:hover .icon-box .image {
+      transform: scale(1.1);
+    }
+
+    .icon-box h4 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .icon-box p {
+      color: var(--medium-text);
+      font-size: 1rem;
+      margin-top: auto;
+    }
+
+    /* Badge para el botón de volver */
+    .btn-back {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      transition: var(--transition);
+    }
+
+    .btn-back:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-dash h1 {
+        font-size: 1.5rem;
+      }
+
+      .cards-container {
+        grid-template-columns: 1fr;
+      }
+
+      .icon-box {
+        padding: 20px;
+      }
+
+      .icon-box h4 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="text-left">
-  {{>btnBack}}
-
+    {{>btnBack}}
     <div class="header-dash text-center">
-    
-      <h1>Selecciona la opción que deseas consultar.</h1>
+      <h1>Selecciona la opción que deseas consultar</h1>
     </div>
   </div>
 
-  <div class="row pt-3 justify-content-center">
-    <div class="col-md-4 d-flex align-items-stretch mb-5 card-dash" onclick="location.href='/GruposCalifi'">
+  <div class="cards-container">
+    <!-- Card 1 -->
+    <div class="card-dash" onclick="location.href='/GruposCalifi'">
       <div class="card">
-        <div class="icon-box animate-hover">
+        <div class="icon-box">
           <div class="text-center p-2">
-            <img class="image" src="/imgs/califi-grupo.png" alt="">
+            <img class="image" src="/imgs/califi-grupo.png" alt="Calificaciones por Grupo">
           </div>
           <div>
             <h4>Califi x Grupo</h4>
@@ -33,11 +178,13 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 d-flex align-items-stretch mb-5 card-dash" onclick="location.href='/Maestro'">
+
+    <!-- Card 2 -->
+    <div class="card-dash" onclick="location.href='/Maestro'">
       <div class="card">
-        <div class="icon-box animate-hover">
+        <div class="icon-box">
           <div class="text-center p-2">
-            <img class="image" src="/imgs/califi-profe.png" alt="">
+            <img class="image" src="/imgs/califi-profe.png" alt="Calificaciones por Profesor">
           </div>
           <div>
             <h4>Califi x Profesor</h4>
@@ -48,11 +195,13 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 d-flex align-items-stretch mb-5 card-dash" onclick="location.href='/alumnos'">
+
+    <!-- Card 3 -->
+    <div class="card-dash" onclick="location.href='/alumnos'">
       <div class="card">
-        <div class="icon-box animate-hover">
+        <div class="icon-box">
           <div class="text-center p-2">
-            <img class="image" src="/imgs/califi-alumno.png" alt="">
+            <img class="image" src="/imgs/califi-alumno.png" alt="Calificaciones por Alumno">
           </div>
           <div>
             <h4>Califi x Alumno</h4>
